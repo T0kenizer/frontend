@@ -1,0 +1,11 @@
+*
+src/**/*.spec.ts
+
+!src/
+!public/
+!package.json
+!package-lock.json
+!tsconfig.json
+!postcss.config.*
+!tailwind.config.*
+!next.config.*
