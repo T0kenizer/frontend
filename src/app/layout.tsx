@@ -1,5 +1,8 @@
+import { Sidebar } from '@components/layout/sidebar';
 import ReactQueryProvider from '@components/providers/react-query-provider';
 import { SessionProvider } from '@components/providers/session-provider';
+import { SidebarInset, SidebarProvider } from '@components/ui/sidebar';
+import { TooltipProvider } from '@components/ui/tooltip';
 import { APP_NAME } from '@constants/index';
 import '@styles/globals.css';
 import type { Metadata } from 'next';
@@ -29,9 +32,16 @@ export const metadata: Metadata = {
 
 const RootLayout: React.FC<React.PropsWithChildren> = ({ children }) => (
   <html lang="en" className={inter.variable}>
-    <body className="bg-background relative flex h-dvh w-full flex-col gap-0 overflow-x-hidden overflow-y-auto antialiased">
+    <body className="bg-background relative flex h-dvh w-dvw flex-row gap-0 overflow-x-hidden overflow-y-auto antialiased">
       <ReactQueryProvider>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          <TooltipProvider>
+            <SidebarProvider>
+              <Sidebar />
+              <SidebarInset>{children}</SidebarInset>
+            </SidebarProvider>
+          </TooltipProvider>
+        </SessionProvider>
       </ReactQueryProvider>
     </body>
   </html>

@@ -116,7 +116,7 @@
   --chart-4: var(--color-cobalt-600);
   --chart-5: var(--color-plum-600);
   --radius: 0.625rem;
-  --sidebar: var(--color-paper-50);
+  --sidebar: var(--color-white);
   --sidebar-foreground: var(--color-ink-900);
   --sidebar-primary: var(--color-coral-500);
   --sidebar-primary-foreground: var(--color-white-95);
