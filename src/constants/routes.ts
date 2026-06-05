@@ -3,6 +3,8 @@ import { NEXT_PUBLIC_API_URL } from '@lib/env';
 const AUTH_ROUTES = {
   signIn: () => '/signin',
   signUp: () => '/signup',
+  forgotPassword: () => '/forgot-password',
+  resetPassword: () => '/reset-password',
 
   googleOAuth: (redirect?: string) => {
     const url = new URL(`${NEXT_PUBLIC_API_URL}/sessions/google`);
