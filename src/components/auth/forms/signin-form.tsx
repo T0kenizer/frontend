@@ -15,6 +15,7 @@ import { createSessionOptions } from '@services/sessions/sessions.options';
 import { useMutation } from '@tanstack/react-query';
 import { createSessionDataSchema } from '@tokenizer/shared/schemas';
 import { CreateSessionData } from '@tokenizer/shared/types';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -65,7 +66,15 @@ export const SignInForm: React.FC = () => {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="signin-password">Password</FieldLabel>
+              <div className="flex items-center justify-between">
+                <FieldLabel htmlFor="signin-password">Password</FieldLabel>
+                <Link
+                  href={ROUTES.auth.forgotPassword()}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <PasswordInput
                 {...field}
                 id="signin-password"
