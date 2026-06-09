@@ -13,15 +13,26 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { validateToken } from '@services/password-resets/password-resets.api';
 import { applyResetOptions } from '@services/password-resets/password-resets.options';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { applyResetSchema } from '@tokenizer/shared/schemas';
+import { applyResetDataSchema } from '@tokenizer/shared/schemas';
 import { ApplyResetData } from '@tokenizer/shared/types';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 interface ResetPasswordFormProps {
   token: string;
 }
+
+const schema = applyResetDataSchema
+  .extend({
+    confirmPassword: applyResetDataSchema.shape.password,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+  });
+
+type FormData = z.infer<typeof schema>;
 
 export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   token,
@@ -34,8 +45,8 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
     retry: false,
   });
 
-  const form = useForm<ApplyResetData>({
-    resolver: zodResolver(applyResetSchema),
+  const form = useForm<FormData>({
+    resolver: zodResolver(schema),
     defaultValues: { password: '', confirmPassword: '' },
   });
   const { mutate: applyReset, isPending } = useMutation(applyResetOptions());

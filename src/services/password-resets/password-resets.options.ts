@@ -1,7 +1,7 @@
 import { RequesterError } from '@lib/requester';
 import * as API from '@services/password-resets/password-resets.api';
 import { mutationOptions } from '@tanstack/react-query';
-import { RequestResetData } from '@tokenizer/shared/types';
+import { ApplyResetData, RequestResetData } from '@tokenizer/shared/types';
 
 export const PASSWORD_RESETS_MUTATION_KEYS = {
   request: () => ['password-resets', 'request'] as const,
@@ -16,7 +16,7 @@ export const requestResetOptions = () =>
   });
 
 export const applyResetOptions = () =>
-  mutationOptions<void, RequesterError, { token: string; password: string }>({
+  mutationOptions<void, RequesterError, { token: string } & ApplyResetData>({
     mutationKey: PASSWORD_RESETS_MUTATION_KEYS.apply(),
-    mutationFn: ({ token, password }) => API.applyReset(token, { password }),
+    mutationFn: ({ token, ...data }) => API.applyReset(token, data),
   });

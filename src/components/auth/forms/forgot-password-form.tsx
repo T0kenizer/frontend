@@ -11,7 +11,7 @@ import { Input } from '@components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { requestResetOptions } from '@services/password-resets/password-resets.options';
 import { useMutation } from '@tanstack/react-query';
-import { requestResetSchema } from '@tokenizer/shared/schemas';
+import { requestResetDataSchema } from '@tokenizer/shared/schemas';
 import { RequestResetData } from '@tokenizer/shared/types';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -19,10 +19,12 @@ import { Controller, useForm } from 'react-hook-form';
 export const ForgotPasswordForm: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const form = useForm<RequestResetData>({
-    resolver: zodResolver(requestResetSchema),
+    resolver: zodResolver(requestResetDataSchema),
     defaultValues: { email: '' },
   });
-  const { mutate: requestReset, isPending } = useMutation(requestResetOptions());
+  const { mutate: requestReset, isPending } = useMutation(
+    requestResetOptions(),
+  );
 
   const handleSubmit = (data: RequestResetData) => {
     if (isPending) return;
@@ -31,7 +33,7 @@ export const ForgotPasswordForm: React.FC = () => {
 
   if (submitted) {
     return (
-      <p className="text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         If an account exists for this email, you will receive a password reset
         link shortly.
       </p>
