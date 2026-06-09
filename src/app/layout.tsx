@@ -1,6 +1,7 @@
 import { Sidebar } from '@components/layout/sidebar';
 import ReactQueryProvider from '@components/providers/react-query-provider';
 import { SessionProvider } from '@components/providers/session-provider';
+import { ThemeProvider } from '@components/providers/theme-provider';
 import { SidebarInset, SidebarProvider } from '@components/ui/sidebar';
 import { TooltipProvider } from '@components/ui/tooltip';
 import { APP_NAME } from '@constants/index';
@@ -31,18 +32,25 @@ export const metadata: Metadata = {
 };
 
 const RootLayout: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <html lang="en" className={inter.variable}>
+  <html lang="en" className={inter.variable} suppressHydrationWarning>
     <body className="bg-background relative flex h-dvh w-dvw flex-row gap-0 overflow-x-hidden overflow-y-auto antialiased">
-      <ReactQueryProvider>
-        <SessionProvider>
-          <TooltipProvider>
-            <SidebarProvider>
-              <Sidebar />
-              <SidebarInset>{children}</SidebarInset>
-            </SidebarProvider>
-          </TooltipProvider>
-        </SessionProvider>
-      </ReactQueryProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <ReactQueryProvider>
+          <SessionProvider>
+            <TooltipProvider>
+              <SidebarProvider>
+                <Sidebar />
+                <SidebarInset>{children}</SidebarInset>
+              </SidebarProvider>
+            </TooltipProvider>
+          </SessionProvider>
+        </ReactQueryProvider>
+      </ThemeProvider>
     </body>
   </html>
 );

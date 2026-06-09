@@ -16,7 +16,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@components/ui/sidebar';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react';
@@ -100,10 +100,15 @@ export const SidebarMain: React.FC<SidebarMainProps> = ({ items }) => {
                       asChild
                       tooltip={item.label}
                       isActive={isActive}
+                      aria-disabled={item.isLocked}
+                      disabled={item.isLocked}
                     >
                       <Link href={item.href}>
                         {item.renderIcon(isActive)}
-                        <span>{item.label}</span>
+                        <span className="flex flex-1 items-center justify-between">
+                          {item.label}
+                          {item.isLocked && <Lock className="size-3.5!" />}
+                        </span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

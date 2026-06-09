@@ -1,4 +1,4 @@
-import { Avatar, AvatarImage } from '@components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,6 +39,7 @@ export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
                   src={user.avatarUrl || ''}
                   alt={user.displayName}
                 />
+                <AvatarFallback />
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.displayName}</span>
@@ -60,6 +61,7 @@ export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
                     src={user.avatarUrl || ''}
                     alt={user.displayName}
                   />
+                  <AvatarFallback />
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
