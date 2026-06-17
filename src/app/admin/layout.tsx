@@ -12,7 +12,8 @@ export const metadata = {
 const AdminLayout: React.FC<React.PropsWithChildren> = async ({ children }) => {
   const session = await retrieveSessionCached('current');
 
-  if (session?.user && !ADMIN_ROLES.includes(session?.user.role)) notFound();
+  if (!session?.user || !ADMIN_ROLES.includes(session.user.role))
+    return notFound();
 
   return children;
 };
