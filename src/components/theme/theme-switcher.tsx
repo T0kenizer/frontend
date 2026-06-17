@@ -39,7 +39,7 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
         <Button
           key={value}
           type="button"
-          variant={mounted && theme === value ? 'default' : 'outline'}
+          variant={mounted && theme === value ? 'primary' : 'outline'}
           onClick={() => setTheme(value)}
           aria-pressed={mounted && theme === value}
         >
