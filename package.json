@@ -13,12 +13,12 @@
     "update:shared": "npm update @tokenizer/shared"
   },
   "lint-staged": {
-    "*.{js,ts,tsx}": [
-      "npm run format",
-      "npm run lint:fix"
+    "*.{js,ts}": [
+      "prettier --write",
+      "eslint --fix"
     ],
-    "*.{json,md,yml,yaml,css}": [
-      "npm run format"
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
     ]
   },
   "dependencies": {
