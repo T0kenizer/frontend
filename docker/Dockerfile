@@ -9,8 +9,6 @@ COPY . .
 
 RUN npm run build
 
-RUN npm prune --production
-
 FROM node:24-alpine AS runner
 
 ENV NODE_ENV=production
@@ -21,6 +19,8 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package*.json ./
+
+RUN npm prune --production
 
 RUN addgroup -S tokenizer && adduser -S tokenizer -G tokenizer
 USER tokenizer
