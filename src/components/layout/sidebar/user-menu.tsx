@@ -13,9 +13,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@components/ui/sidebar';
+import ROUTES from '@constants/routes';
 import { useSignOut } from '@services/sessions/sessions.hooks';
 import { SerializedUser } from '@tokenizer/shared/types';
-import { ChevronsUpDown, LogOut } from 'lucide-react';
+import { ChevronsUpDown, LogOut, Settings } from 'lucide-react';
+import Link from 'next/link';
 
 export interface SidebarUserMenuProps {
   user: SerializedUser;
@@ -71,6 +73,13 @@ export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
                 </div>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href={ROUTES.settings()}>
+                <Settings />
+                Settings
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>
               <LogOut />
