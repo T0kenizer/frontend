@@ -230,6 +230,28 @@
   --navbar-foreground: var(--color-chalk);
 }
 
+.tokenizer-chip-border {
+  background: conic-gradient(
+    from -11.25deg,
+    var(--color-primary) 0deg, var(--color-primary) 22.5deg,
+    #fff 22.5deg, #fff 45deg,
+    var(--color-primary) 45deg, var(--color-primary) 67.5deg,
+    #fff 67.5deg, #fff 90deg,
+    var(--color-primary) 90deg, var(--color-primary) 112.5deg,
+    #fff 112.5deg, #fff 135deg,
+    var(--color-primary) 135deg, var(--color-primary) 157.5deg,
+    #fff 157.5deg, #fff 180deg,
+    var(--color-primary) 180deg, var(--color-primary) 202.5deg,
+    #fff 202.5deg, #fff 225deg,
+    var(--color-primary) 225deg, var(--color-primary) 247.5deg,
+    #fff 247.5deg, #fff 270deg,
+    var(--color-primary) 270deg, var(--color-primary) 292.5deg,
+    #fff 292.5deg, #fff 315deg,
+    var(--color-primary) 315deg, var(--color-primary) 337.5deg,
+    #fff 337.5deg, #fff 360deg
+  );
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
