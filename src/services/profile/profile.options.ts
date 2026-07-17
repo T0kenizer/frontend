@@ -7,6 +7,7 @@ import { SerializedUser } from '@tokenizer/shared/types';
 
 export const PROFILE_MUTATION_KEYS = {
   update: () => ['profile', 'update'] as const,
+  uploadAvatar: () => ['profile', 'uploadAvatar'] as const,
   changePassword: () => ['profile', 'changePassword'] as const,
   unlinkGoogle: () => ['profile', 'unlinkGoogle'] as const,
   requestDeletion: () => ['profile', 'requestDeletion'] as const,
@@ -17,6 +18,8 @@ export const PROFILE_MUTATION_KEYS = {
 interface UpdateProfileVariables {
   username?: string;
   displayName?: string | null;
+  email?: string;
+  avatarUrl?: string | null;
 }
 
 interface ChangePasswordVariables {
@@ -37,6 +40,13 @@ export const updateProfileOptions = () =>
   mutationOptions<SerializedUser, RequesterError, UpdateProfileVariables>({
     mutationKey: PROFILE_MUTATION_KEYS.update(),
     mutationFn: API.updateProfile,
+    onSuccess: updateSessionUser,
+  });
+
+export const uploadAvatarOptions = () =>
+  mutationOptions<SerializedUser, RequesterError, File>({
+    mutationKey: PROFILE_MUTATION_KEYS.uploadAvatar(),
+    mutationFn: API.uploadAvatar,
     onSuccess: updateSessionUser,
   });
 
