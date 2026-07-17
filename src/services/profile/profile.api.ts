@@ -8,7 +8,15 @@ export const getProfile = async () => requester().get<SerializedUser>(BASE_URL);
 export const updateProfile = async (data: {
   username?: string;
   displayName?: string | null;
+  email?: string;
+  avatarUrl?: string | null;
 }) => requester().patch<SerializedUser>(BASE_URL, data);
+
+export const uploadAvatar = async (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return requester().patch<SerializedUser>(`${BASE_URL}/avatar`, formData);
+};
 
 export const changePassword = async (data: {
   currentPassword?: string;
