@@ -188,8 +188,6 @@
   --felt: var(--color-teal-700);
   --felt-bright: var(--color-teal-600);
   --felt-deep: var(--color-teal-800);
-  /* Felt counterpart of inverse: a light button sitting on the table itself.
-     Not themed — the felt surface is teal in both light and dark. */
   --felt-inverse: var(--color-white);
   --felt-inverse-foreground: var(--color-teal-800);
 

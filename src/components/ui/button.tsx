@@ -81,7 +81,7 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={disabled ?? (asChild ? undefined : loading)}
       className={cn(
         buttonVariants({ variant, size, className }),
-        loading && !asChild && 'relative *:invisible disabled:opacity-100',
+        loading && !asChild && 'disabled:opacity-100',
       )}
       {...props}
     >
@@ -93,7 +93,8 @@ export const Button: React.FC<ButtonProps> = ({
           {loading && (
             <Loader2Icon
               aria-hidden
-              className="visible! size-[1.05em] animate-spin motion-reduce:animate-none"
+              data-icon="inline-end"
+              className="animate-spin motion-reduce:animate-none"
             />
           )}
         </>
