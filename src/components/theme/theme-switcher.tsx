@@ -7,9 +7,9 @@ import { useTheme } from 'next-themes';
 import { useSyncExternalStore } from 'react';
 
 const THEMES = [
-  { value: 'light', label: 'Clair', icon: Sun },
-  { value: 'dark', label: 'Sombre', icon: Moon },
-  { value: 'system', label: 'Système', icon: Monitor },
+  { value: 'light', label: 'Light', icon: Sun },
+  { value: 'dark', label: 'Dark', icon: Moon },
+  { value: 'system', label: 'System', icon: Monitor },
 ] as const;
 
 const emptySubscribe = () => () => {};
