@@ -20,6 +20,10 @@ const ROUTES = {
 
   auth: AUTH_ROUTES,
 
+  settings: () => '/settings',
+
+  deleteAccount: () => '/delete-account',
+
   admin: ADMIN_ROUTES,
 } as const;
 
