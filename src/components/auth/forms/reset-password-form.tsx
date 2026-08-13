@@ -10,8 +10,10 @@ import {
 import { PasswordInput } from '@components/ui/input/password-input';
 import ROUTES from '@constants/routes';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { validateToken } from '@services/password-resets/password-resets.api';
-import { applyResetOptions } from '@services/password-resets/password-resets.options';
+import {
+  applyResetOptions,
+  validateResetTokenOptions,
+} from '@services/password-resets/password-resets.options';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { applyResetDataSchema } from '@tokenizer/shared/schemas';
 import { ApplyResetData } from '@tokenizer/shared/types';
@@ -39,11 +41,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
 }) => {
   const router = useRouter();
 
-  const { isLoading, isError } = useQuery({
-    queryKey: ['password-resets', 'validate', token],
-    queryFn: () => validateToken(token),
-    retry: false,
-  });
+  const { isLoading, isError } = useQuery(validateResetTokenOptions(token));
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
