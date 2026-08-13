@@ -18,14 +18,21 @@ const AUTH_ROUTES = {
     if (redirect) url.searchParams.set('redirect', redirect);
     return url.toString();
   },
-};
+} as const;
 
 const ADMIN_ROUTES = () => '/admin';
+
+export type SettingsSection = 'email' | 'password' | 'profile';
+
+const SETTINGS_ROUTES = (section?: SettingsSection) =>
+  section ? `/settings#${section}` : '/settings';
 
 const ROUTES = {
   home: () => '/',
 
   auth: AUTH_ROUTES,
+
+  settings: SETTINGS_ROUTES,
 
   admin: ADMIN_ROUTES,
 } as const;
