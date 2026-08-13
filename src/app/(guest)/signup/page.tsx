@@ -1,5 +1,5 @@
 import { SignUpForm } from '@components/auth/forms/signup-form';
-import { Main } from '@components/layout';
+import { Main } from '@components/layout/main';
 
 const Page: React.FC = () => (
   <Main>

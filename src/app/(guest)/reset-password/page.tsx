@@ -1,5 +1,5 @@
 import { ResetPasswordForm } from '@components/auth/forms/reset-password-form';
-import { Main } from '@components/layout';
+import { Main } from '@components/layout/main';
 import ROUTES from '@constants/routes';
 import { redirect } from 'next/navigation';
 
