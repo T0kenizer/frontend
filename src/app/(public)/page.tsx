@@ -1,9 +1,11 @@
-import { Main } from '@components/layout';
-import { ThemeSwitcher } from '@components/theme/theme-switcher';
+import { GameCTA } from '@components/home/game-cta';
+import { PageGreeting } from '@components/home/page-greeting';
+import { Main } from '@components/layout/main';
 
 const Page: React.FC = () => (
   <Main>
-    <ThemeSwitcher />
+    <PageGreeting />
+    <GameCTA />
   </Main>
 );
 
