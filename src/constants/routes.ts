@@ -1,8 +1,15 @@
 import { NEXT_PUBLIC_API_URL } from '@lib/env';
+import { REDIRECT_URL_PARAM } from '@lib/redirect-url';
+
+const withRedirectUrl = (path: string, redirectUrl?: string) =>
+  redirectUrl
+    ? `${path}?${REDIRECT_URL_PARAM}=${encodeURIComponent(redirectUrl)}`
+    : path;
 
 const AUTH_ROUTES = {
-  signIn: () => '/signin',
-  signUp: () => '/signup',
+  signIn: (redirectUrl?: string) => withRedirectUrl('/signin', redirectUrl),
+  signUp: (redirectUrl?: string) => withRedirectUrl('/signup', redirectUrl),
+
   forgotPassword: () => '/forgot-password',
   resetPassword: () => '/reset-password',
 
@@ -11,7 +18,7 @@ const AUTH_ROUTES = {
     if (redirect) url.searchParams.set('redirect', redirect);
     return url.toString();
   },
-} as const;
+};
 
 const ADMIN_ROUTES = () => '/admin';
 

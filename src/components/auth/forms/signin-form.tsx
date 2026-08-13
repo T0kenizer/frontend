@@ -11,16 +11,19 @@ import { Input } from '@components/ui/input';
 import { PasswordInput } from '@components/ui/input/password-input';
 import ROUTES from '@constants/routes';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { REDIRECT_URL_PARAM, sanitizeRedirectUrl } from '@lib/redirect-url';
 import { createSessionOptions } from '@services/sessions/sessions.options';
 import { useMutation } from '@tanstack/react-query';
 import { createSessionDataSchema } from '@tokenizer/shared/schemas';
 import { CreateSessionData } from '@tokenizer/shared/types';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
 
 export const SignInForm: React.FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = sanitizeRedirectUrl(searchParams.get(REDIRECT_URL_PARAM));
   const form = useForm({
     resolver: zodResolver(createSessionDataSchema),
     defaultValues: {
@@ -37,7 +40,7 @@ export const SignInForm: React.FC = () => {
 
     createSession(data, {
       onSuccess: () => {
-        router.replace(ROUTES.home());
+        router.replace(redirectUrl ?? ROUTES.home());
       },
     });
   };
@@ -70,7 +73,7 @@ export const SignInForm: React.FC = () => {
                 <FieldLabel htmlFor="signin-password">Password</FieldLabel>
                 <Link
                   href={ROUTES.auth.forgotPassword()}
-                  className="text-xs text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground text-xs"
                 >
                   Forgot password?
                 </Link>
