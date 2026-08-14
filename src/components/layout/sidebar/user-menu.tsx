@@ -16,13 +16,7 @@ import {
 import ROUTES from '@constants/routes';
 import { useSignOut } from '@services/sessions/sessions.hooks';
 import { SerializedUser } from '@tokenizer/shared/types';
-import {
-  ChevronsUpDown,
-  LogIn,
-  LogOut,
-  User,
-  UserPlus,
-} from 'lucide-react';
+import { ChevronsUpDown, LogIn, LogOut, User, UserPlus } from 'lucide-react';
 import Link from 'next/link';
 
 export interface SidebarUserMenuItem {

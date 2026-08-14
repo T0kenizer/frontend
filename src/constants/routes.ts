@@ -13,6 +13,11 @@ const AUTH_ROUTES = {
   forgotPassword: () => '/forgot-password',
   resetPassword: () => '/reset-password',
 
+  confirmAccount: () => '/confirm-account',
+  resendConfirmation: () => '/resend-confirmation',
+
+  deleteAccount: () => '/delete-account',
+
   googleOAuth: (redirect?: string) => {
     const url = new URL(`${NEXT_PUBLIC_API_URL}/sessions/google`);
     if (redirect) url.searchParams.set('redirect', redirect);
@@ -20,12 +25,13 @@ const AUTH_ROUTES = {
   },
 } as const;
 
+const SETTINGS_ROUTES = () => '/settings';
+SETTINGS_ROUTES.profile = () => '/settings/profile';
+SETTINGS_ROUTES.preferences = () => '/settings/preferences';
+SETTINGS_ROUTES.security = () => '/settings/security';
+SETTINGS_ROUTES.billing = () => '/settings/billing';
+
 const ADMIN_ROUTES = () => '/admin';
-
-export type SettingsSection = 'email' | 'password' | 'profile';
-
-const SETTINGS_ROUTES = (section?: SettingsSection) =>
-  section ? `/settings#${section}` : '/settings';
 
 const ROUTES = {
   home: () => '/',
