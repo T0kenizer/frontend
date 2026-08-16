@@ -11,6 +11,7 @@ import { Input } from '@components/ui/input';
 import { PasswordInput } from '@components/ui/input/password-input';
 import ROUTES from '@constants/routes';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { applyServerError } from '@lib/form-errors';
 import { REDIRECT_URL_PARAM, sanitizeRedirectUrl } from '@lib/redirect-url';
 import { createSessionOptions } from '@services/sessions/sessions.options';
 import { useMutation } from '@tanstack/react-query';
@@ -42,6 +43,7 @@ export const SignInForm: React.FC = () => {
       onSuccess: () => {
         router.replace(redirectUrl ?? ROUTES.home());
       },
+      onError: (error) => applyServerError(form, error),
     });
   };
 

@@ -10,13 +10,13 @@ import {
 import { PasswordInput } from '@components/ui/input/password-input';
 import ROUTES from '@constants/routes';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { applyServerError } from '@lib/form-errors';
 import {
   applyResetOptions,
   validateResetTokenOptions,
 } from '@services/password-resets/password-resets.options';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { applyResetDataSchema } from '@tokenizer/shared/schemas';
-import { ApplyResetData } from '@tokenizer/shared/types';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
@@ -49,11 +49,14 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   });
   const { mutate: applyReset, isPending } = useMutation(applyResetOptions());
 
-  const handleSubmit = (data: ApplyResetData) => {
+  const handleSubmit = (data: FormData) => {
     if (isPending) return;
     applyReset(
       { token, password: data.password },
-      { onSuccess: () => router.replace(ROUTES.auth.signIn()) },
+      {
+        onSuccess: () => router.replace(ROUTES.auth.signIn()),
+        onError: (error) => applyServerError(form, error),
+      },
     );
   };
 

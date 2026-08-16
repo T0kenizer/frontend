@@ -9,6 +9,7 @@ import {
 } from '@components/ui/field';
 import { Input } from '@components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { applyServerError } from '@lib/form-errors';
 import { requestResetOptions } from '@services/password-resets/password-resets.options';
 import { useMutation } from '@tanstack/react-query';
 import { requestResetDataSchema } from '@tokenizer/shared/schemas';
@@ -28,7 +29,10 @@ export const ForgotPasswordForm: React.FC = () => {
 
   const handleSubmit = (data: RequestResetData) => {
     if (isPending) return;
-    requestReset(data, { onSettled: () => setSubmitted(true) });
+    requestReset(data, {
+      onSuccess: () => setSubmitted(true),
+      onError: (error) => applyServerError(form, error),
+    });
   };
 
   if (submitted) {

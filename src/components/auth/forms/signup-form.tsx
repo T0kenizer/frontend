@@ -11,6 +11,7 @@ import { Input } from '@components/ui/input';
 import { PasswordInput } from '@components/ui/input/password-input';
 import ROUTES from '@constants/routes';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { applyServerError } from '@lib/form-errors';
 import { REDIRECT_URL_PARAM, sanitizeRedirectUrl } from '@lib/redirect-url';
 import { createSessionOptions } from '@services/sessions/sessions.options';
 import { createUserOptions } from '@services/users/users.options';
@@ -68,9 +69,13 @@ export const SignUpForm: React.FC = () => {
         onSuccess: () => {
           createSession(
             { login: data.email, password: data.password },
-            { onSuccess: () => router.replace(redirectUrl ?? ROUTES.home()) },
+            {
+              onSuccess: () => router.replace(redirectUrl ?? ROUTES.home()),
+              onError: (error) => applyServerError(form, error),
+            },
           );
         },
+        onError: (error) => applyServerError(form, error),
       },
     );
   };

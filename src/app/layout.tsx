@@ -48,7 +48,7 @@ const RootLayout: React.FC<React.PropsWithChildren> = ({ children }) => (
                 <Sidebar />
                 <SidebarInset>{children}</SidebarInset>
               </SidebarProvider>
-              <Toaster position="bottom-right" />
+              <Toaster position="bottom-right" richColors />
             </TooltipProvider>
           </SessionProvider>
         </ReactQueryProvider>
