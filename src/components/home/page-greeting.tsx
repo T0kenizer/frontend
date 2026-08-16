@@ -5,13 +5,13 @@ import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useQuery } from '@tanstack/react-query';
 import { useSyncExternalStore } from 'react';
 
-const DATE_FORMATTER = new Intl.DateTimeFormat('fr-FR', {
+const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
   weekday: 'long',
   day: 'numeric',
   month: 'long',
 });
 
-const TIME_FORMATTER = new Intl.DateTimeFormat('fr-FR', {
+const TIME_FORMATTER = new Intl.DateTimeFormat('en-US', {
   hour: '2-digit',
   minute: '2-digit',
 });
@@ -19,7 +19,8 @@ const TIME_FORMATTER = new Intl.DateTimeFormat('fr-FR', {
 const capitalize = (value: string) =>
   value.charAt(0).toUpperCase() + value.slice(1);
 
-const getSalutation = (hours: number) => (hours < 18 ? 'Bonjour' : 'Bonsoir');
+const getSalutation = (hours: number) =>
+  hours < 12 ? 'Good morning' : hours < 18 ? 'Good afternoon' : 'Good evening';
 
 const getMinuteSnapshot = () => Math.floor(Date.now() / 60_000);
 
@@ -64,19 +65,19 @@ export const PageGreeting: React.FC<PageGreetingProps> = ({
                 {TIME_FORMATTER.format(now)}
               </>
             )
-          : 'Bienvenue sur Tokenizer'}
+          : 'Welcome to Tokenizer'}
       </p>
       <h1 className="font-heading text-foreground text-3xl font-bold tracking-tight text-balance">
         {user ? (
           <>
-            {now ? getSalutation(now.getHours()) : 'Bonjour'},{' '}
+            {now ? getSalutation(now.getHours()) : 'Hello'},{' '}
             <span className="text-primary">{user.displayName}</span>{' '}
             <span aria-hidden>👋</span>
           </>
         ) : (
           <>
-            L&apos;appli compagnon de vos{' '}
-            <span className="text-primary">soirées jeux</span>
+            The companion app for your{' '}
+            <span className="text-primary">game nights</span>
           </>
         )}
       </h1>

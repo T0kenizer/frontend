@@ -30,14 +30,14 @@ export const SidebarFooter: React.FC<SidebarFooterProps> = ({ user }) => {
               <Button size="sm" asChild>
                 <Link href="#" onClick={close}>
                   <Plus />
-                  Nouvelle partie
+                  New Game
                 </Link>
               </Button>
             )}
             <Button size="sm" variant="secondary" asChild>
               <Link href="#" onClick={close}>
                 <Play />
-                Rejoindre
+                Join
               </Link>
             </Button>
           </SidebarGroupContent>

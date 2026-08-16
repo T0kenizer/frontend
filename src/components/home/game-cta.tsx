@@ -23,7 +23,7 @@ export const GameCTA: React.FC = () => {
       <div>
         <CardHeader>
           <CardTitle>
-            <h2 className="text-2xl">Prêt pour une nouvelle soirée ?</h2>
+            <h2 className="text-2xl">Ready for another game night?</h2>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -39,11 +39,11 @@ export const GameCTA: React.FC = () => {
           <Button variant="inverse" asChild>
             <Link href="#">
               <Play />
-              Lancer une partie
+              Start a game
             </Link>
           </Button>
           <Button variant="line" asChild>
-            <Link href="#">Rejoindre avec un code</Link>
+            <Link href="#">Join with a code</Link>
           </Button>
         </CardFooter>
       </div>

@@ -50,14 +50,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Button size="lg" variant="secondary" asChild>
                 <Link href="#">
                   <Play />
-                  Rejoindre
+                  Join
                 </Link>
               </Button>
               {user && (
                 <Button size="lg" asChild>
                   <Link href="#">
                     <Plus />
-                    Nouvelle partie
+                    New Game
                   </Link>
                 </Button>
               )}
