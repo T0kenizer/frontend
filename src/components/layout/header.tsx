@@ -10,7 +10,7 @@ import {
   useState,
 } from 'react';
 
-const getScrollParent = (element: HTMLElement | null): HTMLElement | Window => {
+const getScrollParent = (element: Nullable<HTMLElement>): HTMLElement | Window => {
   let parent = element?.parentElement ?? null;
 
   while (parent && parent !== document.body) {
