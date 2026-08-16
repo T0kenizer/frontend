@@ -5,10 +5,11 @@ import {
 } from '@services/sessions/sessions.options';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import { startTransition } from 'react';
 
 export const useSignOut = () => {
   const router = useRouter();
-  const { mutate } = useMutation(deleteSessionOptions());
+  const { mutate, ...rest } = useMutation(deleteSessionOptions());
   const queryClient = useQueryClient();
 
   const signOut = () => {
@@ -16,15 +17,17 @@ export const useSignOut = () => {
       {},
       {
         onSuccess: () => {
-          queryClient.setQueryData(
-            SESSIONS_QUERY_KEYS.retrieve('current'),
-            null,
-          );
-          router.push(ROUTES.auth.signIn());
+          startTransition(() => {
+            router.push(ROUTES.auth.signIn());
+            queryClient.setQueryData(
+              SESSIONS_QUERY_KEYS.retrieve('current'),
+              null,
+            );
+          });
         },
       },
     );
   };
 
-  return { signOut };
+  return { signOut, ...rest };
 };
