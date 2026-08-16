@@ -1,5 +1,9 @@
+import { PATHNAME_HEADER } from '@/proxy';
+import { Header } from '@components/layout/header';
+import { Navbar } from '@components/layout/navbar';
 import ROUTES from '@constants/routes';
 import { retrieveSessionCached } from '@services/sessions/sessions.api';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 const AuthenticatedLayout: React.FC<React.PropsWithChildren> = async ({
@@ -7,9 +11,19 @@ const AuthenticatedLayout: React.FC<React.PropsWithChildren> = async ({
 }) => {
   const session = await retrieveSessionCached('current');
 
-  if (!session) redirect(ROUTES.home());
+  if (!session) {
+    const pathname = (await headers()).get(PATHNAME_HEADER);
+    redirect(ROUTES.auth.signIn(pathname ?? undefined));
+  }
 
-  return <>{children}</>;
+  return (
+    <>
+      <Header>
+        <Navbar />
+      </Header>
+      {children}
+    </>
+  );
 };
 
 export default AuthenticatedLayout;

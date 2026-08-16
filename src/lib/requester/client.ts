@@ -1,4 +1,4 @@
-import { ErrorData } from '@/types/requester';
+import { ErrorData, ValidationIssue } from '@/types/requester';
 import { INTERNAL_API_URL, NEXT_PUBLIC_API_URL } from '@lib/env';
 import { getQueryClient } from '@lib/query-client';
 import RequesterError from '@lib/requester/error';
@@ -11,6 +11,20 @@ import axios, {
 } from 'axios';
 
 const isServer = typeof window === 'undefined';
+
+const fieldsFromValidationIssues = (
+  issues: Optional<ValidationIssue[]>,
+): Optional<Record<string, string>> => {
+  if (!Array.isArray(issues) || issues.length === 0) return undefined;
+
+  const fields: Record<string, string> = {};
+  for (const issue of issues) {
+    const path = issue.path?.join('.');
+    if (path && !(path in fields)) fields[path] = issue.message;
+  }
+
+  return Object.keys(fields).length > 0 ? fields : undefined;
+};
 
 const client: AxiosInstance = axios.create({
   baseURL: isServer ? INTERNAL_API_URL : NEXT_PUBLIC_API_URL,
@@ -39,11 +53,14 @@ client.interceptors.response.use(
         });
       }
 
-      const data = error.response.data as Optional<ErrorData>;
+      const data = error.response.data as Optional<
+        ErrorData & { errors?: ValidationIssue[] }
+      >;
       throw new RequesterError({
         statusCode: data?.statusCode ?? error.response.status,
         error: data?.error ?? error.response.statusText,
         message: data?.message || undefined,
+        fields: data?.fields ?? fieldsFromValidationIssues(data?.errors),
       });
     }
 

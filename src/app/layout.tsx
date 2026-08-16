@@ -3,6 +3,7 @@ import ReactQueryProvider from '@components/providers/react-query-provider';
 import { SessionProvider } from '@components/providers/session-provider';
 import { ThemeProvider } from '@components/providers/theme-provider';
 import { SidebarInset, SidebarProvider } from '@components/ui/sidebar';
+import { Toaster } from '@components/ui/sonner';
 import { TooltipProvider } from '@components/ui/tooltip';
 import { APP_NAME } from '@constants/index';
 import '@styles/globals.css';
@@ -47,6 +48,7 @@ const RootLayout: React.FC<React.PropsWithChildren> = ({ children }) => (
                 <Sidebar />
                 <SidebarInset>{children}</SidebarInset>
               </SidebarProvider>
+              <Toaster position="bottom-right" richColors />
             </TooltipProvider>
           </SessionProvider>
         </ReactQueryProvider>

@@ -11,11 +11,13 @@ import { Input } from '@components/ui/input';
 import { PasswordInput } from '@components/ui/input/password-input';
 import ROUTES from '@constants/routes';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { applyServerError } from '@lib/form-errors';
+import { REDIRECT_URL_PARAM, sanitizeRedirectUrl } from '@lib/redirect-url';
 import { createSessionOptions } from '@services/sessions/sessions.options';
 import { createUserOptions } from '@services/users/users.options';
 import { useMutation } from '@tanstack/react-query';
 import { createUserDataSchema } from '@tokenizer/shared/schemas';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -35,6 +37,8 @@ type FormData = z.infer<typeof schema>;
 
 export const SignUpForm: React.FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = sanitizeRedirectUrl(searchParams.get(REDIRECT_URL_PARAM));
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -65,9 +69,13 @@ export const SignUpForm: React.FC = () => {
         onSuccess: () => {
           createSession(
             { login: data.email, password: data.password },
-            { onSuccess: () => router.replace(ROUTES.home()) },
+            {
+              onSuccess: () => router.replace(redirectUrl ?? ROUTES.home()),
+              onError: (error) => applyServerError(form, error),
+            },
           );
         },
+        onError: (error) => applyServerError(form, error),
       },
     );
   };
@@ -143,7 +151,7 @@ export const SignUpForm: React.FC = () => {
         />
         <Button type="submit" disabled={isPending} className="w-full">
           Sign Up
-        </Button> 
+        </Button>
       </FieldGroup>
     </form>
   );

@@ -1,10 +1,22 @@
 import { NEXT_PUBLIC_API_URL } from '@lib/env';
+import { REDIRECT_URL_PARAM } from '@lib/redirect-url';
+
+const withRedirectUrl = (path: string, redirectUrl?: string) =>
+  redirectUrl
+    ? `${path}?${REDIRECT_URL_PARAM}=${encodeURIComponent(redirectUrl)}`
+    : path;
 
 const AUTH_ROUTES = {
-  signIn: () => '/signin',
-  signUp: () => '/signup',
+  signIn: (redirectUrl?: string) => withRedirectUrl('/signin', redirectUrl),
+  signUp: (redirectUrl?: string) => withRedirectUrl('/signup', redirectUrl),
+
   forgotPassword: () => '/forgot-password',
   resetPassword: () => '/reset-password',
+
+  confirmAccount: () => '/confirm-account',
+  resendConfirmation: () => '/resend-confirmation',
+
+  deleteAccount: () => '/delete-account',
 
   googleOAuth: (redirect?: string) => {
     const url = new URL(`${NEXT_PUBLIC_API_URL}/sessions/google`);
@@ -13,12 +25,20 @@ const AUTH_ROUTES = {
   },
 } as const;
 
+const SETTINGS_ROUTES = () => '/settings';
+SETTINGS_ROUTES.profile = () => '/settings/profile';
+SETTINGS_ROUTES.preferences = () => '/settings/preferences';
+SETTINGS_ROUTES.security = () => '/settings/security';
+SETTINGS_ROUTES.billing = () => '/settings/billing';
+
 const ADMIN_ROUTES = () => '/admin';
 
 const ROUTES = {
   home: () => '/',
 
   auth: AUTH_ROUTES,
+
+  settings: SETTINGS_ROUTES,
 
   admin: ADMIN_ROUTES,
 } as const;

@@ -22,4 +22,10 @@ export type ErrorData = {
   statusCode: number;
   message: string;
   error: string;
+  fields?: Record<string, string>;
+};
+
+export type ValidationIssue = {
+  path: (string | number)[];
+  message: string;
 };

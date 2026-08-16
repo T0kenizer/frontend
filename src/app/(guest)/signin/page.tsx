@@ -1,5 +1,5 @@
 import { SignInForm } from '@components/auth/forms/signin-form';
-import { Main } from '@components/layout';
+import { Main } from '@components/layout/main';
 
 const Page: React.FC = () => (
   <Main>
