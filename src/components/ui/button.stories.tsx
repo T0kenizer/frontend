@@ -38,8 +38,8 @@ const meta = {
       options: [
         'primary',
         'secondary',
+        'paper',
         'ghost',
-        'outline',
         'destructive',
         'danger',
         'inverse',
@@ -124,8 +124,8 @@ export const Danger: Story = {
   render: withAndWithoutIcon(<XIcon data-icon="inline-start" />, 'Fold'),
 };
 
-export const Outline: Story = {
-  args: { variant: 'outline', children: 'Settings' },
+export const Paper: Story = {
+  args: { variant: 'paper', children: 'Settings' },
   render: withAndWithoutIcon(
     <SettingsIcon data-icon="inline-start" />,
     'Settings',
@@ -228,11 +228,6 @@ export const AllVariants: Story = {
           <XIcon data-icon="inline-start" />
           Ghost
         </Button>
-        <Button variant="outline">Outline</Button>
-        <Button variant="outline">
-          <SettingsIcon data-icon="inline-start" />
-          Outline
-        </Button>
         <Button variant="destructive">Destructive</Button>
         <Button variant="destructive">
           <Trash2Icon data-icon="inline-start" />
@@ -248,6 +243,10 @@ export const AllVariants: Story = {
           Link
           <ExternalLinkIcon data-icon="inline-end" />
         </Button>
+      </div>
+      <div className="bg-card grid grid-cols-[auto_auto] justify-start gap-3 rounded-xl border p-6">
+        <Button variant="secondary">Secondary on card</Button>
+        <Button variant="paper">Paper on card</Button>
       </div>
       <div className="grid grid-cols-[auto_auto] justify-start gap-3 rounded-xl bg-radial-[ellipse_at_50%_20%] from-teal-600 to-teal-800 p-6">
         <Button variant="felt">Felt</Button>

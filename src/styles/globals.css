@@ -106,6 +106,37 @@
   --color-ivory-200: var(--color-ivory-200);
   --color-ivory-400: var(--color-ivory-400);
   --color-ivory-800: var(--color-ivory-800);
+
+  --color-surface-2: var(--surface-2);
+  --color-surface-sunk: var(--surface-sunk);
+
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-tint: var(--primary-tint);
+  --color-accent-tint: var(--accent-tint);
+
+  --color-on-media: var(--on-media);
+  --color-on-media-foreground: var(--on-media-foreground);
+  --color-on-media-hover: var(--on-media-hover);
+  --color-on-media-border: var(--on-media-border);
+  --color-on-media-film: var(--on-media-film);
+  --color-on-media-hairline: var(--on-media-hairline);
+  --color-on-media-scrim: var(--on-media-scrim);
+  --color-on-media-scrim-soft: var(--on-media-scrim-soft);
+  --color-on-media-muted-foreground: var(--on-media-muted-foreground);
+
+  --color-chip-1: var(--chip-1);
+  --color-chip-5: var(--chip-5);
+  --color-chip-10: var(--chip-10);
+  --color-chip-25: var(--chip-25);
+  --color-chip-50: var(--chip-50);
+  --color-chip-100: var(--chip-100);
+  --color-chip-500: var(--chip-500);
+  --color-chip-1k: var(--chip-1k);
+
+  --shadow-sm: var(--elevation-sm);
+  --shadow-md: var(--elevation-md);
+  --shadow-lg: var(--elevation-lg);
+  --shadow-pop: var(--elevation-pop);
 }
 
 :root {
@@ -117,9 +148,9 @@
   --popover-foreground: var(--color-ink-900);
   --primary: var(--color-coral-500);
   --primary-foreground: var(--color-white-95);
-  --secondary: var(--color-paper-100);
+  --secondary: var(--color-white);
   --secondary-foreground: var(--color-ink-800);
-  --secondary-hover: var(--color-white);
+  --secondary-hover: var(--color-paper-100);
   --inverse: var(--color-white);
   --inverse-foreground: var(--color-coral-700);
   --muted: var(--color-paper-100);
@@ -149,6 +180,54 @@
   --sidebar-ring: var(--color-ink-400);
   --navbar: transparent;
   --navbar-foreground: var(--color-ink-900);
+
+  /* Elevation surfaces layered above `--card`, for nested/sunken panels. */
+  --surface-2: var(--color-paper-100);
+  --surface-sunk: var(--color-paper-200);
+
+  /**
+   * Translucent brand tints. Declared as tokens rather than written as
+   * `primary/12` utilities because `@theme inline` resolves theme colors to
+   * `var()` chains, which Tailwind cannot apply an opacity modifier to.
+   */
+  --primary-soft: oklch(from var(--color-coral-500) l c h / 0.12);
+  --primary-tint: oklch(from var(--color-coral-500) l c h / 0.06);
+  --accent-tint: oklch(from var(--color-teal-400) l c h / 0.06);
+
+  /**
+   * The lip and glow of the raised `primary`/`inverse` buttons, derived from
+   * `--primary` so a rehue of the brand carries through the whole stack
+   * instead of leaving a coral shadow under a repainted face.
+   */
+  --primary-lip: oklch(from var(--primary) calc(l - 0.16) c h);
+  --primary-glow: oklch(from var(--primary) l c h / 0.55);
+  --primary-glow-strong: oklch(from var(--primary) l c h / 0.65);
+
+  --elevation-sm: 0 1px 2px oklch(0.2 0.02 270 / 0.06);
+  --elevation-md:
+    0 4px 14px -2px oklch(0.2 0.02 270 / 0.08),
+    0 1px 2px oklch(0.2 0.02 270 / 0.04);
+  --elevation-lg:
+    0 18px 40px -10px oklch(0.2 0.02 270 / 0.14),
+    0 2px 6px oklch(0.2 0.02 270 / 0.06);
+  --elevation-pop: 0 20px 50px -15px
+    oklch(from var(--color-coral-500) l c h / 0.35);
+
+  /**
+   * Notch color for chips whose rim is too light to carry the default chalk
+   * stripe. Theme-invariant: it contrasts against the rim, not the page.
+   */
+  --chip-stripe-dark: var(--color-ink-900);
+
+  /* Chip rim colors — the `chip` card variant paints these as a poker rim. */
+  --chip-1: var(--color-ivory-400);
+  --chip-5: var(--color-coral-deep);
+  --chip-10: var(--color-cobalt-600);
+  --chip-25: var(--color-green-600);
+  --chip-50: var(--color-amber-600);
+  --chip-100: var(--color-slate-800);
+  --chip-500: var(--color-plum-600);
+  --chip-1k: var(--color-orange-500);
 
   --color-chalk: oklch(0.97 0.005 80);
   --color-white-95: oklch(0.99 0 0);
@@ -191,17 +270,34 @@
   --felt-inverse: var(--color-white);
   --felt-inverse-foreground: var(--color-teal-800);
 
-  /* --color-green-500: oklch(0.66 0.17 155);
-  --color-green-600: oklch(0.62 0.16 155); */
+  /**
+   * Controls that sit on imagery or video rather than on a page surface.
+   * Theme-invariant on purpose — like `--felt*`, the backdrop is the photo,
+   * not the theme, so these must not flip with light/dark.
+   */
+  --on-media: oklch(1 0 0 / 0.14);
+  --on-media-hover: oklch(1 0 0 / 0.24);
+  --on-media-border: oklch(1 0 0 / 0.3);
+  --on-media-foreground: var(--color-white);
 
-  /* --color-amber-500: oklch(0.80 0.16 80);
-  --color-amber-600: oklch(0.78 0.16 75); */
+  /* Panel-weight companions: a lighter film for glass, a dark scrim for felt. */
+  --on-media-film: oklch(1 0 0 / 0.1);
+  --on-media-hairline: oklch(1 0 0 / 0.15);
+  --on-media-scrim: oklch(0 0 0 / 0.25);
+  --on-media-scrim-soft: oklch(0 0 0 / 0.1);
+  --on-media-muted-foreground: oklch(1 0 0 / 0.7);
+
+  /* --color-green-500: oklch(0.66 0.17 155); */
+  --color-green-600: oklch(0.62 0.16 155);
+
+  /* --color-amber-500: oklch(0.80 0.16 80); */
+  --color-amber-600: oklch(0.78 0.16 75);
 
   /* --color-red-500:    oklch(0.62 0.22 25);
   --color-blue-500:   oklch(0.62 0.18 250); */
   --color-cobalt-600: oklch(0.5 0.18 260);
   --color-plum-600: oklch(0.48 0.18 320);
-  /* --color-orange-500: oklch(0.70 0.20 45); */
+  --color-orange-500: oklch(0.7 0.2 45);
 
   --color-ivory-200: oklch(0.94 0.02 85);
   --color-ivory-400: oklch(0.78 0.03 85);
@@ -248,6 +344,71 @@
   --sidebar-ring: var(--color-night-600);
   --navbar: transparent;
   --navbar-foreground: var(--color-chalk);
+
+  --surface-2: var(--color-night-820);
+  --surface-sunk: var(--color-night-900);
+
+  /* Tints run stronger on a near-black surface, where 6% reads as nothing. */
+  --primary-soft: oklch(from var(--color-coral-500) l c h / 0.18);
+  --primary-tint: oklch(from var(--color-coral-500) l c h / 0.1);
+  --accent-tint: oklch(from var(--color-teal-400) l c h / 0.1);
+
+  --elevation-sm: 0 1px 2px oklch(0 0 0 / 0.4);
+  --elevation-md:
+    0 6px 16px -4px oklch(0 0 0 / 0.55), 0 1px 2px oklch(0 0 0 / 0.4);
+  --elevation-lg:
+    0 22px 50px -12px oklch(0 0 0 / 0.7), 0 2px 6px oklch(0 0 0 / 0.4);
+  --elevation-pop: 0 20px 50px -15px
+    oklch(from var(--color-coral-500) l c h / 0.55);
+}
+
+@layer components {
+  /**
+   * Poker-chip rim: a solid colored border with evenly spaced notches painted
+   * over it, one strip per edge so the spacing holds at any aspect ratio.
+   * Drives off `--chip-rim` (color) and `--chip-rim-stripe` (notch color).
+   */
+  .chip-rim {
+    --chip-rim: var(--primary);
+    --chip-rim-stripe: var(--color-chalk);
+    --chip-rim-width: 6px;
+
+    position: relative;
+    border: var(--chip-rim-width) solid var(--chip-rim);
+  }
+
+  .chip-rim::after {
+    content: '';
+    position: absolute;
+    inset: calc(-1 * var(--chip-rim-width));
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(
+          90deg,
+          var(--chip-rim-stripe) 0 3px,
+          transparent 3px 13px
+        )
+        top center / 100% var(--chip-rim-width) no-repeat,
+      repeating-linear-gradient(
+          90deg,
+          var(--chip-rim-stripe) 0 3px,
+          transparent 3px 13px
+        )
+        bottom center / 100% var(--chip-rim-width) no-repeat,
+      repeating-linear-gradient(
+          0deg,
+          var(--chip-rim-stripe) 0 3px,
+          transparent 3px 13px
+        )
+        left center / var(--chip-rim-width) 100% no-repeat,
+      repeating-linear-gradient(
+          0deg,
+          var(--chip-rim-stripe) 0 3px,
+          transparent 3px 13px
+        )
+        right center / var(--chip-rim-width) 100% no-repeat;
+  }
 }
 
 @layer base {
