@@ -33,6 +33,10 @@ SETTINGS_ROUTES.billing = () => '/settings/billing';
 
 const ADMIN_ROUTES = () => '/admin';
 
+const GAME_ROUTES = (uuid: string) => `/game/${uuid}`;
+GAME_ROUTES.new = () => '/game/new';
+GAME_ROUTES.join = () => '/game/join';
+
 const ROUTES = {
   home: () => '/',
 
@@ -41,6 +45,8 @@ const ROUTES = {
   settings: SETTINGS_ROUTES,
 
   admin: ADMIN_ROUTES,
+
+  game: GAME_ROUTES,
 } as const;
 
 export default ROUTES;
