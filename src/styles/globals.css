@@ -32,6 +32,14 @@
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
+  --color-success-soft-foreground: var(--success-soft-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-soft-foreground: var(--warning-soft-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -158,6 +166,10 @@
   --accent: var(--color-paper-100);
   --accent-foreground: var(--color-ink-800);
   --destructive: var(--color-red-500);
+  --success: var(--color-green-600);
+  --success-foreground: var(--color-white-95);
+  --warning: var(--color-amber-600);
+  --warning-foreground: var(--color-ink-900);
   --border: var(--color-paper-300);
   --border-strong: var(--color-paper-400);
   --input: var(--color-paper-300);
@@ -193,6 +205,16 @@
   --primary-soft: oklch(from var(--color-coral-500) l c h / 0.12);
   --primary-tint: oklch(from var(--color-coral-500) l c h / 0.06);
   --accent-tint: oklch(from var(--color-teal-400) l c h / 0.06);
+
+  /**
+   * Status tints and the text that sits on them. The solid `--success` and
+   * `--warning` are too light to read as text on a pale tint, so the `*-soft`
+   * pair carries its own foreground — darkened here, lightened in `.dark`.
+   */
+  --success-soft: oklch(from var(--color-green-600) l c h / 0.15);
+  --success-soft-foreground: oklch(0.52 0.14 155);
+  --warning-soft: oklch(from var(--color-amber-600) l c h / 0.18);
+  --warning-soft-foreground: oklch(0.52 0.13 75);
 
   /**
    * The lip and glow of the raised `primary`/`inverse` buttons, derived from
@@ -323,6 +345,10 @@
   --accent: var(--color-night-820);
   --accent-foreground: var(--color-chalk);
   --destructive: var(--color-red-500);
+  --success: var(--color-green-600);
+  --success-foreground: var(--color-white-95);
+  --warning: var(--color-amber-600);
+  --warning-foreground: var(--color-ink-900);
   --border: var(--color-night-700);
   --border-strong: var(--color-night-600);
   --input: var(--color-night-700);
@@ -352,6 +378,12 @@
   --primary-soft: oklch(from var(--color-coral-500) l c h / 0.18);
   --primary-tint: oklch(from var(--color-coral-500) l c h / 0.1);
   --accent-tint: oklch(from var(--color-teal-400) l c h / 0.1);
+
+  /* On a near-black surface the tint text has to brighten, not darken. */
+  --success-soft: oklch(from var(--color-green-600) l c h / 0.2);
+  --success-soft-foreground: oklch(0.78 0.16 155);
+  --warning-soft: oklch(from var(--color-amber-600) l c h / 0.22);
+  --warning-soft-foreground: var(--color-amber-600);
 
   --elevation-sm: 0 1px 2px oklch(0 0 0 / 0.4);
   --elevation-md:
