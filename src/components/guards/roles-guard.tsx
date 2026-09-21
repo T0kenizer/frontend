@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import 'server-only';
 
 interface RolesGuardProps extends React.PropsWithChildren {
+  /** Roles allowed through; anyone else gets a 404 (the page "does not exist"). */
   roles: readonly UserRole[];
 }
 

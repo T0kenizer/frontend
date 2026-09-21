@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@components/ui/card';
+import ROUTES from '@constants/routes';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useQuery } from '@tanstack/react-query';
 import { Play } from 'lucide-react';
@@ -37,13 +38,13 @@ export const GameCTA: React.FC = () => {
         </CardContent>
         <CardFooter className="space border-0 bg-transparent!">
           <Button variant="inverse" asChild>
-            <Link href="#">
+            <Link href={ROUTES.game.new()}>
               <Play />
               Start a game
             </Link>
           </Button>
           <Button variant="line" asChild>
-            <Link href="#">Join with a code</Link>
+            <Link href={ROUTES.game.join()}>Join with a code</Link>
           </Button>
         </CardFooter>
       </div>

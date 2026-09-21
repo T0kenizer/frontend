@@ -3,7 +3,7 @@ FROM node:24-alpine
 ENV NODE_ENV=development
 
 WORKDIR /app
-RUN chown node:node /app
+RUN chmod 777 /app
 
 USER node
 
