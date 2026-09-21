@@ -1,13 +1,10 @@
 'use client';
 
+import { SettingsRow } from '@components/settings/settings-row';
 import { Button } from '@components/ui/button';
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@components/ui/field';
-import { PasswordInput } from '@components/ui/input/password-input';
+import { Field, FieldError } from '@components/ui/field';
+import { PasswordInput } from '@components/inputs/password-input';
+import { PasswordStrength } from '@components/password-strength';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { applyServerError } from '@lib/form-errors';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
@@ -67,32 +64,40 @@ export const ChangePasswordForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)}>
-      <FieldGroup>
-        <Controller
-          name="password"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="change-password">New password</FieldLabel>
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="contents">
+      <Controller
+        name="password"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <SettingsRow label="New password" htmlFor="change-password">
+            <Field
+              data-invalid={fieldState.invalid}
+              className="max-w-sm gap-1.5"
+            >
               <PasswordInput
                 {...field}
                 id="change-password"
                 autoComplete="new-password"
                 aria-invalid={fieldState.invalid}
               />
+              <PasswordStrength value={field.value ?? ''} meterOnly />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
-          )}
-        />
-        <Controller
-          name="confirmPassword"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="change-password-confirm-password">
-                Confirm new password
-              </FieldLabel>
+          </SettingsRow>
+        )}
+      />
+      <Controller
+        name="confirmPassword"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <SettingsRow
+            label="Confirm new password"
+            htmlFor="change-password-confirm-password"
+          >
+            <Field
+              data-invalid={fieldState.invalid}
+              className="max-w-sm gap-1.5"
+            >
               <PasswordInput
                 {...field}
                 id="change-password-confirm-password"
@@ -101,16 +106,14 @@ export const ChangePasswordForm: React.FC = () => {
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
-          )}
-        />
-        <Button
-          type="submit"
-          disabled={isPending || isIncomplete}
-          className="w-full"
-        >
+          </SettingsRow>
+        )}
+      />
+      <SettingsRow>
+        <Button type="submit" disabled={isPending || isIncomplete}>
           Change password
         </Button>
-      </FieldGroup>
+      </SettingsRow>
     </form>
   );
 };

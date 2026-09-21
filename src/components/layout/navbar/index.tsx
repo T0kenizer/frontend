@@ -47,17 +47,26 @@ export const Navbar: React.FC<NavbarProps> = ({
             </Button>
           ) : (
             <>
-              <Button size="lg" variant="secondary" asChild>
-                <Link href="#">
-                  <Play />
-                  Join
-                </Link>
-              </Button>
-              {user && (
+              {user ? (
+                <>
+                  <Button size="lg" variant="secondary" asChild>
+                    <Link href="#">
+                      <Play />
+                      Join
+                    </Link>
+                  </Button>
+                  <Button size="lg" asChild>
+                    <Link href="#">
+                      <Plus />
+                      New Game
+                    </Link>
+                  </Button>
+                </>
+              ) : (
                 <Button size="lg" asChild>
                   <Link href="#">
-                    <Plus />
-                    New Game
+                    <Play />
+                    Join
                   </Link>
                 </Button>
               )}

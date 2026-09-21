@@ -22,9 +22,13 @@ const useMounted = () =>
     () => false,
   );
 
-export type ThemeSwitcherProps = React.ComponentProps<'div'>;
+export type ThemeSwitcherProps = React.ComponentProps<'div'> & {
+  /** Drops the labels to icon-only buttons, for tight bars like the auth top. */
+  compact?: boolean;
+};
 
 export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
+  compact = false,
   className,
   ...props
 }) => {
@@ -40,11 +44,12 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
           key={value}
           type="button"
           variant={mounted && theme === value ? 'primary' : 'paper'}
+          size={compact ? 'icon' : 'default'}
           onClick={() => setTheme(value)}
           aria-pressed={mounted && theme === value}
         >
           <Icon />
-          {label}
+          <span className={cn(compact && 'sr-only')}>{label}</span>
         </Button>
       ))}
     </div>

@@ -26,20 +26,29 @@ export const SidebarFooter: React.FC<SidebarFooterProps> = ({ user }) => {
       {isMobile && (
         <SidebarGroup>
           <SidebarGroupContent className="flex flex-col gap-3">
-            {user && (
+            {user ? (
+              <>
+                <Button size="sm" asChild>
+                  <Link href="#" onClick={close}>
+                    <Plus />
+                    New Game
+                  </Link>
+                </Button>
+                <Button size="sm" variant="secondary" asChild>
+                  <Link href="#" onClick={close}>
+                    <Play />
+                    Join
+                  </Link>
+                </Button>
+              </>
+            ) : (
               <Button size="sm" asChild>
                 <Link href="#" onClick={close}>
-                  <Plus />
-                  New Game
+                  <Play />
+                  Join
                 </Link>
               </Button>
             )}
-            <Button size="sm" variant="secondary" asChild>
-              <Link href="#" onClick={close}>
-                <Play />
-                Join
-              </Link>
-            </Button>
           </SidebarGroupContent>
         </SidebarGroup>
       )}

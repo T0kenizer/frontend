@@ -29,9 +29,13 @@ const SETTINGS_ROUTES = () => '/settings';
 SETTINGS_ROUTES.profile = () => '/settings/profile';
 SETTINGS_ROUTES.preferences = () => '/settings/preferences';
 SETTINGS_ROUTES.security = () => '/settings/security';
-SETTINGS_ROUTES.billing = () => '/settings/billing';
+SETTINGS_ROUTES.subscription = () => '/settings/subscription';
 
 const ADMIN_ROUTES = () => '/admin';
+
+const GAME_ROUTES = (uuid: string) => `/game/${uuid}`;
+GAME_ROUTES.new = () => '/game/new';
+GAME_ROUTES.join = () => '/game/join';
 
 const ROUTES = {
   home: () => '/',
@@ -41,6 +45,8 @@ const ROUTES = {
   settings: SETTINGS_ROUTES,
 
   admin: ADMIN_ROUTES,
+
+  game: GAME_ROUTES,
 } as const;
 
 export default ROUTES;
