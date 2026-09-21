@@ -1,4 +1,4 @@
-import { CreateGame } from '@components/game/create-game';
+import { CreateGame } from '@components/game/create/create-game';
 
 export const metadata = {
   title: 'New game',
