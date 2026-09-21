@@ -29,7 +29,7 @@ const SETTINGS_ROUTES = () => '/settings';
 SETTINGS_ROUTES.profile = () => '/settings/profile';
 SETTINGS_ROUTES.preferences = () => '/settings/preferences';
 SETTINGS_ROUTES.security = () => '/settings/security';
-SETTINGS_ROUTES.billing = () => '/settings/billing';
+SETTINGS_ROUTES.subscription = () => '/settings/subscription';
 
 const ADMIN_ROUTES = () => '/admin';
 
