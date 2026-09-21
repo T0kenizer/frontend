@@ -61,8 +61,8 @@ const sample: NonNullable<Story['render']> = function Render(args) {
   return (
     <Card {...args} className="w-80">
       <CardHeader>
-        <CardTitle>Vendredi soir</CardTitle>
-        <CardDescription>4 joueurs · cave de 100 jetons</CardDescription>
+        <CardTitle>Friday night</CardTitle>
+        <CardDescription>4 players · 100-chip buy-in</CardDescription>
         <CardAction>
           <Button variant="ghost" size="icon-sm" aria-label="Options">
             <MoreHorizontalIcon />
@@ -70,12 +70,12 @@ const sample: NonNullable<Story['render']> = function Render(args) {
         </CardAction>
       </CardHeader>
       <CardContent>
-        La partie est prête. Distribue les caves et projette la table sur la TV.
+        The game is ready. Deal the buy-ins and cast the table to the TV.
       </CardContent>
       <CardFooter>
         <Button size="sm">
           <CoinsIcon data-icon="inline-start" />
-          Lancer
+          Start
         </Button>
       </CardFooter>
     </Card>
@@ -159,7 +159,7 @@ export const ChipRims: Story = {
           <Card key={rim} {...args} rim={rim} size="sm" className="w-40">
             <CardHeader>
               <CardTitle>${rim}</CardTitle>
-              <CardDescription>Jeton</CardDescription>
+              <CardDescription>Chip</CardDescription>
             </CardHeader>
           </Card>
         ))}
@@ -179,10 +179,10 @@ export const Sizes: Story = {
         {sizes.map((size) => (
           <Card key={size} {...args} size={size} className="w-64">
             <CardHeader>
-              <CardTitle>Taille {size}</CardTitle>
-              <CardDescription>Padding, gap et titre suivent.</CardDescription>
+              <CardTitle>Size {size}</CardTitle>
+              <CardDescription>Padding, gap and title follow.</CardDescription>
             </CardHeader>
-            <CardContent>Cave de 100 jetons.</CardContent>
+            <CardContent>100-chip buy-in.</CardContent>
           </Card>
         ))}
       </div>

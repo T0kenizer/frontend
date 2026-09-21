@@ -17,22 +17,22 @@ export type PasswordRule = {
 export const defaultRules: PasswordRule[] = [
   {
     id: 'len',
-    label: `${COMFORTABLE_LENGTH} caractères minimum`,
+    label: `${COMFORTABLE_LENGTH} characters or more`,
     test: (value) => value.length >= COMFORTABLE_LENGTH,
   },
   {
     id: 'case',
-    label: 'Une majuscule et une minuscule',
+    label: 'Upper and lower case letters',
     test: (value) => /[A-Z]/.test(value) && /[a-z]/.test(value),
   },
   {
     id: 'num',
-    label: 'Un chiffre ou un symbole',
+    label: 'A number or a symbol',
     test: (value) => /[\d\W]/.test(value),
   },
 ];
 
-const LABELS = ['Trop court', 'Faible', 'Correct', 'Solide', 'Excellent'];
+const LABELS = ['Too short', 'Weak', 'Fair', 'Strong', 'Excellent'];
 
 /** 0–4, same scoring as the Tokenizer auth screens. */
 export const scorePassword = (value: string): number => {
@@ -74,7 +74,7 @@ export const PasswordStrength: React.FC<PasswordStrengthProps> = ({
   value,
   rules = defaultRules,
   meterOnly = false,
-  emptyHint = `${COMFORTABLE_LENGTH} caractères minimum`,
+  emptyHint = `${COMFORTABLE_LENGTH} characters or more`,
   className,
   ...props
 }) => {
@@ -91,9 +91,7 @@ export const PasswordStrength: React.FC<PasswordStrengthProps> = ({
       <div
         className="flex gap-1"
         role="img"
-        aria-label={
-          value ? `Force du mot de passe : ${label}` : 'Force du mot de passe'
-        }
+        aria-label={value ? `Password strength: ${label}` : 'Password strength'}
       >
         {Array.from({ length: MAX_SCORE }, (_, index) => (
           <span
