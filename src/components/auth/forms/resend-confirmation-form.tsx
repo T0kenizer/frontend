@@ -10,47 +10,50 @@ import {
 } from '@components/ui/field';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { applyServerError } from '@lib/form-errors';
-import { requestResetOptions } from '@services/password-resets/password-resets.options';
+import { requestConfirmationOptions } from '@services/account-confirmations/account-confirmations.options';
 import { useMutation } from '@tanstack/react-query';
-import { requestResetDataSchema } from '@tokenizer/shared/schemas';
-import { RequestResetData } from '@tokenizer/shared/types';
+import { requestConfirmationDataSchema } from '@tokenizer/shared/schemas';
+import { RequestConfirmationData } from '@tokenizer/shared/types';
+import { useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
-export type ForgotPasswordFormProps = Omit<
+export type ResendConfirmationFormProps = Omit<
   React.ComponentProps<'form'>,
   'onSubmit'
-> & {
-  /** Prefilled when coming back from the mail screen to fix a typo. */
-  defaultEmail?: string;
-  onSent: (email: string) => void;
-};
+>;
 
-export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
-  defaultEmail = '',
-  onSent,
+export const ResendConfirmationForm: React.FC<ResendConfirmationFormProps> = ({
   ...props
 }) => {
-  const form = useForm<RequestResetData>({
-    resolver: zodResolver(requestResetDataSchema),
-    defaultValues: { email: defaultEmail },
+  const [submitted, setSubmitted] = useState(false);
+  const form = useForm<RequestConfirmationData>({
+    resolver: zodResolver(requestConfirmationDataSchema),
+    defaultValues: { email: '' },
   });
-  const { mutate: requestReset, isPending } = useMutation(
-    requestResetOptions(),
+  const { mutate: requestConfirmation, isPending } = useMutation(
+    requestConfirmationOptions(),
   );
 
   const email = useWatch({ control: form.control, name: 'email' });
   const isIncomplete = !email;
 
-  const handleSubmit = (data: RequestResetData) => {
+  const handleSubmit = (data: RequestConfirmationData) => {
     if (isPending) return;
 
-    /* The caller never learns whether the address was on file — the API does
-       not say, and saying would enumerate accounts. */
-    requestReset(data, {
-      onSuccess: () => onSent(data.email),
+    requestConfirmation(data, {
+      onSuccess: () => setSubmitted(true),
       onError: (error) => applyServerError(form, error),
     });
   };
+
+  if (submitted) {
+    return (
+      <p className="text-muted-foreground text-sm leading-relaxed">
+        If an unconfirmed account exists for this email, you will receive a new
+        confirmation link shortly.
+      </p>
+    );
+  }
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} noValidate {...props}>
@@ -60,10 +63,10 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="forgot-email">Email</FieldLabel>
+              <FieldLabel htmlFor="resend-confirmation-email">Email</FieldLabel>
               <EmailInput
                 {...field}
-                id="forgot-email"
+                id="resend-confirmation-email"
                 aria-invalid={fieldState.invalid}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -77,7 +80,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           disabled={isPending || isIncomplete}
           className="mt-1 h-11 w-full text-[0.9375rem]"
         >
-          Send reset link
+          Send confirmation link
         </Button>
       </FieldGroup>
     </form>
