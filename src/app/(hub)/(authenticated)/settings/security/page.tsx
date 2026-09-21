@@ -10,12 +10,15 @@ const Page: React.FC = () => (
       <ChangePasswordForm />
     </SettingsSection>
     <SettingsSection
+      variant="danger"
       title="Delete account"
       description="Permanently delete your account and all associated data."
     >
-      <DeleteAccountDialog>
-        <Button variant="destructive">Delete account</Button>
-      </DeleteAccountDialog>
+      <div className="pt-4">
+        <DeleteAccountDialog>
+          <Button variant="destructive">Delete account</Button>
+        </DeleteAccountDialog>
+      </div>
     </SettingsSection>
   </SettingsTabContainer>
 );

@@ -1,5 +1,4 @@
-import { ResetPasswordForm } from '@components/auth/forms/reset-password-form';
-import { Main } from '@components/layout/main';
+import { ResetPassword } from '@components/auth/reset-password';
 import ROUTES from '@constants/routes';
 import { redirect } from 'next/navigation';
 
@@ -12,11 +11,7 @@ const Page: React.FC<PageProps> = async ({ searchParams }) => {
 
   if (!token) redirect(ROUTES.auth.forgotPassword());
 
-  return (
-    <Main>
-      <ResetPasswordForm token={token} />
-    </Main>
-  );
+  return <ResetPassword token={token} />;
 };
 
 export default Page;
