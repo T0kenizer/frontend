@@ -1,14 +1,18 @@
 'use client';
 
+import { EmailInput } from '@components/inputs/email-input';
+import { PasswordInput } from '@components/inputs/password-input';
+import { UsernameInput } from '@components/inputs/username-input';
+import { PasswordStrength } from '@components/password-strength';
 import { Button } from '@components/ui/button';
+import { Checkbox } from '@components/ui/checkbox';
 import {
   Field,
+  FieldContent,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from '@components/ui/field';
-import { Input } from '@components/ui/input';
-import { PasswordInput } from '@components/ui/input/password-input';
 import ROUTES from '@constants/routes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { applyServerError } from '@lib/form-errors';
@@ -18,24 +22,23 @@ import { createUserOptions } from '@services/users/users.options';
 import { useMutation } from '@tanstack/react-query';
 import { createUserDataSchema } from '@tokenizer/shared/schemas';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
 const schema = createUserDataSchema
   .extend({
-    confirmPassword: createUserDataSchema.shape.password,
     acceptTerms: z.boolean(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-  })
   .refine((data) => data.acceptTerms, {
-    message: 'You must accept the terms and conditions',
+    message: 'You must accept the terms to create an account',
+    path: ['acceptTerms'],
   });
 
 type FormData = z.infer<typeof schema>;
 
-export const SignUpForm: React.FC = () => {
+export type SignUpFormProps = Omit<React.ComponentProps<'form'>, 'onSubmit'>;
+
+export const SignUpForm: React.FC<SignUpFormProps> = ({ ...props }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = sanitizeRedirectUrl(searchParams.get(REDIRECT_URL_PARAM));
@@ -45,8 +48,7 @@ export const SignUpForm: React.FC = () => {
       username: '',
       email: '',
       password: '',
-      confirmPassword: '',
-      acceptTerms: true,
+      acceptTerms: false,
     },
   });
   const { mutate: createUser, isPending: isCreatingUser } =
@@ -55,6 +57,12 @@ export const SignUpForm: React.FC = () => {
     createSessionOptions(),
   );
   const isPending = isCreatingUser || isCreatingSession;
+  // The terms box counts as a field: unticked, there is nothing to send.
+  const [username, email, password, acceptTerms] = useWatch({
+    control: form.control,
+    name: ['username', 'email', 'password', 'acceptTerms'],
+  });
+  const isIncomplete = !username || !email || !password || !acceptTerms;
 
   const handleSubmit = (data: FormData) => {
     if (isPending) return;
@@ -81,7 +89,7 @@ export const SignUpForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)}>
+    <form onSubmit={form.handleSubmit(handleSubmit)} noValidate {...props}>
       <FieldGroup>
         <Controller
           name="username"
@@ -89,10 +97,9 @@ export const SignUpForm: React.FC = () => {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor="signup-username">Username</FieldLabel>
-              <Input
+              <UsernameInput
                 {...field}
                 id="signup-username"
-                autoComplete="username"
                 aria-invalid={fieldState.invalid}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -105,10 +112,9 @@ export const SignUpForm: React.FC = () => {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor="signup-email">Email</FieldLabel>
-              <Input
+              <EmailInput
                 {...field}
                 id="signup-email"
-                autoComplete="email"
                 aria-invalid={fieldState.invalid}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -127,30 +133,47 @@ export const SignUpForm: React.FC = () => {
                 autoComplete="new-password"
                 aria-invalid={fieldState.invalid}
               />
+              <PasswordStrength value={password} meterOnly />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
         <Controller
-          name="confirmPassword"
+          name="acceptTerms"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="signup-confirm-password">
-                Confirm Password
-              </FieldLabel>
-              <PasswordInput
-                {...field}
-                id="signup-confirm-password"
-                autoComplete="new-password"
+            <Field orientation="horizontal" data-invalid={fieldState.invalid}>
+              <Checkbox
+                id="signup-terms"
+                name={field.name}
+                ref={field.ref}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+                onBlur={field.onBlur}
                 aria-invalid={fieldState.invalid}
               />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              <FieldContent>
+                <FieldLabel
+                  htmlFor="signup-terms"
+                  className="text-muted-foreground text-xs leading-relaxed font-normal"
+                >
+                  I accept the terms of service and the privacy policy.
+                </FieldLabel>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </FieldContent>
             </Field>
           )}
         />
-        <Button type="submit" disabled={isPending} className="w-full">
-          Sign Up
+        <Button
+          type="submit"
+          size="lg"
+          loading={isPending}
+          disabled={isPending || isIncomplete}
+          className="mt-1 h-11 w-full text-[0.9375rem]"
+        >
+          Create my account
         </Button>
       </FieldGroup>
     </form>
