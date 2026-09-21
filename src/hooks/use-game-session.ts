@@ -1,4 +1,5 @@
 import { RequesterError } from '@lib/requester';
+import * as API from '@services/games/games.api';
 import {
   GAMES_QUERY_KEYS,
   retrieveGameOptions,
@@ -13,6 +14,11 @@ import {
   type GameSocketFailure,
   type RoundResolvedPayload,
 } from '@services/games/games.socket';
+import {
+  clearPlayerToken,
+  readPlayerToken,
+  writePlayerToken,
+} from '@services/games/games.tokens';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { GameSnapshot, RoundResolution } from '@tokenizer/shared/types';
 import * as React from 'react';
@@ -22,8 +28,6 @@ const ACK_TIMEOUT_MS = 10_000;
 export interface UseGameSessionParams {
   /** The game session uuid; undefined while unknown (query disabled). */
   gameId: Optional<string>;
-  /** External identity: authenticated user uuid or an anonymous client id. */
-  externalId: Optional<string>;
   /** Gate the whole connection (e.g. while the auth session is loading). */
   enabled?: boolean;
 }
@@ -33,8 +37,6 @@ export interface JoinSeatParams {
   displayName?: string;
   /** Seat to claim; omit to take the first free one. */
   seatIndex?: number;
-  /** A captured JPEG data-URL; omit to fall back to the account avatar. */
-  photo?: string;
 }
 
 function unwrapAck<T>(response: GameAck<T>): T {
@@ -47,30 +49,38 @@ function unwrapAck<T>(response: GameAck<T>): T {
 /**
  * Live connection to a game room.
  *
- * 1. Fetches the game state over REST — this lazily (re)opens the room server-side
- *    and returns the snapshot carrying the join code.
- * 2. Once the join code is known, opens the Socket.IO connection and streams the
- *    room state — this does NOT claim a seat: the caller sees the table
- *    (free/occupied seats) before committing to one.
- * 3. Call `join()` once the visitor picked a seat, a display name and (optionally)
- *    a photo — this emits `game:join`, which binds the socket to the room and
- *    claims the seat. Every `game:*` broadcast after that refreshes the
- *    react-query cache, so `snapshot` is always the latest server state.
+ * 1. Fetches the game over REST, which opens the room server-side.
+ * 2. If a player token for this game is already stored, replays it: the seat comes
+ *    back, which is what makes a page refresh a non-event rather than a
+ *    departure. Otherwise the visitor watches the table until they call
+ *    `join()` and pick a seat.
+ * 3. With a token in hand, attaches the socket (`game:attach`) and streams the
+ *    room. Every `game:*` broadcast refreshes the react-query cache, so
+ *    `snapshot` is always the latest server state.
+ *
+ * The token is the only identity the client holds. Nothing here sends a user id
+ * or a seat index to prove who it is.
  */
 export function useGameSession(params: UseGameSessionParams) {
-  const { gameId, externalId, enabled = true } = params;
+  const { gameId, enabled = true } = params;
 
   const queryClient = useQueryClient();
   const socketRef = React.useRef<Nullable<GameSocket>>(null);
+  // The stored token is read inside the socket effect, not mirrored into
+  // state: reading localStorage during render is unsafe under SSR, and a
+  // synchronous setState in an effect only to copy it there would cascade a
+  // render for nothing. This counter is what re-runs the effect when the token
+  // actually changes — a join, or a token the server refused.
+  const [tokenVersion, setTokenVersion] = React.useState(0);
+  const [participantId, setParticipantId] =
+    React.useState<Nullable<string>>(null);
   const [isConnected, setIsConnected] = React.useState(false);
-  const [isJoined, setIsJoined] = React.useState(false);
+  const [isAttached, setIsAttached] = React.useState(false);
   const [socketError, setSocketError] = React.useState<Nullable<string>>(null);
   const [resolution, setResolution] =
     React.useState<Nullable<RoundResolution>>(null);
 
-  // 1. REST fetch: opens the room server-side and yields its join code.
   const query = useQuery(retrieveGameOptions(enabled ? gameId : undefined));
-  const joinCode = query.data?.joinCode;
 
   const setSnapshot = React.useCallback(
     (snapshot: GameSnapshot) => {
@@ -82,13 +92,14 @@ export function useGameSession(params: UseGameSessionParams) {
     [queryClient],
   );
 
-  // 2. Join code known → open the socket and stream the state. A visitor who
-  // already occupies a seat (the host, or a returning player) is silently
-  // re-joined so the socket's identity is bound — an idempotent re-claim,
-  // server-side. A visitor with no seat yet stays unbound until they pick one
-  // through `join()`.
+  // Socket lifecycle. A token stored from an earlier visit is a returning
+  // player, not a new one: it is replayed here, which is what turns a page
+  // refresh into a reconnection instead of a departure.
   React.useEffect(() => {
-    if (!enabled || !joinCode || !externalId) return;
+    if (!enabled || !gameId) return;
+
+    const token = readPlayerToken(gameId);
+    if (!token) return;
 
     const socket = createGameSocket();
     socketRef.current = socket;
@@ -103,39 +114,33 @@ export function useGameSession(params: UseGameSessionParams) {
       setIsConnected(true);
       setSocketError(null);
 
-      const existingSeat = queryClient
-        .getQueryData<GameSnapshot>(GAMES_QUERY_KEYS.retrieve(gameId ?? ''))
-        ?.participants.find((p) => p.controller === externalId);
-      if (existingSeat) {
-        // Re-claim as-is: no override, the already-resolved name/photo stays.
-        socket.emit(
-          GAME_CLIENT_MESSAGES.JOIN,
-          {
-            joinCode,
-            externalId,
-            seatIndex: existingSeat.seatIndex,
-          },
-          (response) => {
-            if (
-              response &&
-              typeof response === 'object' &&
-              'error' in response
-            ) {
-              setSocketError(response.error);
-              return;
-            }
-            setSnapshot(response);
-            setIsJoined(true);
-          },
-        );
-      }
+      socket.emit(
+        GAME_CLIENT_MESSAGES.ATTACH,
+        { gameUuid: gameId, token },
+        (response) => {
+          if (response && typeof response === 'object' && 'error' in response) {
+            // A token the server refuses is worthless: drop it rather than
+            // retry-loop on every reconnect.
+            setSocketError(response.error);
+            clearPlayerToken(gameId);
+            setParticipantId(null);
+            setTokenVersion((version) => version + 1);
+            return;
+          }
+          setSnapshot(response.snapshot);
+          setParticipantId(response.participantId);
+          setIsAttached(true);
+        },
+      );
     });
     socket.on('disconnect', () => {
       setIsConnected(false);
-      setIsJoined(false);
+      setIsAttached(false);
     });
     socket.on(GAME_SERVER_EVENTS.PARTICIPANT_JOINED, setSnapshot);
     socket.on(GAME_SERVER_EVENTS.PARTICIPANT_UPDATED, setSnapshot);
+    socket.on(GAME_SERVER_EVENTS.PARTICIPANT_DISCONNECTED, setSnapshot);
+    socket.on(GAME_SERVER_EVENTS.PARTICIPANT_LEFT, setSnapshot);
     socket.on(GAME_SERVER_EVENTS.ROUND_STARTED, setSnapshot);
     socket.on(GAME_SERVER_EVENTS.ACTION_APPLIED, setSnapshot);
     socket.on(GAME_SERVER_EVENTS.ROUND_RESOLVED, handleResolved);
@@ -146,9 +151,9 @@ export function useGameSession(params: UseGameSessionParams) {
       socket.disconnect();
       socketRef.current = null;
       setIsConnected(false);
-      setIsJoined(false);
+      setIsAttached(false);
     };
-  }, [enabled, joinCode, externalId, gameId, queryClient, setSnapshot]);
+  }, [enabled, gameId, tokenVersion, setSnapshot]);
 
   /** Connected socket with an ack timeout, or throws. */
   const liveSocket = React.useCallback(() => {
@@ -159,50 +164,50 @@ export function useGameSession(params: UseGameSessionParams) {
     return socket.timeout(ACK_TIMEOUT_MS);
   }, []);
 
-  /** Claims a seat: picked by the visitor, with a name and optional photo. */
+  /**
+   * Takes a seat. This is an HTTP call, not a socket message: it is where the
+   * server decides who the player is (session user, else anonymous) and hands
+   * back the token everything afterwards rides on.
+   */
   const join = React.useCallback(
     async (seat: JoinSeatParams): Promise<GameSnapshot> => {
-      if (!externalId) throw new Error('Missing external identity');
-      const response = await liveSocket().emitWithAck(
-        GAME_CLIENT_MESSAGES.JOIN,
-        {
-          joinCode: joinCode!,
-          externalId,
-          displayName: seat.displayName,
-          seatIndex: seat.seatIndex,
-          photo: seat.photo,
-        },
-      );
-      const snapshot = unwrapAck(response);
-      setIsJoined(true);
-      return snapshot;
+      if (!gameId) throw new Error('Missing game id');
+
+      const result = await API.joinGame(gameId, {
+        token: readPlayerToken(gameId) ?? undefined,
+        displayName: seat.displayName,
+        seatIndex: seat.seatIndex,
+      });
+
+      writePlayerToken(gameId, result.token);
+      setParticipantId(result.participantId);
+      // Re-runs the socket effect, which picks the new token up and attaches.
+      setTokenVersion((version) => version + 1);
+      setSnapshot(result.snapshot);
+      return result.snapshot;
     },
-    [liveSocket, joinCode, externalId],
+    [gameId, setSnapshot],
   );
 
-  /** Renames/re-photos the seat already claimed by this identity. */
+  /** Renames the seat this token belongs to. */
   const updateSeat = React.useCallback(
-    async (data: {
-      displayName?: Nullable<string>;
-      photo?: Nullable<string>;
-    }): Promise<GameSnapshot> => {
+    async (data: { displayName?: Nullable<string> }): Promise<GameSnapshot> => {
       const response = await liveSocket().emitWithAck(
         GAME_CLIENT_MESSAGES.UPDATE_SEAT,
-        { joinCode: joinCode!, ...data },
+        data,
       );
       return unwrapAck(response);
     },
-    [liveSocket, joinCode],
+    [liveSocket],
   );
 
   /** Host only: starts a round (forced bets applied server-side). */
   const startRound = React.useCallback(async (): Promise<GameSnapshot> => {
     const response = await liveSocket().emitWithAck(
       GAME_CLIENT_MESSAGES.START_ROUND,
-      { joinCode: joinCode! },
     );
     return unwrapAck(response);
-  }, [liveSocket, joinCode]);
+  }, [liveSocket]);
 
   const submitAction = React.useCallback(
     async (
@@ -211,35 +216,38 @@ export function useGameSession(params: UseGameSessionParams) {
     ): Promise<GameActionResult> => {
       const response = await liveSocket().emitWithAck(
         GAME_CLIENT_MESSAGES.ACTION,
-        { joinCode: joinCode!, definitionId, amount },
+        { definitionId, amount },
       );
       return unwrapAck(response);
     },
-    [liveSocket, joinCode],
+    [liveSocket],
   );
 
   /** Host only: manual round resolution. */
   const resolveRound = React.useCallback(
-    async (winnerExternalIds?: string[]): Promise<GameActionResult> => {
+    async (winnerParticipantIds?: string[]): Promise<GameActionResult> => {
       const response = await liveSocket().emitWithAck(
         GAME_CLIENT_MESSAGES.RESOLVE,
-        { joinCode: joinCode!, winnerExternalIds },
+        { winnerParticipantIds },
       );
       return unwrapAck(response);
     },
-    [liveSocket, joinCode],
+    [liveSocket],
   );
 
   /** Host only: closes the session for good. */
   const closeGame = React.useCallback(async (): Promise<GameSnapshot> => {
-    const response = await liveSocket().emitWithAck(
-      GAME_CLIENT_MESSAGES.CLOSE,
-      {
-        joinCode: joinCode!,
-      },
-    );
-    return unwrapAck(response);
-  }, [liveSocket, joinCode]);
+    const response = await liveSocket().emitWithAck(GAME_CLIENT_MESSAGES.CLOSE);
+    const snapshot = unwrapAck(response);
+    if (gameId) clearPlayerToken(gameId);
+    return snapshot;
+  }, [liveSocket, gameId]);
+
+  /** The seat this client holds, recognised through its own token. */
+  const mySeat = React.useMemo(() => {
+    if (!participantId) return null;
+    return query.data?.participants.find((p) => p.id === participantId) ?? null;
+  }, [query.data, participantId]);
 
   return {
     /** Latest server state, live-updated through the socket. */
@@ -250,15 +258,19 @@ export function useGameSession(params: UseGameSessionParams) {
 
     /** Socket lifecycle */
     isConnected,
-    isJoined,
+    isAttached,
     socketError,
+
+    /** This client's seat, or null while it holds none. */
+    participantId,
+    mySeat,
 
     /** Last round resolution broadcast, if any. */
     resolution,
 
-    /** Claims a seat picked by the visitor. */
+    /** Takes a seat and issues this client's token. */
     join,
-    /** Renames/re-photos the seat already claimed by this identity. */
+    /** Renames the seat this client holds. */
     updateSeat,
 
     /** Gameplay actions (acked over the socket). */

@@ -1,11 +1,8 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import { Button } from '@components/ui/button';
-import { CameraCapture } from '@components/game/camera-capture';
 import { Field, FieldGroup, FieldLabel } from '@components/ui/field';
 import { Input } from '@components/ui/input';
-import { resolveApiUrl } from '@services/games/games.api';
 import type { ParticipantSnapshot } from '@tokenizer/shared/types';
 import * as React from 'react';
 import { toast } from 'sonner';
@@ -13,29 +10,17 @@ import { toast } from 'sonner';
 export interface SeatUpdateFormProps {
   seat: ParticipantSnapshot;
   onCancel: () => void;
-  onSubmit: (data: {
-    displayName?: Nullable<string>;
-    photo?: Nullable<string>;
-  }) => Promise<void>;
+  onSubmit: (data: { displayName?: Nullable<string> }) => Promise<void>;
 }
 
-/** Renames/re-photos a seat the visitor already controls. */
+/** Renames the seat this client's token belongs to. */
 export const SeatUpdateForm: React.FC<SeatUpdateFormProps> = ({
   seat,
   onCancel,
   onSubmit,
 }) => {
   const [displayName, setDisplayName] = React.useState(seat.displayName);
-  // Holds either the seat's current (relative, API-resolved) photo URL, a
-  // freshly captured data-URL, or null (cleared) — resolved for display only.
-  const [photoUrl, setPhotoUrl] = React.useState<Nullable<string>>(
-    seat.photoUrl,
-  );
-  const [isRetaking, setIsRetaking] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const displayedPhotoUrl =
-    photoUrl && photoUrl === seat.photoUrl ? resolveApiUrl(photoUrl) : photoUrl;
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -48,7 +33,6 @@ export const SeatUpdateForm: React.FC<SeatUpdateFormProps> = ({
           displayName.trim() === seat.displayName
             ? undefined
             : displayName.trim(),
-        photo: photoUrl === seat.photoUrl ? undefined : photoUrl,
       });
     } catch (error) {
       toast.error(
@@ -72,45 +56,6 @@ export const SeatUpdateForm: React.FC<SeatUpdateFormProps> = ({
             maxLength={60}
             required
           />
-        </Field>
-
-        <Field>
-          <FieldLabel>Seat photo</FieldLabel>
-          {isRetaking ? (
-            <CameraCapture
-              onCapture={(dataUrl) => {
-                setPhotoUrl(dataUrl);
-                setIsRetaking(false);
-              }}
-            />
-          ) : (
-            <div className="flex items-center gap-3">
-              <Avatar size="xl">
-                {displayedPhotoUrl && (
-                  <AvatarImage src={displayedPhotoUrl} alt="" />
-                )}
-                <AvatarFallback />
-              </Avatar>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => setIsRetaking(true)}
-              >
-                Retake photo
-              </Button>
-              {photoUrl && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setPhotoUrl(null)}
-                >
-                  Remove
-                </Button>
-              )}
-            </div>
-          )}
         </Field>
       </FieldGroup>
 

@@ -5,7 +5,6 @@ import { Button } from '@components/ui/button';
 import { SeatJoinForm } from '@components/game/seat-join-form';
 import { SeatUpdateForm } from '@components/game/seat-update-form';
 import { useGameSession } from '@hooks/use-game-session';
-import { useGuestIdentity } from '@hooks/use-guest-identity';
 import { resolveApiUrl } from '@services/games/games.api';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useQuery } from '@tanstack/react-query';
@@ -17,31 +16,26 @@ interface GameRoomProps {
 
 /**
  * Live game room: the visitor sees the table (free/occupied seats) before
- * committing to one — picking a free seat opens a form (name + camera photo)
- * that claims it. Once seated, the same identity can rename/re-photo their
- * seat at any time. The real table UI (rounds, actions) replaces the
- * remaining markup later; the seat lifecycle wiring stays.
+ * committing to one — picking a free seat opens a form that claims it and
+ * issues this client's player token. Once seated, the token is what identifies
+ * them, so a refresh lands back in the same chair. The real table UI (rounds,
+ * actions) replaces the remaining markup later; the seat wiring stays.
  */
 export const GameRoom: React.FC<GameRoomProps> = ({ gameId }) => {
   const { data: session, isSuccess } = useQuery(retrieveSessionOptions());
-  const guest = useGuestIdentity();
   const [pickedSeat, setPickedSeat] = React.useState<Optional<number>>(
     undefined,
   );
   const [isEditingSeat, setIsEditingSeat] = React.useState(false);
 
-  // Signed-in users join as themselves; anonymous visitors fall back to the
-  // persisted guest identity — but only once the session query settled, so a
-  // logged-in user is never mistakenly seated as a guest.
-  const guestFallback = isSuccess && !session ? guest : undefined;
-  const externalId = session?.user.uuid ?? guestFallback?.externalId;
+  // Who the player is stays a server decision: the join call reads the session
+  // cookie if there is one. All the client contributes is a suggested name.
   const defaultDisplayName =
-    session?.user.displayName ?? session?.user.username ?? guestFallback?.displayName;
-  const defaultPhotoUrl = session?.user.avatarUrl
-    ? resolveApiUrl(session.user.avatarUrl)
-    : undefined;
+    session?.user.displayName ?? session?.user.username;
 
-  const game = useGameSession({ gameId, externalId });
+  // Gate on the session query so a signed-in player is never seated before
+  // their cookie could be read, which would seat them as a guest.
+  const game = useGameSession({ gameId, enabled: isSuccess });
 
   if (game.isLoading) {
     return (
@@ -59,15 +53,18 @@ export const GameRoom: React.FC<GameRoomProps> = ({ gameId }) => {
     );
   }
 
-  const mySeat = game.snapshot.participants.find(
-    (p) => p.controller === externalId,
-  );
+  // The client recognises its own seat through the participant id its token
+  // names — the snapshot no longer says who holds what, and deliberately so.
+  const mySeat = game.mySeat;
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
       <header className="flex items-center gap-3">
         <h1 className="text-lg font-semibold">
-          Game <span className="font-mono">{game.snapshot.joinCode}</span>
+          {game.snapshot.name}{' '}
+          {game.snapshot.joinCode && (
+            <span className="font-mono">{game.snapshot.joinCode}</span>
+          )}
         </h1>
         <span className="text-muted-foreground text-sm">
           {game.snapshot.status}
@@ -81,8 +78,8 @@ export const GameRoom: React.FC<GameRoomProps> = ({ gameId }) => {
 
       <ul className="flex flex-col gap-2 text-sm">
         {game.snapshot.participants.map((participant) => {
-          const isMine = participant.controller === externalId;
-          const isFree = participant.controller === null;
+          const isMine = participant.id === game.participantId;
+          const isFree = !participant.claimed;
 
           return (
             <li key={participant.id} className="flex items-center gap-3">
@@ -100,11 +97,12 @@ export const GameRoom: React.FC<GameRoomProps> = ({ gameId }) => {
               </span>
               <span className="text-muted-foreground">
                 {participant.role} · {participant.status} · {participant.balance}
+                {participant.claimed && !participant.connected && ' · away'}
               </span>
               {game.snapshot?.currentRound?.turn.activeParticipant ===
                 participant.id && <span aria-label="active turn">🎯</span>}
 
-              {isFree && !mySeat && game.isConnected && (
+              {isFree && !mySeat && (
                 <Button
                   size="xs"
                   variant="secondary"
@@ -132,7 +130,6 @@ export const GameRoom: React.FC<GameRoomProps> = ({ gameId }) => {
           <SeatJoinForm
             seatIndex={pickedSeat}
             defaultDisplayName={defaultDisplayName}
-            defaultPhotoUrl={defaultPhotoUrl}
             onCancel={() => setPickedSeat(undefined)}
             onSubmit={async (data) => {
               await game.join({ seatIndex: pickedSeat, ...data });

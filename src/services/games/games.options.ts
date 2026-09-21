@@ -1,23 +1,27 @@
 import { getQueryClient } from '@lib/query-client';
 import { RequesterError } from '@lib/requester';
 import * as API from '@services/games/games.api';
+import { writePlayerToken } from '@services/games/games.tokens';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 import {
   ClaimSeatData,
   ClaimSeatResponse,
   CreateGameSessionData,
   CreateGameSessionResponse,
+  JoinByCodeResponse,
   RetrieveGameSessionResponse,
+  RetrieveRoomByCodeResponse,
 } from '@tokenizer/shared/types';
 
 export const GAMES_QUERY_KEYS = {
   retrieve: (uuid: string) => ['games', 'retrieve', uuid] as const,
+  roomByCode: (code: string) => ['games', 'roomByCode', code] as const,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as const satisfies Record<string, (...args: any[]) => readonly any[]>;
 
 export const GAMES_MUTATION_KEYS = {
   create: () => ['games', 'create'] as const,
-  claimSeat: () => ['games', 'claimSeat'] as const,
+  join: () => ['games', 'join'] as const,
   joinByCode: () => ['games', 'joinByCode'] as const,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as const satisfies Record<string, (...args: any[]) => readonly any[]>;
@@ -33,7 +37,20 @@ export const retrieveGameOptions = (uuid: Optional<string>) =>
     queryFn: () => API.retrieveGame(uuid!),
     enabled: !!uuid,
     staleTime: Infinity, // live data flows in through the socket
-    gcTime: 5 * 60 * 1000, // matches the server-side idle room TTL
+    gcTime: 5 * 60 * 1000,
+  });
+
+/**
+ * The public view behind a dictated code, for confirming the room before
+ * committing to it. Never cached long: a code is short-lived by design.
+ */
+export const roomByCodeOptions = (code: Optional<string>) =>
+  queryOptions<RetrieveRoomByCodeResponse, RequesterError>({
+    queryKey: GAMES_QUERY_KEYS.roomByCode(code ?? ''),
+    queryFn: () => API.retrieveRoomByCode(code!),
+    enabled: !!code && /^\d{6}$/.test(code),
+    staleTime: 10_000,
+    retry: false, // the endpoint is tightly rate-limited; do not hammer it
   });
 
 export const createGameOptions = () =>
@@ -44,44 +61,40 @@ export const createGameOptions = () =>
   >({
     mutationKey: GAMES_MUTATION_KEYS.create(),
     mutationFn: (variables) => API.createGame(variables),
-    onSuccess: (snapshot) => {
-      // Seed the retrieve cache so the game page renders instantly.
+    onSuccess: (result) => {
+      // Creating a game seats the owner, so it hands back a token like a join.
+      writePlayerToken(result.snapshot.id, result.token);
       getQueryClient().setQueryData(
-        GAMES_QUERY_KEYS.retrieve(snapshot.id),
-        snapshot,
+        GAMES_QUERY_KEYS.retrieve(result.snapshot.id),
+        result.snapshot,
       );
     },
   });
 
 /**
- * Resolves a join code to its game session (opens the room server-side), then
- * seeds the retrieve cache so the room page renders instantly once navigated.
+ * Resolves a dictated code to a session uuid. That uuid is all the caller
+ * needs: it is what the room page, the REST calls and the socket are keyed by.
  */
 export const joinByCodeOptions = () =>
-  mutationOptions<RetrieveGameSessionResponse, RequesterError, string>({
+  mutationOptions<JoinByCodeResponse, RequesterError, string>({
     mutationKey: GAMES_MUTATION_KEYS.joinByCode(),
-    mutationFn: (joinCode) => API.retrieveGameByJoinCode(joinCode),
-    onSuccess: (snapshot) => {
-      getQueryClient().setQueryData(
-        GAMES_QUERY_KEYS.retrieve(snapshot.id),
-        snapshot,
-      );
-    },
+    mutationFn: (code) => API.joinByCode(code),
   });
 
-interface ClaimSeatVariables {
+interface JoinGameVariables {
   uuid: string;
   data: ClaimSeatData;
 }
 
-export const claimSeatOptions = () =>
-  mutationOptions<ClaimSeatResponse, RequesterError, ClaimSeatVariables>({
-    mutationKey: GAMES_MUTATION_KEYS.claimSeat(),
-    mutationFn: (variables) => API.claimSeat(variables.uuid, variables.data),
-    onSuccess: (snapshot) => {
+export const joinGameOptions = () =>
+  mutationOptions<ClaimSeatResponse, RequesterError, JoinGameVariables>({
+    mutationKey: GAMES_MUTATION_KEYS.join(),
+    mutationFn: (variables) => API.joinGame(variables.uuid, variables.data),
+    onSuccess: (result) => {
+      writePlayerToken(result.snapshot.id, result.token);
       getQueryClient().setQueryData(
-        GAMES_QUERY_KEYS.retrieve(snapshot.id),
-        snapshot,
+        GAMES_QUERY_KEYS.retrieve(result.snapshot.id),
+        result.snapshot,
       );
     },
   });

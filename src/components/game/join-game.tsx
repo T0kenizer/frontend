@@ -16,13 +16,17 @@ const joinGameDataSchema = z.object({
   code: z
     .string()
     .trim()
-    .length(6, 'Enter the 6-character code')
-    .transform((value) => value.toUpperCase()),
+    .regex(/^\d{6}$/, 'Enter the 6-digit code'),
 });
 
 type JoinGameData = z.infer<typeof joinGameDataSchema>;
 
-/** Resolves a shared 6-character join code and lands on the room. */
+/**
+ * Resolves a dictated 6-digit code to the room behind it.
+ *
+ * The code is used once, here, and then dropped: the route and everything
+ * after it are keyed by the session uuid the server hands back.
+ */
 export const JoinGame: React.FC = () => {
   const router = useRouter();
   const form = useForm({
@@ -36,7 +40,7 @@ export const JoinGame: React.FC = () => {
     if (isPending) return;
 
     joinByCode(data.code, {
-      onSuccess: (snapshot) => router.push(ROUTES.game(snapshot.id)),
+      onSuccess: ({ gameUuid }) => router.push(ROUTES.game(gameUuid)),
       onError: (error) => toast.error(error.message),
     });
   };
@@ -58,11 +62,11 @@ export const JoinGame: React.FC = () => {
                 <Input
                   {...field}
                   id="join-code"
-                  placeholder="ABC123"
+                  placeholder="123456"
                   autoComplete="off"
-                  autoCapitalize="characters"
+                  inputMode="numeric"
                   maxLength={6}
-                  className="text-center font-mono tracking-widest uppercase"
+                  className="text-center font-mono tracking-widest"
                   aria-invalid={fieldState.invalid}
                 />
                 {fieldState.invalid && (

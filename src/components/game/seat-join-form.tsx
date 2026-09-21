@@ -1,8 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import { Button } from '@components/ui/button';
-import { CameraCapture } from '@components/game/camera-capture';
 import {
   Field,
   FieldError,
@@ -17,34 +15,26 @@ export interface SeatJoinFormProps {
   seatIndex: number;
   /** Pre-filled from the signed-in account, if any; replaceable. */
   defaultDisplayName?: string;
-  /** Pre-filled avatar URL from the signed-in account, if any; replaceable. */
-  defaultPhotoUrl?: string;
   onCancel: () => void;
   onSubmit: (data: {
     /** Omitted when left as the pre-filled default (falls back server-side). */
     displayName?: string;
-    /** A captured JPEG data-URL; omitted when left as the pre-filled default. */
-    photo?: string;
   }) => Promise<void>;
 }
 
 /**
- * Name + live camera capture, submitted together to claim a seat. A
- * signed-in visitor sees their account name/avatar pre-filled but can
- * replace either — only an actual change is sent as an override.
+ * The name a visitor sits down under. A signed-in visitor sees their account
+ * name pre-filled but can replace it — only an actual change is sent as an
+ * override, so the seat otherwise keeps falling back to the account (and then
+ * the config) default, resolved server-side.
  */
 export const SeatJoinForm: React.FC<SeatJoinFormProps> = ({
   seatIndex,
   defaultDisplayName = '',
-  defaultPhotoUrl,
   onCancel,
   onSubmit,
 }) => {
   const [displayName, setDisplayName] = React.useState(defaultDisplayName);
-  const [capturedPhoto, setCapturedPhoto] = React.useState<
-    Optional<string>
-  >(undefined);
-  const [isRetaking, setIsRetaking] = React.useState(!defaultPhotoUrl);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -58,7 +48,6 @@ export const SeatJoinForm: React.FC<SeatJoinFormProps> = ({
           displayName.trim() === defaultDisplayName
             ? undefined
             : displayName.trim(),
-        photo: capturedPhoto,
       });
     } catch (error) {
       toast.error(
@@ -85,33 +74,6 @@ export const SeatJoinForm: React.FC<SeatJoinFormProps> = ({
           />
           {!displayName.trim() && (
             <FieldError errors={[{ message: 'A display name is required' }]} />
-          )}
-        </Field>
-
-        <Field>
-          <FieldLabel>Seat photo</FieldLabel>
-          {isRetaking ? (
-            <CameraCapture
-              onCapture={(dataUrl) => {
-                setCapturedPhoto(dataUrl);
-                setIsRetaking(false);
-              }}
-            />
-          ) : (
-            <div className="flex items-center gap-3">
-              <Avatar size="xl">
-                <AvatarImage src={capturedPhoto ?? defaultPhotoUrl} alt="" />
-                <AvatarFallback />
-              </Avatar>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => setIsRetaking(true)}
-              >
-                Retake
-              </Button>
-            </div>
           )}
         </Field>
       </FieldGroup>

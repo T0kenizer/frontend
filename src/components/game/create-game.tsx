@@ -21,7 +21,9 @@ export const CreateGame: React.FC = () => {
     createGame(
       {},
       {
-        onSuccess: (snapshot) => router.push(ROUTES.game(snapshot.id)),
+        // Creating a game seats the owner, so the result is a join result:
+        // the token is stored by the mutation, the uuid is the route.
+        onSuccess: (result) => router.push(ROUTES.game(result.snapshot.id)),
         onError: (error) => toast.error(error.message),
       },
     );

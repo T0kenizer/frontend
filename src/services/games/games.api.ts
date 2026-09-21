@@ -5,9 +5,11 @@ import {
   CloseGameSessionResponse,
   CreateGameSessionData,
   CreateGameSessionResponse,
+  JoinByCodeResponse,
   ResolveRoundData,
   ResolveRoundResponse,
   RetrieveGameSessionResponse,
+  RetrieveRoomByCodeResponse,
   StartRoundResponse,
   SubmitActionData,
   SubmitActionResponse,
@@ -15,10 +17,16 @@ import {
 
 const BASE_URL = '/games';
 
+/** Header the backend reads the player token from on in-game REST calls. */
+const PLAYER_TOKEN_HEADER = 'x-player-token';
+
+const asPlayer = (token: string) => ({
+  headers: { [PLAYER_TOKEN_HEADER]: token },
+});
+
 /**
  * Absolute URL for a relative API path (e.g. a snapshot's `photoUrl`, which
- * points at either this module's seat-photo route or the files module's content
- * route — both relative, meant to be resolved against the API origin).
+ * points at the files module's content route).
  */
 export const resolveApiUrl = (path: string): string =>
   `${client.defaults.baseURL}${path}`;
@@ -30,29 +38,72 @@ export const createGame = async (data: CreateGameSessionData) =>
 export const retrieveGame = async (uuid: string) =>
   requester().get<RetrieveGameSessionResponse>(`${BASE_URL}/${uuid}`);
 
-/** Resolves a 6-character join code to its game session. */
-export const retrieveGameByJoinCode = async (joinCode: string) =>
-  requester().get<RetrieveGameSessionResponse>(
-    `${BASE_URL}/by-code/${joinCode}`,
+/**
+ * Resolves a dictated 6-digit code to the session uuid behind it. That uuid is
+ * what every other call — and the socket room — is keyed by; the code is not
+ * used again.
+ */
+export const joinByCode = async (code: string) =>
+  requester().post<JoinByCodeResponse>(`${BASE_URL}/join-by-code`, { code });
+
+/**
+ * The public view behind a code: enough to confirm the room before joining it.
+ * Deliberately does not include the uuid.
+ */
+export const retrieveRoomByCode = async (code: string) =>
+  requester().get<RetrieveRoomByCodeResponse>(
+    `${BASE_URL}/room-by-code/${code}`,
   );
 
-export const claimSeat = async (uuid: string, data: ClaimSeatData) =>
+/** Takes a seat and returns the player token to keep for this session. */
+export const joinGame = async (uuid: string, data: ClaimSeatData) =>
   requester().post<ClaimSeatResponse>(`${BASE_URL}/${uuid}/participants`, data);
 
-/** Host only. */
-export const startRound = async (uuid: string) =>
-  requester().post<StartRoundResponse>(`${BASE_URL}/${uuid}/rounds`, {});
+export const updateSeat = async (
+  uuid: string,
+  token: string,
+  data: { displayName?: Nullable<string> },
+) =>
+  requester().patch(
+    `${BASE_URL}/${uuid}/participants/current`,
+    data,
+    asPlayer(token),
+  );
 
-export const submitAction = async (uuid: string, data: SubmitActionData) =>
-  requester().post<SubmitActionResponse>(`${BASE_URL}/${uuid}/actions`, data);
+/** Host only. */
+export const startRound = async (uuid: string, token: string) =>
+  requester().post<StartRoundResponse>(
+    `${BASE_URL}/${uuid}/rounds`,
+    {},
+    asPlayer(token),
+  );
+
+export const submitAction = async (
+  uuid: string,
+  token: string,
+  data: SubmitActionData,
+) =>
+  requester().post<SubmitActionResponse>(
+    `${BASE_URL}/${uuid}/actions`,
+    data,
+    asPlayer(token),
+  );
 
 /** Host only. */
-export const resolveRound = async (uuid: string, data: ResolveRoundData = {}) =>
+export const resolveRound = async (
+  uuid: string,
+  token: string,
+  data: ResolveRoundData = {},
+) =>
   requester().post<ResolveRoundResponse>(
     `${BASE_URL}/${uuid}/rounds/current/resolve`,
     data,
+    asPlayer(token),
   );
 
 /** Host only. */
-export const closeGame = async (uuid: string) =>
-  requester().delete<CloseGameSessionResponse>(`${BASE_URL}/${uuid}`);
+export const closeGame = async (uuid: string, token: string) =>
+  requester().delete<CloseGameSessionResponse>(
+    `${BASE_URL}/${uuid}`,
+    asPlayer(token),
+  );
