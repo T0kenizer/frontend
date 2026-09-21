@@ -1,4 +1,5 @@
 import requester, { client } from '@lib/requester';
+import { buildGameQrUrl } from '@tokenizer/shared/schemas';
 import {
   ClaimSeatData,
   ClaimSeatResponse,
@@ -30,6 +31,16 @@ const asPlayer = (token: string) => ({
  */
 export const resolveApiUrl = (path: string): string =>
   `${client.defaults.baseURL}${path}`;
+
+/**
+ * Where an `<img>` points to show a room's join QR.
+ *
+ * Deliberately a URL rather than a fetch: the image is immutable behind its
+ * uuid and served with a year of `Cache-Control`, so letting the browser own it
+ * beats carrying base64 through JSON on every render.
+ */
+export const gameQrUrl = (uuid: string): string =>
+  resolveApiUrl(buildGameQrUrl(uuid));
 
 export const createGame = async (data: CreateGameSessionData) =>
   requester().post<CreateGameSessionResponse>(BASE_URL, data);

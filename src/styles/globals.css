@@ -396,6 +396,64 @@
 
 @layer components {
   /**
+   * The table itself: the felt wash the connection hero leads with, lifted out
+   * of that one aside so every screen that is a table rather than a page —
+   * the whole `/game` tree, outside `(hub)` — reads as the same surface.
+   *
+   * Theme-invariant like the `--felt*` tokens it is built from: the backdrop
+   * is baize, not a theme, so it must not flip with light/dark. Anything set
+   * on it therefore belongs to the `on-media` family, never to `--foreground`.
+   */
+  .felt-surface {
+    position: relative;
+    isolation: isolate;
+    color: var(--on-media-foreground);
+    background: radial-gradient(
+      ellipse 80% 70% at 30% 20%,
+      var(--color-felt-bright),
+      var(--color-felt-deep) 58%,
+      var(--color-night-950)
+    );
+  }
+
+  /**
+   * The weave over the wash. A pair of opposed hairline gratings reads as
+   * cloth at a glance and costs nothing to paint; `-z-10` keeps it under the
+   * content of the element it belongs to rather than over it.
+   */
+  .felt-surface::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -10;
+    pointer-events: none;
+    opacity: 0.14;
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        oklch(1 0 0 / 0.07) 0 1px,
+        transparent 1px 4px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        oklch(0 0 0 / 0.09) 0 1px,
+        transparent 1px 4px
+      );
+  }
+
+  /**
+   * A panel floated on the felt. Glass rather than a card, because a card's
+   * surface token would punch a themed rectangle into a backdrop that has no
+   * theme.
+   */
+  .felt-panel {
+    background: oklch(0.18 0.03 176 / 0.52);
+    border: 1px solid var(--on-media-hairline);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 28px 60px -26px oklch(0 0 0 / 0.7);
+  }
+
+  /**
    * Poker-chip rim: a solid colored border with evenly spaced notches painted
    * over it, one strip per edge so the spacing holds at any aspect ratio.
    * Drives off `--chip-rim` (color) and `--chip-rim-stripe` (notch color).
