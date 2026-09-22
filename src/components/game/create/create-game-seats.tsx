@@ -255,6 +255,22 @@ export const CreateGameSeats: React.FC<CreateGameSeatsProps> = ({
           />
         </CreateGameSwitchLine>
       </CreateGameRow>
+
+      <CreateGameRow
+        label="Extra seats"
+        hint={`Lets you open another chair once all ${maxSeats === draft.seats.length ? 'of them' : 'of these'} are taken, up to ${maxSeats}. Off means the table size is fixed.`}
+      >
+        <CreateGameSwitchLine
+          label={draft.allowExtraSeats ? 'Can be added' : 'Fixed'}
+        >
+          <Switch
+            checked={draft.allowExtraSeats}
+            onCheckedChange={(allowExtraSeats) => patch({ allowExtraSeats })}
+            aria-label="Allow extra seats to be added later"
+            variant="felt"
+          />
+        </CreateGameSwitchLine>
+      </CreateGameRow>
     </CreateGameSection>
   );
 };

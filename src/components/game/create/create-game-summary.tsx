@@ -78,6 +78,7 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
         : 'none',
     ],
     ['Joining after the deal', draft.allowMidGameClaims ? 'Allowed' : 'Closed'],
+    ['Extra seats', draft.allowExtraSeats ? 'Can be added' : 'Fixed'],
     [
       'End of a round',
       draft.resolution === EndResolution.Automatic
