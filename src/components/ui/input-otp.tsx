@@ -1,6 +1,7 @@
 'use client';
 
 import { cn } from '@lib/utils';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { OTPInput, OTPInputContext } from 'input-otp';
 import { MinusIcon } from 'lucide-react';
 import * as React from 'react';
@@ -42,13 +43,31 @@ export const InputOTPGroup: React.FC<InputOTPGroupProps> = ({
   />
 );
 
-export type InputOTPSlotProps = React.ComponentProps<'div'> & {
-  index: number;
-};
+export const inputOTPSlotVariants = cva(
+  'relative flex items-center justify-center transition-all outline-none data-[active=true]:z-10 data-[active=true]:ring-3',
+  {
+    variants: {
+      variant: {
+        default:
+          'border-input aria-invalid:border-destructive data-[active=true]:border-ring data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20 dark:bg-input/30 dark:data-[active=true]:aria-invalid:ring-destructive/40 size-8 border-y border-r text-sm first:rounded-l-lg first:border-l last:rounded-r-lg',
+        felt: 'border-on-media-border bg-on-media-scrim text-on-media-foreground data-[active=true]:border-warning data-[active=true]:ring-warning/25 aria-invalid:border-destructive h-14 flex-1 rounded-lg border text-2xl font-extrabold tabular-nums',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  },
+);
+
+export type InputOTPSlotProps = React.ComponentProps<'div'> &
+  VariantProps<typeof inputOTPSlotVariants> & {
+    index: number;
+  };
 
 export const InputOTPSlot: React.FC<InputOTPSlotProps> = ({
   index,
   className,
+  variant,
   ...props
 }) => {
   const inputOTPContext = React.useContext(OTPInputContext);
@@ -58,10 +77,7 @@ export const InputOTPSlot: React.FC<InputOTPSlotProps> = ({
     <div
       data-slot="input-otp-slot"
       data-active={isActive}
-      className={cn(
-        'border-input aria-invalid:border-destructive data-[active=true]:border-ring data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20 dark:bg-input/30 dark:data-[active=true]:aria-invalid:ring-destructive/40 relative flex size-8 items-center justify-center border-y border-r text-sm transition-all outline-none first:rounded-l-lg first:border-l last:rounded-r-lg data-[active=true]:z-10 data-[active=true]:ring-3',
-        className,
-      )}
+      className={cn(inputOTPSlotVariants({ variant }), className)}
       {...props}
     >
       {char}
