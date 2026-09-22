@@ -8,6 +8,7 @@ import {
   SidebarFooter as UISidebarFooter,
   useSidebar,
 } from '@components/ui/sidebar';
+import ROUTES from '@constants/routes';
 import { SerializedUser } from '@tokenizer/shared/types';
 import { Play, Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -29,13 +30,13 @@ export const SidebarFooter: React.FC<SidebarFooterProps> = ({ user }) => {
             {user ? (
               <>
                 <Button size="sm" asChild>
-                  <Link href="#" onClick={close}>
+                  <Link href={ROUTES.game.new()} onClick={close}>
                     <Plus />
                     New Game
                   </Link>
                 </Button>
                 <Button size="sm" variant="secondary" asChild>
-                  <Link href="#" onClick={close}>
+                  <Link href={ROUTES.game.join()}>
                     <Play />
                     Join
                   </Link>
@@ -43,7 +44,7 @@ export const SidebarFooter: React.FC<SidebarFooterProps> = ({ user }) => {
               </>
             ) : (
               <Button size="sm" asChild>
-                <Link href="#" onClick={close}>
+                <Link href={ROUTES.game.join()} onClick={close}>
                   <Play />
                   Join
                 </Link>

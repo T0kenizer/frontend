@@ -4,6 +4,7 @@ import { useHeader } from '@components/layout/header';
 import { Logo } from '@components/layout/logo';
 import { Button } from '@components/ui/button';
 import { useSidebar } from '@components/ui/sidebar';
+import ROUTES from '@constants/routes';
 import { cn } from '@lib/utils';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useQuery } from '@tanstack/react-query';
@@ -50,13 +51,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               {user ? (
                 <>
                   <Button size="lg" variant="secondary" asChild>
-                    <Link href="#">
+                    <Link href={ROUTES.game.join()}>
                       <Play />
                       Join
                     </Link>
                   </Button>
                   <Button size="lg" asChild>
-                    <Link href="#">
+                    <Link href={ROUTES.game.new()}>
                       <Plus />
                       New Game
                     </Link>
@@ -64,7 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </>
               ) : (
                 <Button size="lg" asChild>
-                  <Link href="#">
+                  <Link href={ROUTES.game.join()}>
                     <Play />
                     Join
                   </Link>

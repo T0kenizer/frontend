@@ -30,9 +30,8 @@ export const GameCTA: React.FC = () => {
         <CardContent>
           <CardDescription className="text-primary-foreground pt-2">
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin
-              gravida viverra mauris ac lobortis. Vivamus tincidunt molestie ex
-              nec suscipit.
+              Create a table, deal the cards with a swipe, and cast the game to
+              your TV. Each player manages their bets from their phone.
             </p>
           </CardDescription>
         </CardContent>
