@@ -1,7 +1,6 @@
 import { FeltBadge } from '@components/game/felt/felt-stage';
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import { cn } from '@lib/utils';
-import { resolveApiUrl } from '@services/games/games.api';
 import {
   ParticipantRole,
   type ParticipantSnapshot,
@@ -25,7 +24,7 @@ export const seatRowVariants = cva(
     variants: {
       state: {
         /** Nobody in it, and takeable. */
-        free: 'border-on-media-hairline bg-on-media-scrim border-dashed',
+        free: 'border-on-media-hairline bg-on-media-scrim',
         /**
          * Somebody else in it. Shown, not hidden: it is how you recognise the
          * table.
@@ -105,15 +104,15 @@ export const SeatRow: React.FC<SeatRowProps> = ({
       </span>
 
       <Avatar size="sm">
-        {seat.photoUrl && (
-          <AvatarImage src={resolveApiUrl(seat.photoUrl)} alt="" />
-        )}
+        {seat.photoUrl && <AvatarImage src={seat.photoUrl} alt="" />}
         <AvatarFallback />
       </Avatar>
 
       <span className="min-w-0 flex-1">
+        {/* The snapshot names every seat, free ones included — the line
+            under it is where "nobody yet" is said. */}
         <span className="block truncate text-sm font-semibold">
-          {seat.claimed ? seat.displayName : 'Free seat'}
+          {seat.displayName}
         </span>
         <span className="text-on-media-muted-foreground block truncate text-xs">
           {caption ?? describeSeat(seat)}

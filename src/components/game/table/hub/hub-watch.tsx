@@ -33,11 +33,13 @@ export interface HubWatchProps {
 export const HubWatch: React.FC<HubWatchProps> = ({ view, actions }) => {
   const { activeSeat, pot, recentEvents, isHost, mySeat } = view;
 
-  const waitingOn = activeSeat?.claimed
-    ? activeSeat.displayName
-    : activeSeat
-      ? `Seat ${activeSeat.seatIndex + 1} · the host`
-      : 'the table';
+  // The seat's name comes off the snapshot either way; what an unclaimed one
+  // adds is who is actually pushing its chips.
+  const waitingOn = !activeSeat
+    ? 'the table'
+    : activeSeat.claimed
+      ? activeSeat.displayName
+      : `${activeSeat.displayName} · the host`;
 
   return (
     <HubShell

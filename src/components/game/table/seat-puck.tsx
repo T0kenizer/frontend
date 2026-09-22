@@ -4,7 +4,6 @@ import { SeatStack } from '@components/game/table/seat-stack';
 import type { SeatView } from '@components/game/table/use-table-view';
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import { cn } from '@lib/utils';
-import { resolveApiUrl } from '@services/games/games.api';
 import type { ChipModel } from '@tokenizer/shared/types';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
@@ -30,7 +29,7 @@ const discVariants = cva(
   {
     variants: {
       tone: {
-        free: 'border-on-media-border border-2 border-dashed bg-black/30',
+        free: 'border-on-media-hairline border-2 bg-black/30',
         seated: 'border-on-media-border/90 border-2 bg-black/30',
         mine: 'border-warning border-2 bg-black/30',
         folded: 'border-on-media-hairline border-2 bg-black/40 opacity-55',
@@ -119,21 +118,14 @@ export const SeatPuck: React.FC<SeatPuckProps> = ({
           }
           transition={{ duration: 0.65, ease: 'easeOut' }}
         >
-          {isFree ? (
-            <span
-              aria-hidden
-              className="text-on-media-muted-foreground text-xl leading-none font-light"
-            >
-              +
-            </span>
-          ) : (
-            <Avatar size={size === 'sm' ? 'default' : 'lg'}>
-              {seat.photoUrl && (
-                <AvatarImage src={resolveApiUrl(seat.photoUrl)} alt="" />
-              )}
-              <AvatarFallback>{initialsOf(seat.displayName)}</AvatarFallback>
-            </Avatar>
-          )}
+          {/* Every chair is drawn the same way, free ones included: the
+              snapshot already says what the seat is called and whose face
+              belongs in it, and a chair with no face falls back to the app's
+              own avatar placeholder rather than to a marker of its own. */}
+          <Avatar size={size === 'sm' ? 'default' : 'lg'}>
+            {seat.photoUrl && <AvatarImage src={seat.photoUrl} alt="" />}
+            <AvatarFallback />
+          </Avatar>
 
           <SeatMarker view={view} />
         </motion.span>
@@ -145,7 +137,7 @@ export const SeatPuck: React.FC<SeatPuckProps> = ({
           isFree && 'text-on-media-muted-foreground font-semibold',
         )}
       >
-        {seat.claimed ? seat.displayName : `Seat ${seat.seatIndex + 1}`}
+        {seat.displayName}
         {view.isMine && (
           <span className="text-on-media-muted-foreground font-medium">
             {' '}
@@ -266,11 +258,3 @@ const STATUS_STYLES: Record<
   },
 };
 
-/** `Marie Renaud` → `MR`, which is what fits inside a 44px disc. */
-const initialsOf = (displayName: string): string =>
-  displayName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? '')
-    .join('') || '?';

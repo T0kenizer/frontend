@@ -25,10 +25,14 @@ const asPlayer = (token: string) => ({
 });
 
 /**
- * Absolute URL for a relative API path (e.g. a snapshot's `photoUrl`, which
- * points at the files module's content route).
+ * Absolute URL for a path served by the API itself.
+ *
+ * Only for routes this app builds by hand, like the QR below. Nothing a
+ * snapshot carries goes through here: a seat's `photoUrl` is already an
+ * absolute, signed URL pointing at the bucket, and prefixing it with the API
+ * origin is how the avatars at the table ended up pointing nowhere.
  */
-export const resolveApiUrl = (path: string): string =>
+const resolveApiUrl = (path: string): string =>
   `${client.defaults.baseURL}${path}`;
 
 /**
