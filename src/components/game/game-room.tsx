@@ -1,18 +1,37 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
+import {
+  FeltBadge,
+  FeltHeader,
+  FeltNotice,
+  FeltPanel,
+  FeltStage,
+  FeltStat,
+  FeltStatGroup,
+} from '@components/game/felt/felt-stage';
+import { SeatRow } from '@components/game/felt/seat-row';
+import { SeatNameForm } from '@components/game/seat-name-form';
 import { Button } from '@components/ui/button';
-import { SeatJoinForm } from '@components/game/seat-join-form';
-import { SeatUpdateForm } from '@components/game/seat-update-form';
+import ROUTES from '@constants/routes';
 import { useGameSession } from '@hooks/use-game-session';
-import { resolveApiUrl } from '@services/games/games.api';
+import { formatAmount } from '@lib/amount';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useQuery } from '@tanstack/react-query';
+import type { ParticipantSnapshot } from '@tokenizer/shared/types';
+import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import * as React from 'react';
 
 interface GameRoomProps {
   gameId: string;
 }
+
+/** The shell every state of the room shares, so they do not each invent one. */
+const RoomShell: React.FC<React.PropsWithChildren> = ({ children }) => (
+  <FeltStage variant="table" className="justify-center">
+    {children}
+  </FeltStage>
+);
 
 /**
  * Live game room: the visitor sees the table (free/occupied seats) before
@@ -20,12 +39,17 @@ interface GameRoomProps {
  * issues this client's player token. Once seated, the token is what identifies
  * them, so a refresh lands back in the same chair. The real table UI (rounds,
  * actions) replaces the remaining markup later; the seat wiring stays.
+ *
+ * Everything on screen comes from the felt kit the create and join screens are
+ * built from. This screen used to be painted in hub tokens — `bg-surface-2`,
+ * `text-muted-foreground` — over a backdrop that has no theme, so a player
+ * arriving here from the join flow crossed a visible seam into what looked like
+ * a different product.
  */
 export const GameRoom: React.FC<GameRoomProps> = ({ gameId }) => {
   const { data: session, isSuccess } = useQuery(retrieveSessionOptions());
-  const [pickedSeat, setPickedSeat] = React.useState<Optional<number>>(
-    undefined,
-  );
+  const [pickedSeat, setPickedSeat] =
+    React.useState<Optional<number>>(undefined);
   const [isEditingSeat, setIsEditingSeat] = React.useState(false);
 
   // Who the player is stays a server decision: the join call reads the session
@@ -39,95 +63,126 @@ export const GameRoom: React.FC<GameRoomProps> = ({ gameId }) => {
 
   if (game.isLoading) {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        Loading game…
-      </div>
+      <RoomShell>
+        <FeltPanel className="flex items-center justify-center gap-2.5 py-12 text-sm">
+          <Loader2 aria-hidden className="size-4 animate-spin" />
+          Dealing you in…
+        </FeltPanel>
+      </RoomShell>
     );
   }
 
   if (game.error || !game.snapshot) {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        {game.error?.message ?? 'Game not found'}
-      </div>
+      <RoomShell>
+        <FeltPanel className="flex flex-col items-center gap-4 py-10 text-center">
+          <p className="text-sm font-semibold">
+            {game.error?.message ?? 'That table is no longer available.'}
+          </p>
+          <Button variant="line" asChild>
+            <Link href={ROUTES.game.join()}>Enter a code instead</Link>
+          </Button>
+        </FeltPanel>
+      </RoomShell>
     );
   }
+
+  const { snapshot } = game;
 
   // The client recognises its own seat through the participant id its token
   // names — the snapshot no longer says who holds what, and deliberately so.
   const mySeat = game.mySeat;
+  const activeParticipant = snapshot.currentRound?.turn.activeParticipant;
+
+  const seats = [...snapshot.participants].sort(
+    (a, b) => a.seatIndex - b.seatIndex,
+  );
+  const taken = seats.filter((seat) => seat.claimed).length;
+  const inPlay = seats.reduce((total, seat) => total + seat.balance, 0);
+
+  const seatState = (seat: ParticipantSnapshot) => {
+    if (seat.id === game.participantId) return 'mine' as const;
+    return seat.claimed ? ('taken' as const) : ('free' as const);
+  };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-6">
-      <header className="flex items-center gap-3">
-        <h1 className="text-lg font-semibold">
-          {game.snapshot.name}{' '}
-          {game.snapshot.joinCode && (
-            <span className="font-mono">{game.snapshot.joinCode}</span>
-          )}
-        </h1>
-        <span className="text-muted-foreground text-sm">
-          {game.snapshot.status}
-          {game.isConnected ? ' · live' : ' · connecting…'}
-        </span>
-      </header>
+    <FeltStage variant="table">
+      <FeltHeader
+        eyebrow={
+          snapshot.joinCode ? `Table ${snapshot.joinCode}` : 'At the table'
+        }
+        title={snapshot.name}
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <FeltBadge tone={game.isConnected ? 'active' : 'muted'}>
+            {game.isConnected ? 'Live' : 'Connecting…'}
+          </FeltBadge>
+          <FeltBadge tone="muted">{snapshot.status.toLowerCase()}</FeltBadge>
+        </div>
+      </FeltHeader>
 
       {game.socketError && (
-        <p className="text-destructive text-sm">{game.socketError}</p>
+        <FeltNotice tone="error">{game.socketError}</FeltNotice>
       )}
 
-      <ul className="flex flex-col gap-2 text-sm">
-        {game.snapshot.participants.map((participant) => {
-          const isMine = participant.id === game.participantId;
-          const isFree = !participant.claimed;
+      <FeltPanel size="sm" className="shrink-0">
+        <FeltStatGroup>
+          <FeltStat label="Seats" value={`${taken}/${seats.length}`} />
+          <FeltStat label="In play" value={formatAmount(inPlay)} />
+          <FeltStat
+            label="Your stack"
+            value={mySeat ? formatAmount(mySeat.balance) : '—'}
+          />
+        </FeltStatGroup>
+      </FeltPanel>
+
+      <ul className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto">
+        {seats.map((seat) => {
+          const isMine = seat.id === game.participantId;
+          const isFree = !seat.claimed;
 
           return (
-            <li key={participant.id} className="flex items-center gap-3">
-              <span className="w-6 text-right font-mono">
-                #{participant.seatIndex}
-              </span>
-              <Avatar size="sm">
-                {participant.photoUrl && (
-                  <AvatarImage src={resolveApiUrl(participant.photoUrl)} alt="" />
+            <li key={seat.id}>
+              <SeatRow
+                seat={seat}
+                state={seatState(seat)}
+                isActive={activeParticipant === seat.id}
+                caption={
+                  isFree
+                    ? 'Waiting for a player'
+                    : `${formatAmount(seat.balance)} · ${seat.status.toLowerCase()}${
+                        seat.connected ? '' : ' · away'
+                      }`
+                }
+              >
+                {isFree && !mySeat && (
+                  <Button
+                    size="xs"
+                    variant="line"
+                    onClick={() => setPickedSeat(seat.seatIndex)}
+                  >
+                    Sit here
+                  </Button>
                 )}
-                <AvatarFallback />
-              </Avatar>
-              <span className="font-medium">
-                {isFree ? 'Free seat' : participant.displayName}
-              </span>
-              <span className="text-muted-foreground">
-                {participant.role} · {participant.status} · {participant.balance}
-                {participant.claimed && !participant.connected && ' · away'}
-              </span>
-              {game.snapshot?.currentRound?.turn.activeParticipant ===
-                participant.id && <span aria-label="active turn">🎯</span>}
-
-              {isFree && !mySeat && (
-                <Button
-                  size="xs"
-                  variant="secondary"
-                  onClick={() => setPickedSeat(participant.seatIndex)}
-                >
-                  Sit here
-                </Button>
-              )}
-              {isMine && (
-                <Button
-                  size="xs"
-                  variant="ghost"
-                  onClick={() => setIsEditingSeat(true)}
-                >
-                  Edit
-                </Button>
-              )}
+                {isMine && (
+                  <Button
+                    size="xs"
+                    variant="line"
+                    onClick={() => setIsEditingSeat(true)}
+                  >
+                    Rename
+                  </Button>
+                )}
+              </SeatRow>
             </li>
           );
         })}
       </ul>
 
       {pickedSeat !== undefined && !mySeat && (
-        <div className="bg-surface-2 rounded-lg p-4">
-          <SeatJoinForm
+        <FeltPanel size="sm" className="shrink-0">
+          <SeatNameForm
+            mode="claim"
             seatIndex={pickedSeat}
             defaultDisplayName={defaultDisplayName}
             onCancel={() => setPickedSeat(undefined)}
@@ -136,21 +191,22 @@ export const GameRoom: React.FC<GameRoomProps> = ({ gameId }) => {
               setPickedSeat(undefined);
             }}
           />
-        </div>
+        </FeltPanel>
       )}
 
       {isEditingSeat && mySeat && (
-        <div className="bg-surface-2 rounded-lg p-4">
-          <SeatUpdateForm
-            seat={mySeat}
+        <FeltPanel size="sm" className="shrink-0">
+          <SeatNameForm
+            mode="rename"
+            defaultDisplayName={mySeat.displayName}
             onCancel={() => setIsEditingSeat(false)}
             onSubmit={async (data) => {
               await game.updateSeat(data);
               setIsEditingSeat(false);
             }}
           />
-        </div>
+        </FeltPanel>
       )}
-    </div>
+    </FeltStage>
   );
 };
