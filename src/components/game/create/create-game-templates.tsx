@@ -14,14 +14,6 @@ export interface CreateGameTemplatesProps {
   onSelect: (templateId: string) => void;
 }
 
-/**
- * What a plan without `canCustomize` opens its economy and flow from: a card
- * per template fetched from `GET /games/templates`, picked instead of built.
- * Seats are not part of what a template fixes — they stay editable in their
- * own section regardless of plan — so a card describes rules only. Only one
- * template exists today ("Simple Poker"), but the list — not a hardcoded
- * card — is what lets more show up here without touching this component.
- */
 export const CreateGameTemplates: React.FC<CreateGameTemplatesProps> = ({
   selectedId,
   onSelect,

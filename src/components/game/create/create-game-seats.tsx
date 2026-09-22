@@ -5,8 +5,6 @@ import {
   CreateGameRow,
   CreateGameSection,
   CreateGameSwitchLine,
-  FELT_INPUT,
-  FELT_SWITCH,
 } from '@components/game/create/create-game-stage';
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
@@ -24,15 +22,10 @@ import {
   SEAT_DISPLAY_NAME_MAX_LENGTH,
 } from '@constants/games';
 import type { GameDraftController } from '@hooks/use-game-draft';
+import { toAmount } from '@lib/amount';
 import { cn } from '@lib/utils';
 import { Coins, Minus, Plus, X } from 'lucide-react';
 import * as React from 'react';
-
-/** Whatever was typed, read as a whole non-negative number of chips. */
-const toAmount = (value: string): number => {
-  const digits = value.replace(/\D/g, '').slice(0, 9);
-  return digits ? Number(digits) : 0;
-};
 
 export interface CreateGameSeatsProps {
   controller: GameDraftController;
@@ -81,7 +74,7 @@ export const CreateGameSeats: React.FC<CreateGameSeatsProps> = ({
         hint="What every player gets when they sit down."
         htmlFor="default-stack"
       >
-        <InputGroup className={cn('h-9 w-40', FELT_INPUT)}>
+        <InputGroup variant="felt" size="lg" className="w-40">
           <InputGroupAddon align="inline-start">
             <InputGroupButton
               size="icon-xs"
@@ -95,7 +88,6 @@ export const CreateGameSeats: React.FC<CreateGameSeatsProps> = ({
                   ),
                 )
               }
-              className="text-on-media-muted-foreground hover:bg-on-media-film hover:text-on-media-foreground"
             >
               <Minus />
             </InputGroupButton>
@@ -116,7 +108,6 @@ export const CreateGameSeats: React.FC<CreateGameSeatsProps> = ({
                   draft.defaultInitialBalance + INITIAL_BALANCE_STEP,
                 )
               }
-              className="text-on-media-muted-foreground hover:bg-on-media-film hover:text-on-media-foreground"
             >
               <Plus />
             </InputGroupButton>
@@ -128,7 +119,7 @@ export const CreateGameSeats: React.FC<CreateGameSeatsProps> = ({
             checked={draft.perSeatStacks}
             onCheckedChange={setPerSeatStacks}
             aria-label="Set the stack seat by seat"
-            className={FELT_SWITCH}
+            variant="felt"
           />
         </CreateGameSwitchLine>
 
@@ -169,22 +160,20 @@ export const CreateGameSeats: React.FC<CreateGameSeatsProps> = ({
                   placeholder="Name of the seat"
                   aria-label={`Name of seat ${index + 1}`}
                   aria-invalid={!seat.displayName.trim()}
-                  className={cn(FELT_INPUT, 'h-8 text-sm')}
+                  variant="felt"
                 />
                 {draft.perSeatStacks && (
                   <InputGroup
+                    variant="felt"
+                    size="sm"
                     className={cn(
-                      'col-span-full h-8 sm:col-span-1',
-                      FELT_INPUT,
+                      'col-span-full sm:col-span-1',
                       isCustom && 'border-warning text-warning',
                     )}
                   >
                     <InputGroupAddon align="inline-start">
                       <InputGroupText
-                        className={cn(
-                          'text-on-media-muted-foreground',
-                          isCustom && 'text-warning',
-                        )}
+                        className={cn(isCustom && 'text-warning')}
                       >
                         <Coins />
                       </InputGroupText>
@@ -229,7 +218,9 @@ export const CreateGameSeats: React.FC<CreateGameSeatsProps> = ({
             placeholder="Name of the new seat"
             aria-label="Name of the new seat"
             disabled={isFull}
-            className={cn(FELT_INPUT, 'h-9 flex-1')}
+            variant="felt"
+            size="lg"
+            className="flex-1"
           />
           <Button
             type="button"
@@ -260,7 +251,7 @@ export const CreateGameSeats: React.FC<CreateGameSeatsProps> = ({
               patch({ allowMidGameClaims })
             }
             aria-label="Allow joining after the deal"
-            className={FELT_SWITCH}
+            variant="felt"
           />
         </CreateGameSwitchLine>
       </CreateGameRow>

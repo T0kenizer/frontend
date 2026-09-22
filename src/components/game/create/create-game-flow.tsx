@@ -5,8 +5,8 @@ import {
   CreateGameRow,
   CreateGameSection,
   CreateGameSegment,
-  FELT_SWITCH,
 } from '@components/game/create/create-game-stage';
+import { FeltBadge } from '@components/game/felt/felt-stage';
 import { Switch } from '@components/ui/switch';
 import { ACTION_CATALOG, INTERRUPTION_WINDOWS } from '@constants/games';
 import type { GameDraftController } from '@hooks/use-game-draft';
@@ -133,7 +133,7 @@ export const CreateGameFlow: React.FC<CreateGameFlowProps> = ({
                   checked={isOn}
                   onCheckedChange={() => toggleAction(action.id)}
                   aria-label={`Allow players to ${action.label.toLowerCase()}`}
-                  className={FELT_SWITCH}
+                  variant="felt"
                 />
                 <span>
                   <span className="block text-sm font-semibold">
@@ -143,11 +143,7 @@ export const CreateGameFlow: React.FC<CreateGameFlowProps> = ({
                     {action.description}
                   </span>
                 </span>
-                {tag && (
-                  <span className="border-on-media-border text-on-media-muted-foreground shrink-0 rounded-full border px-2 py-0.5 text-[0.625rem] font-bold tracking-[0.05em] uppercase">
-                    {tag}
-                  </span>
-                )}
+                {tag && <FeltBadge>{tag}</FeltBadge>}
               </li>
             );
           })}

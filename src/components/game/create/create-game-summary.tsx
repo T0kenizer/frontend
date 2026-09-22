@@ -25,9 +25,9 @@ export interface CreateGameSummaryProps {
   onCreate: () => void;
   isCreating: boolean;
   /**
-   * Overrides `controller.review.blocker` — e.g. a plan without
-   * `canCustomize` that hasn't picked a template yet, which the draft itself
-   * has no notion of.
+   * Overrides `controller.review.blocker` — e.g. a plan without `canCustomize`
+   * that hasn't picked a template yet, which the draft itself has no notion
+   * of.
    */
   blocker?: Nullable<string>;
 }

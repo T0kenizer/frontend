@@ -5,7 +5,6 @@ import {
   CreateGameRow,
   CreateGameSection,
   CreateGameSegment,
-  FELT_INPUT,
 } from '@components/game/create/create-game-stage';
 import { Button } from '@components/ui/button';
 import { Chip } from '@components/ui/chip';
@@ -19,6 +18,7 @@ import {
 } from '@components/ui/select';
 import { FORCED_BET_KINDS } from '@constants/games';
 import type { GameDraftController } from '@hooks/use-game-draft';
+import { toAmount } from '@lib/amount';
 import { cn } from '@lib/utils';
 import { ChipModel, PayoutMode, PotMode } from '@tokenizer/shared/types';
 import { Plus, X } from 'lucide-react';
@@ -39,11 +39,6 @@ const SAMPLE_CHIPS = [1, 5, 25, 100] as const;
 /** The grid both the blind rows and their header sit on. */
 const FORCED_BET_GRID =
   'grid grid-cols-[minmax(0,1.3fr)_5.5rem_minmax(0,1fr)_2rem] gap-2';
-
-const toAmount = (value: string): number => {
-  const digits = value.replace(/\D/g, '').slice(0, 9);
-  return digits ? Number(digits) : 0;
-};
 
 export interface CreateGameEconomyProps {
   controller: GameDraftController;
@@ -149,7 +144,8 @@ export const CreateGameEconomy: React.FC<CreateGameEconomyProps> = ({
                     <SelectTrigger
                       size="sm"
                       aria-label="Kind of opening bet"
-                      className={cn(FELT_INPUT, 'w-full')}
+                      variant="felt"
+                      className="w-full"
                     >
                       <SelectValue />
                     </SelectTrigger>
@@ -172,7 +168,9 @@ export const CreateGameEconomy: React.FC<CreateGameEconomyProps> = ({
                         amount: toAmount(event.target.value),
                       })
                     }
-                    className={cn(FELT_INPUT, 'h-7 text-sm tabular-nums')}
+                    variant="felt"
+                    size="sm"
+                    className="tabular-nums"
                   />
 
                   <Select
@@ -186,7 +184,8 @@ export const CreateGameEconomy: React.FC<CreateGameEconomyProps> = ({
                     <SelectTrigger
                       size="sm"
                       aria-label="Seat that owes the opening bet"
-                      className={cn(FELT_INPUT, 'w-full')}
+                      variant="felt"
+                      className="w-full"
                     >
                       <SelectValue />
                     </SelectTrigger>

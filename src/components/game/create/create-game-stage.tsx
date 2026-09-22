@@ -11,32 +11,20 @@ import { cn } from '@lib/utils';
 import * as React from 'react';
 
 /**
- * Controls on the felt.
+ * The pieces the create form is made of: a group of settings, a setting, and
+ * the handful of controls a setting is made with.
  *
- * The `/game` tree is a table rather than a page, so its surface has no theme
- * to borrow from: every control on it is dressed from the `on-media` family
- * instead. These are the recipes the creation form uses, kept in one place so a
- * row, a seat and a blind never drift apart.
+ * The felt colours these used to carry as exported class strings now live on
+ * the primitives themselves as `variant="felt"` — see `ui/input`, `ui/switch`
+ * and `ui/toggle`. A pasted class list is not a variant: it drifted between the
+ * form and the join flow, which is exactly what it was meant to prevent.
  */
-export const FELT_INPUT =
-  'border-on-media-border bg-on-media-scrim text-on-media-foreground placeholder:text-on-media-muted-foreground focus-visible:border-warning focus-visible:ring-warning/25';
-
-export const FELT_SWITCH =
-  'data-checked:bg-success data-unchecked:bg-on-media-hover';
-
-export const FELT_SEGMENT =
-  'border-on-media-hairline bg-on-media-scrim max-w-full flex-wrap border p-[3px]';
-
-export const FELT_SEGMENT_ITEM =
-  'text-on-media-muted-foreground hover:bg-on-media-film hover:text-on-media-foreground data-[state=on]:bg-white-95 data-[state=on]:text-felt-inverse-foreground';
 
 export type CreateGameSectionProps = React.ComponentPropsWithoutRef<'div'> & {
   title: React.ReactNode;
-  /** The running count in the corner — how many seats, how many blinds. */
   meta?: React.ReactNode;
 };
 
-/** One block of the form: a heading and the rows under it. */
 export const CreateGameSection: React.FC<CreateGameSectionProps> = ({
   title,
   meta,
@@ -178,19 +166,18 @@ export function CreateGameSegment<T extends string>({
   return (
     <ToggleGroup
       type="single"
+      variant="felt"
       size="sm"
       spacing={1}
       value={value}
       aria-label={label}
       onValueChange={(next) => next && onValueChange(next as T)}
-      className={FELT_SEGMENT}
     >
       {options.map((option) => (
         <ToggleGroupItem
           key={option.value}
           value={option.value}
           disabled={option.disabled}
-          className={FELT_SEGMENT_ITEM}
         >
           {option.label}
         </ToggleGroupItem>
