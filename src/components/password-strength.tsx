@@ -34,7 +34,6 @@ export const defaultRules: PasswordRule[] = [
 
 const LABELS = ['Too short', 'Weak', 'Fair', 'Strong', 'Excellent'];
 
-/** 0–4, same scoring as the Tokenizer auth screens. */
 export const scorePassword = (value: string): number => {
   let score = 0;
   if (value.length >= COMFORTABLE_LENGTH) score++;
