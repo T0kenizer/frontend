@@ -1,10 +1,11 @@
 'use client';
 
+import { FeltPanel } from '@components/game/felt/felt-stage';
 import { JoinIdentifyStep } from '@components/game/join/join-identify-step';
 import { JoinIdentityStep } from '@components/game/join/join-identity-step';
 import { JoinScannerStep } from '@components/game/join/join-scanner-step';
 import { JoinSeatStep } from '@components/game/join/join-seat-step';
-import { JoinPanel, JoinStage } from '@components/game/join/join-stage';
+import { JoinStage } from '@components/game/join/join-stage';
 import { Button } from '@components/ui/button';
 import ROUTES from '@constants/routes';
 import { useGameSession } from '@hooks/use-game-session';
@@ -102,10 +103,10 @@ export const JoinGame: React.FC<JoinGameProps> = ({ gameUuid }) => {
   if (game.isLoading || !isSuccess) {
     return (
       <JoinStage step={step}>
-        <JoinPanel className="flex items-center justify-center gap-2.5 py-12 text-sm">
+        <FeltPanel className="flex items-center justify-center gap-2.5 py-12 text-sm">
           <Loader2 aria-hidden className="size-4 animate-spin" />
           Looking up the table…
-        </JoinPanel>
+        </FeltPanel>
       </JoinStage>
     );
   }
@@ -116,7 +117,7 @@ export const JoinGame: React.FC<JoinGameProps> = ({ gameUuid }) => {
   if (game.error || !game.snapshot) {
     return (
       <JoinStage step={step}>
-        <JoinPanel className="flex flex-col items-center gap-4 py-10 text-center">
+        <FeltPanel className="flex flex-col items-center gap-4 py-10 text-center">
           <p className="text-sm font-semibold">
             {game.error?.message ?? 'That table is no longer available.'}
           </p>
@@ -126,7 +127,7 @@ export const JoinGame: React.FC<JoinGameProps> = ({ gameUuid }) => {
           >
             Enter a code instead
           </Button>
-        </JoinPanel>
+        </FeltPanel>
       </JoinStage>
     );
   }

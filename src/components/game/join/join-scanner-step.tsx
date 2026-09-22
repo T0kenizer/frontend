@@ -1,45 +1,25 @@
 'use client';
 
 import {
-  JoinBackButton,
-  JoinHeader,
-  JoinPanel,
-} from '@components/game/join/join-stage';
+  FeltBackLink,
+  FeltHeader,
+  FeltPanel,
+} from '@components/game/felt/felt-stage';
 import { useQrScanner } from '@hooks/use-qr-scanner';
 import * as React from 'react';
 
 export interface JoinScannerStepProps {
-  /** Called with the session uuid a scanned join link resolves to. */
   onScanned: (gameUuid: string) => void;
   onBack: () => void;
 }
 
-/**
- * Every shape the session uuid can arrive in. Tokenizer's own QR carries the
- * full join link, but a code printed by hand — or a uuid copied out of a chat —
- * is just as usable, so the uuid is matched wherever it sits in the payload.
- */
 const UUID_PATTERN =
   /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
-/**
- * Pulls the session uuid out of whatever the camera read.
- *
- * Only the uuid is taken from the scanned value — never its origin. A QR is a
- * thing anyone can print and tape over the host's, so treating the payload as a
- * URL to follow would turn a joining player into someone else's redirect.
- * Extracting the identifier and routing internally means a hostile code can at
- * worst name a different Tokenizer room.
- */
 export function extractGameUuid(scanned: string): Nullable<string> {
   return UUID_PATTERN.exec(scanned)?.[0]?.toLowerCase() ?? null;
 }
 
-/**
- * The camera detour off step one. It is not a step of its own: a scan lands on
- * the same seat picker the six digits do, because the code and the QR are two
- * ways of naming one room.
- */
 export const JoinScannerStep: React.FC<JoinScannerStepProps> = ({
   onScanned,
   onBack,
@@ -58,8 +38,6 @@ export const JoinScannerStep: React.FC<JoinScannerStepProps> = ({
     [onScanned],
   );
 
-  // A code that was not a table stops the loop, so the camera is only kept
-  // alive while there is still something it could usefully read.
   const { videoRef, status } = useQrScanner({
     enabled: !error,
     onScan: handleScan,
@@ -74,9 +52,12 @@ export const JoinScannerStep: React.FC<JoinScannerStepProps> = ({
         : 'Starting the camera…');
 
   return (
-    <JoinPanel>
-      <JoinBackButton onClick={onBack}>Enter the code by hand</JoinBackButton>
-      <JoinHeader
+    <FeltPanel>
+      <FeltBackLink className="mb-4" onClick={onBack}>
+        Enter the code by hand
+      </FeltBackLink>
+      <FeltHeader
+        className="mb-6"
         eyebrow="Camera"
         title="Frame the QR on the TV"
         description="The table is recognised automatically."
@@ -91,8 +72,6 @@ export const JoinScannerStep: React.FC<JoinScannerStepProps> = ({
           className="size-full object-cover"
         />
 
-        {/* The finder. Purely a sighting aid — the detector reads the whole
-            frame, so a code outside the brackets still scans. */}
         <div aria-hidden className="pointer-events-none absolute inset-[18%]">
           <span className="border-warning absolute top-0 left-0 size-8 rounded-tl-md border-t-[3px] border-l-[3px]" />
           <span className="border-warning absolute top-0 right-0 size-8 rounded-tr-md border-t-[3px] border-r-[3px]" />
@@ -107,6 +86,6 @@ export const JoinScannerStep: React.FC<JoinScannerStepProps> = ({
           {hint}
         </p>
       </div>
-    </JoinPanel>
+    </FeltPanel>
   );
 };
