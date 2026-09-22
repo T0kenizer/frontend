@@ -9,6 +9,7 @@ import { JoinStage } from '@components/game/join/join-stage';
 import { Button } from '@components/ui/button';
 import ROUTES from '@constants/routes';
 import { useGameSession } from '@hooks/use-game-session';
+import { usePlayerToken } from '@hooks/use-player-token';
 import { joinByCodeOptions } from '@services/games/games.options';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -50,6 +51,19 @@ export const JoinGame: React.FC<JoinGameProps> = ({ gameUuid }) => {
   const [isScanning, setIsScanning] = React.useState(false);
   const [seatIndex, setSeatIndex] = React.useState<Nullable<number>>(null);
 
+  // Already holding a seat at this table? Then there is nothing to join. This
+  // is the mirror of the gate on `/game/:uuid`, and between them a player is
+  // always on exactly the right screen for whether they are in the game: the
+  // host, seated at creation, would otherwise be sent here to ask for a chair
+  // they are already in, and a player who refreshed mid-flow would be offered
+  // a second seat beside their own.
+  const token = usePlayerToken(gameUuid);
+  const isSeated = gameUuid !== undefined && token !== null;
+
+  React.useEffect(() => {
+    if (isSeated && gameUuid) router.replace(ROUTES.game(gameUuid));
+  }, [isSeated, gameUuid, router]);
+
   // Who the player is stays a server decision: the join call reads the session
   // cookie if there is one. Gating on the query means a signed-in visitor is
   // never seated before their cookie could be read, which would seat them as a
@@ -78,6 +92,19 @@ export const JoinGame: React.FC<JoinGameProps> = ({ gameUuid }) => {
     },
     [goToTable],
   );
+
+  // `replace` is not instant, and offering a seat picker in the meantime would
+  // invite a second chair from someone who already has one.
+  if (isSeated) {
+    return (
+      <JoinStage step="seat">
+        <FeltPanel className="flex items-center justify-center gap-2.5 py-12 text-sm">
+          <Loader2 aria-hidden className="size-4 animate-spin" />
+          Taking you to your table…
+        </FeltPanel>
+      </JoinStage>
+    );
+  }
 
   /** Step one — no table named yet. */
   if (!gameUuid) {

@@ -20,7 +20,11 @@ import {
   writePlayerToken,
 } from '@services/games/games.tokens';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import type { GameSnapshot, RoundResolution } from '@tokenizer/shared/types';
+import type {
+  AddSeatData,
+  GameSnapshot,
+  RoundResolution,
+} from '@tokenizer/shared/types';
 import * as React from 'react';
 
 const ACK_TIMEOUT_MS = 10_000;
@@ -201,6 +205,24 @@ export function useGameSession(params: UseGameSessionParams) {
     [liveSocket],
   );
 
+  /**
+   * Host only: opens a further seat once every existing one is taken.
+   *
+   * Whether this is allowed at all is the snapshot's `canAddSeat` — it folds
+   * together the seating config, the plan cap and whether the table is actually
+   * full, none of which the client can work out for itself.
+   */
+  const addSeat = React.useCallback(
+    async (data: AddSeatData = {}): Promise<GameSnapshot> => {
+      const response = await liveSocket().emitWithAck(
+        GAME_CLIENT_MESSAGES.ADD_SEAT,
+        data,
+      );
+      return unwrapAck(response);
+    },
+    [liveSocket],
+  );
+
   /** Host only: starts a round (forced bets applied server-side). */
   const startRound = React.useCallback(async (): Promise<GameSnapshot> => {
     const response = await liveSocket().emitWithAck(
@@ -209,14 +231,24 @@ export function useGameSession(params: UseGameSessionParams) {
     return unwrapAck(response);
   }, [liveSocket]);
 
+  /**
+   * Plays an action.
+   *
+   * `targetParticipantId` is the host acting on behalf of a seat nobody has
+   * claimed — a table never has a seat without a controller, so every declared
+   * chair plays from round one and the host is who plays the empty ones. The
+   * server enforces that: only the host may pass a target, and only at a seat
+   * that is still unclaimed.
+   */
   const submitAction = React.useCallback(
     async (
       definitionId: string,
       amount?: number,
+      targetParticipantId?: string,
     ): Promise<GameActionResult> => {
       const response = await liveSocket().emitWithAck(
         GAME_CLIENT_MESSAGES.ACTION,
-        { definitionId, amount },
+        { definitionId, amount, targetParticipantId },
       );
       return unwrapAck(response);
     },
@@ -272,6 +304,8 @@ export function useGameSession(params: UseGameSessionParams) {
     join,
     /** Renames the seat this client holds. */
     updateSeat,
+    /** Host only: opens a further seat at a full table. */
+    addSeat,
 
     /** Gameplay actions (acked over the socket). */
     startRound,

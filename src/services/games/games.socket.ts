@@ -4,6 +4,7 @@ import {
   GAME_SERVER_EVENTS,
 } from '@tokenizer/shared/constants/games.constants';
 import type {
+  AddSeatData,
   AttachSocketData,
   AttachSocketResponse,
   GameSnapshot,
@@ -65,6 +66,10 @@ interface ClientToServerEvents {
   ) => void;
   [GAME_CLIENT_MESSAGES.UPDATE_SEAT]: (
     payload: UpdateSeatData,
+    ack: (response: GameAck<GameSnapshot>) => void,
+  ) => void;
+  [GAME_CLIENT_MESSAGES.ADD_SEAT]: (
+    payload: AddSeatData,
     ack: (response: GameAck<GameSnapshot>) => void,
   ) => void;
   [GAME_CLIENT_MESSAGES.START_ROUND]: (

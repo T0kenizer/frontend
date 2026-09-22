@@ -25,6 +25,7 @@ import {
   createGameOptions,
   listGameTemplatesOptions,
 } from '@services/games/games.options';
+import { writePlayerToken } from '@services/games/games.tokens';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Feature as FeatureFlag } from '@tokenizer/shared/types';
 import Link from 'next/link';
@@ -66,7 +67,16 @@ export const CreateGame: React.FC = () => {
           : { templateId: templateId!, seats: config.seating.seats }),
       },
       {
-        onSuccess: (result) => router.push(ROUTES.game(result.snapshot.id)),
+        onSuccess: (result) => {
+          // Creating a table seats you at it: the server claims seat 0 for the
+          // host and issues their player token in this very response. Storing
+          // it is what makes the host a member like any other — the table is
+          // gated on holding a token, so dropping it on the floor here sent
+          // the host who just made the game to the join screen to ask for a
+          // seat they were already sitting in.
+          writePlayerToken(result.snapshot.id, result.token);
+          router.push(ROUTES.game(result.snapshot.id));
+        },
         onError: (error) => toast.error(error.message),
       },
     );
