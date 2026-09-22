@@ -24,6 +24,12 @@ export interface CreateGameSummaryProps {
   controller: GameDraftController;
   onCreate: () => void;
   isCreating: boolean;
+  /**
+   * Overrides `controller.review.blocker` — e.g. a plan without
+   * `canCustomize` that hasn't picked a template yet, which the draft itself
+   * has no notion of.
+   */
+  blocker?: Nullable<string>;
 }
 
 /**
@@ -38,8 +44,10 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
   controller,
   onCreate,
   isCreating,
+  blocker,
 }) => {
   const { draft, review, totalInPlay } = controller;
+  const effectiveBlocker = blocker ?? review.blocker;
 
   const enabledActions = ACTION_CATALOG.filter((action) =>
     draft.enabledActions.includes(action.id),
@@ -78,7 +86,7 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
     ],
   ];
 
-  const warning = review.blocker ?? review.advice;
+  const warning = effectiveBlocker ?? review.advice;
 
   return (
     <aside className="flex flex-col gap-3.5 lg:sticky lg:top-5">
@@ -173,7 +181,7 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
           size="lg"
           className="h-11 w-full"
           loading={isCreating}
-          disabled={!!review.blocker}
+          disabled={!!effectiveBlocker}
           onClick={onCreate}
         >
           {isCreating ? 'Opening the table…' : 'Create the game'}

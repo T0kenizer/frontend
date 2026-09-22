@@ -1,5 +1,6 @@
 'use client';
 
+import { Feature } from '@components/feature';
 import { CreateGameEconomy } from '@components/game/create/create-game-economy';
 import { CreateGameFlow } from '@components/game/create/create-game-flow';
 import { CreateGameSeats } from '@components/game/create/create-game-seats';
@@ -9,14 +10,20 @@ import {
   FELT_INPUT,
 } from '@components/game/create/create-game-stage';
 import { CreateGameSummary } from '@components/game/create/create-game-summary';
+import { CreateGameTemplates } from '@components/game/create/create-game-templates';
 import { Logo } from '@components/layout/logo';
 import { Input } from '@components/ui/input';
 import { GAME_NAME_MAX_LENGTH } from '@constants/games';
 import ROUTES from '@constants/routes';
 import { useGameDraft } from '@hooks/use-game-draft';
+import { useFeature, useMaxSeats } from '@hooks/use-plan';
 import { cn } from '@lib/utils';
-import { createGameOptions } from '@services/games/games.options';
-import { useMutation } from '@tanstack/react-query';
+import {
+  createGameOptions,
+  listGameTemplatesOptions,
+} from '@services/games/games.options';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Feature as FeatureFlag } from '@tokenizer/shared/types';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -33,18 +40,42 @@ import { toast } from 'sonner';
  */
 export const CreateGame: React.FC = () => {
   const router = useRouter();
-  const controller = useGameDraft();
+  const maxSeats = useMaxSeats();
+  const canCustomize = useFeature(
+    FeatureFlag.CreateGame,
+    (metadata) => metadata.canCustomize,
+  );
+  const controller = useGameDraft(maxSeats);
   const { draft, config, review, patch } = controller;
+
+  const { data: templates } = useQuery(listGameTemplatesOptions());
+  // `null` means "no explicit choice yet" — the template picker then falls
+  // back to the first one in the list, without a separate effect to sync it.
+  const [pickedTemplateId, setPickedTemplateId] =
+    React.useState<Nullable<string>>(null);
+  const templateId = pickedTemplateId ?? templates?.[0]?.id ?? null;
 
   const { mutate: createGame, isPending } = useMutation(createGameOptions());
 
+  const templateBlocker =
+    !canCustomize && !templateId ? 'Pick a table to open.' : null;
+  const blocker = review.blocker || templateBlocker;
+
   const handleCreate = () => {
-    if (review.blocker || isPending) return;
+    if (blocker || isPending) return;
 
     const name = draft.name.trim();
 
     createGame(
-      { ...(name ? { name } : {}), config },
+      {
+        ...(name ? { name } : {}),
+        // A plan without the canCustomize sub-feature must open a template
+        // rather than submit a config of its own — but seats stay theirs to
+        // set regardless, so the draft's seating rides along as an override.
+        ...(canCustomize
+          ? { config }
+          : { templateId: templateId!, seats: config.seating.seats }),
+      },
       {
         // Creating a game seats the owner, so the result is a join result: the
         // token is stored by the mutation, the uuid is the route.
@@ -55,7 +86,7 @@ export const CreateGame: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl flex-1 overflow-y-auto px-6 pt-5 pb-16">
+    <div className="mx-auto w-full max-w-6xl px-6 pt-5 pb-16">
       <div className="mb-6 flex items-center gap-3.5">
         <Logo />
         <Link
@@ -70,8 +101,8 @@ export const CreateGame: React.FC = () => {
         New game
       </h1>
       <p className="text-on-media-muted-foreground mt-2 mb-6 max-w-[56ch] text-sm leading-relaxed">
-        Name the seats, set the starting stack and the rules of the turn. All of
-        it stays editable until you open the table.
+        Name the table. Whatever your plan unlocks below stays editable until
+        you open it.
       </p>
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
@@ -79,6 +110,20 @@ export const CreateGame: React.FC = () => {
           className="flex flex-col gap-3.5"
           onSubmit={(event) => event.preventDefault()}
         >
+          <Feature
+            feature={FeatureFlag.CreateGame}
+            when={(metadata) => metadata.canCustomize}
+            fallback={
+              <CreateGameTemplates
+                selectedId={templateId}
+                onSelect={setPickedTemplateId}
+              />
+            }
+          >
+            <CreateGameEconomy controller={controller} />
+            <CreateGameFlow controller={controller} />
+          </Feature>
+
           <CreateGameSection title="The game">
             <CreateGameRow
               label="Name"
@@ -96,15 +141,14 @@ export const CreateGame: React.FC = () => {
             </CreateGameRow>
           </CreateGameSection>
 
-          <CreateGameSeats controller={controller} />
-          <CreateGameEconomy controller={controller} />
-          <CreateGameFlow controller={controller} />
+          <CreateGameSeats controller={controller} maxSeats={maxSeats} />
         </form>
 
         <CreateGameSummary
           controller={controller}
           onCreate={handleCreate}
           isCreating={isPending}
+          blocker={blocker}
         />
       </div>
     </div>

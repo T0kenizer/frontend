@@ -20,7 +20,6 @@ import {
 import { Switch } from '@components/ui/switch';
 import {
   INITIAL_BALANCE_STEP,
-  MAX_SEATS,
   MIN_SEATS,
   SEAT_DISPLAY_NAME_MAX_LENGTH,
 } from '@constants/games';
@@ -37,6 +36,8 @@ const toAmount = (value: string): number => {
 
 export interface CreateGameSeatsProps {
   controller: GameDraftController;
+  /** Seats a table may open with, capped by the host's plan. */
+  maxSeats: number;
 }
 
 /**
@@ -48,6 +49,7 @@ export interface CreateGameSeatsProps {
  */
 export const CreateGameSeats: React.FC<CreateGameSeatsProps> = ({
   controller,
+  maxSeats,
 }) => {
   const {
     draft,
@@ -61,7 +63,7 @@ export const CreateGameSeats: React.FC<CreateGameSeatsProps> = ({
   } = controller;
 
   const [newSeat, setNewSeat] = React.useState('');
-  const isFull = draft.seats.length >= MAX_SEATS;
+  const isFull = draft.seats.length >= maxSeats;
 
   const handleAddSeat = () => {
     if (!newSeat.trim() || isFull) return;
@@ -241,9 +243,7 @@ export const CreateGameSeats: React.FC<CreateGameSeatsProps> = ({
         </div>
 
         {isFull && (
-          <CreateGameHint>
-            A table tops out at {MAX_SEATS} seats.
-          </CreateGameHint>
+          <CreateGameHint>A table tops out at {maxSeats} seats.</CreateGameHint>
         )}
       </CreateGameRow>
 

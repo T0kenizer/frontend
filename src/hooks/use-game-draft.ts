@@ -228,7 +228,13 @@ export interface GameDraftController {
  * blind was owed by, raising the default stack under seats that were following
  * it — so no section has to know what another one is holding.
  */
-export function useGameDraft(): GameDraftController {
+/**
+ * @param maxSeats Seats a table may open with, capped by the host's plan;
+ *   defaults to the hard ceiling the API itself enforces.
+ */
+export function useGameDraft(
+  maxSeats: number = MAX_SEATS,
+): GameDraftController {
   const [draft, setDraft] = React.useState<GameDraft>(createInitialDraft);
 
   const patch = React.useCallback(
@@ -237,16 +243,19 @@ export function useGameDraft(): GameDraftController {
     [],
   );
 
-  const addSeat = React.useCallback((displayName: string) => {
-    const name = displayName.trim();
-    if (!name) return;
+  const addSeat = React.useCallback(
+    (displayName: string) => {
+      const name = displayName.trim();
+      if (!name) return;
 
-    setDraft((current) =>
-      current.seats.length >= MAX_SEATS
-        ? current
-        : { ...current, seats: [...current.seats, createSeat(name)] },
-    );
-  }, []);
+      setDraft((current) =>
+        current.seats.length >= maxSeats
+          ? current
+          : { ...current, seats: [...current.seats, createSeat(name)] },
+      );
+    },
+    [maxSeats],
+  );
 
   const renameSeat = React.useCallback((key: string, displayName: string) => {
     setDraft((current) => ({
