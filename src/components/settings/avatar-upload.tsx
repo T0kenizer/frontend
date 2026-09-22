@@ -1,7 +1,6 @@
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
-import { NEXT_PUBLIC_API_URL } from '@lib/env';
 import { cn } from '@lib/utils';
 import { createFileOptions } from '@services/files/files.options';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
@@ -17,10 +16,7 @@ import { toast } from 'sonner';
 
 const MAX_FILE_SIZE_MB = Math.round(MAX_FILE_SIZE_BYTES / (1024 * 1024));
 
-export type AvatarUploadProps = Omit<
-  React.ComponentProps<'button'>,
-  'onError'
->;
+export type AvatarUploadProps = Omit<React.ComponentProps<'button'>, 'onError'>;
 
 export const AvatarUpload: React.FC<AvatarUploadProps> = ({
   className,
@@ -31,18 +27,13 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
   const { data: session } = useQuery(retrieveSessionOptions());
   const user = session?.user;
 
-  const { mutateAsync: createFile, isPending: isUploading } = useMutation(
-    createFileOptions(),
-  );
+  const { mutateAsync: createFile, isPending: isUploading } =
+    useMutation(createFileOptions());
   const { mutateAsync: partialUpdateUser, isPending: isUpdating } = useMutation(
     partialUpdateUserOptions(),
   );
 
   const isPending = isUploading || isUpdating;
-
-  const avatarSrc = user?.avatarUrl
-    ? `${NEXT_PUBLIC_API_URL}${user.avatarUrl}`
-    : undefined;
 
   const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -101,7 +92,10 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
         {...props}
       >
         <Avatar size="4xl">
-          <AvatarImage src={avatarSrc} alt={user?.displayName ?? 'Avatar'} />
+          <AvatarImage
+            src={user?.avatarUrl ?? undefined}
+            alt={user?.displayName ? `${user?.displayName}'s Avatar` : 'Avatar'}
+          />
           <AvatarFallback />
         </Avatar>
         <span

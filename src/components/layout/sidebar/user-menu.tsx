@@ -14,7 +14,6 @@ import {
   useSidebar,
 } from '@components/ui/sidebar';
 import ROUTES from '@constants/routes';
-import { NEXT_PUBLIC_API_URL } from '@lib/env';
 import { useSignOut } from '@services/sessions/sessions.hooks';
 import { SerializedUser } from '@tokenizer/shared/types';
 import {
@@ -42,9 +41,10 @@ export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
   const { isMobile } = useSidebar();
   const { signOut: handleSignOut } = useSignOut();
 
-  const avatarSrc = user?.avatarUrl
-    ? `${NEXT_PUBLIC_API_URL}${user.avatarUrl}`
-    : undefined;
+  const avatarSrc = user?.avatarUrl ?? undefined;
+  const avatarAlt = user?.displayName
+    ? `${user?.displayName}'s Avatar`
+    : 'Avatar';
 
   if (!user) {
     return (
@@ -114,7 +114,7 @@ export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={avatarSrc} alt={user.displayName} />
+                <AvatarImage src={avatarSrc} alt={avatarAlt} />
                 <AvatarFallback />
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -133,7 +133,7 @@ export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={avatarSrc} alt={user.displayName} />
+                  <AvatarImage src={avatarSrc} alt={avatarAlt} />
                   <AvatarFallback />
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
