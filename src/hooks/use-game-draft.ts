@@ -52,6 +52,11 @@ export interface GameDraft {
   defaultInitialBalance: number;
   perSeatStacks: boolean;
   allowMidGameClaims: boolean;
+  /**
+   * Whether the host may open further seats once every declared one is taken.
+   * Capped by the plan on top, like the seat count itself.
+   */
+  allowExtraSeats: boolean;
   chipModel: ChipModel;
   potMode: PotMode;
   payoutMode: PayoutMode;
@@ -90,6 +95,7 @@ export function createInitialDraft(): GameDraft {
     defaultInitialBalance: DEFAULT_INITIAL_BALANCE,
     perSeatStacks: false,
     allowMidGameClaims: true,
+    allowExtraSeats: true,
     chipModel: ChipModel.AbstractBalance,
     potMode: PotMode.Single,
     payoutMode: PayoutMode.WinnerTakesAll,
@@ -133,6 +139,7 @@ export function buildGameConfig(draft: GameDraft): GameConfig {
       })),
       defaultInitialBalance: draft.defaultInitialBalance,
       allowMidGameClaims: draft.allowMidGameClaims,
+      allowExtraSeats: draft.allowExtraSeats,
     },
     economy: {
       potMode: draft.potMode,
