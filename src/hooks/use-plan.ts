@@ -6,9 +6,12 @@ import { useQuery } from '@tanstack/react-query';
 import {
   featureMetadata,
   maxSeatsFor,
-  type FeatureMetadataMap,
 } from '@tokenizer/shared/constants/plans.constants';
-import { Feature, Plan } from '@tokenizer/shared/types';
+import {
+  Feature,
+  Plan,
+  type FeatureMetadataMap,
+} from '@tokenizer/shared/types';
 
 /** The signed-in session's plan, or `Plan.Anonymous` when signed out. */
 export const usePlan = (): Plan => {

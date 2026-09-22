@@ -1,8 +1,10 @@
 'use client';
 
 import { useFeature } from '@hooks/use-plan';
-import type { FeatureMetadataMap } from '@tokenizer/shared/constants/plans.constants';
-import { Feature as FeatureFlag } from '@tokenizer/shared/types';
+import {
+  Feature as FeatureFlag,
+  type FeatureMetadataMap,
+} from '@tokenizer/shared/types';
 
 export interface FeatureProps<F extends FeatureFlag = FeatureFlag>
   extends React.PropsWithChildren {
