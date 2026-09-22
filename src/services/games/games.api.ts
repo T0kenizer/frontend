@@ -1,4 +1,5 @@
 import requester, { client } from '@lib/requester';
+import { PLAYER_TOKEN_HEADER } from '@tokenizer/shared/constants/games.constants';
 import { buildGameQrUrl } from '@tokenizer/shared/schemas';
 import {
   ClaimSeatData,
@@ -7,6 +8,7 @@ import {
   CreateGameSessionData,
   CreateGameSessionResponse,
   JoinByCodeResponse,
+  ListGameTemplatesResponse,
   ResolveRoundData,
   ResolveRoundResponse,
   RetrieveGameSessionResponse,
@@ -17,9 +19,6 @@ import {
 } from '@tokenizer/shared/types';
 
 const BASE_URL = '/games';
-
-/** Header the backend reads the player token from on in-game REST calls. */
-const PLAYER_TOKEN_HEADER = 'x-player-token';
 
 const asPlayer = (token: string) => ({
   headers: { [PLAYER_TOKEN_HEADER]: token },
@@ -44,6 +43,10 @@ export const gameQrUrl = (uuid: string): string =>
 
 export const createGame = async (data: CreateGameSessionData) =>
   requester().post<CreateGameSessionResponse>(BASE_URL, data);
+
+/** Public: browsable before sign-in, same as the templates a host picks from. */
+export const listGameTemplates = async () =>
+  requester().get<ListGameTemplatesResponse>(`${BASE_URL}/templates`);
 
 /** Fetching a game lazily (re)opens its room server-side. */
 export const retrieveGame = async (uuid: string) =>
