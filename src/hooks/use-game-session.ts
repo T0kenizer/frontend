@@ -13,6 +13,7 @@ import {
   type GameSocket,
   type GameSocketFailure,
   type HandSettledPayload,
+  type RoundResolvedPayload,
 } from '@services/games/games.socket';
 import {
   clearPlayerToken,
@@ -21,15 +22,28 @@ import {
 } from '@services/games/games.tokens';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
-  AddSeatData,
+  GameResolution,
   GameSnapshot,
-  HandResolution,
   PokerAction,
   PotAward,
 } from '@tokenizer/shared/types';
+import { GameSessionStatus } from '@tokenizer/shared/types';
 import * as React from 'react';
 
 const ACK_TIMEOUT_MS = 10_000;
+
+/**
+ * How long the socket lingers after the table has ended.
+ *
+ * Long enough for the host's own `game:close` ack to land — they receive the
+ * broadcast before the reply to their own call — and short enough that the
+ * server reclaims the room while the recap is still on screen. Nothing depends
+ * on it: the room has a backstop of its own, and this only spares it the wait.
+ */
+const CLOSED_LINGER_MS = 2_000;
+
+/** What `SESSION_CLOSED` carries when there was no table left to describe. */
+type ClosedSessionStub = Pick<GameSnapshot, 'id' | 'status'>;
 
 export interface UseGameSessionParams {
   /** The game session uuid; undefined while unknown (query disabled). */
@@ -83,8 +97,10 @@ export function useGameSession(params: UseGameSessionParams) {
   const [isConnected, setIsConnected] = React.useState(false);
   const [isAttached, setIsAttached] = React.useState(false);
   const [socketError, setSocketError] = React.useState<Nullable<string>>(null);
+  // The last settlement, whichever game settled it: discriminated on `mode`,
+  // like the snapshot it belongs to.
   const [resolution, setResolution] =
-    React.useState<Nullable<HandResolution>>(null);
+    React.useState<Nullable<GameResolution>>(null);
 
   const query = useQuery(retrieveGameOptions(enabled ? gameId : undefined));
 
@@ -110,10 +126,12 @@ export function useGameSession(params: UseGameSessionParams) {
     const socket = createGameSocket();
     socketRef.current = socket;
 
-    const handleSettled = (payload: HandSettledPayload) => {
-      const { resolution: handResolution, ...snapshot } = payload;
-      setResolution(handResolution);
-      setSnapshot(snapshot);
+    const handleSettled = (
+      payload: HandSettledPayload | RoundResolvedPayload,
+    ) => {
+      const { resolution: dealResolution, ...snapshot } = payload;
+      setResolution(dealResolution);
+      setSnapshot(snapshot as GameSnapshot);
     };
 
     socket.on('connect', () => {
@@ -240,6 +258,19 @@ export function useGameSession(params: UseGameSessionParams) {
   }, [liveSocket]);
 
   /**
+   * Host only, free mode: opens the next round.
+   *
+   * Nothing can be settled by opening one — a free round ends when the table
+   * says so — so unlike a poker deal this answers a bare snapshot.
+   */
+  const startRound = React.useCallback(async (): Promise<GameSnapshot> => {
+    const response = await liveSocket().emitWithAck(
+      GAME_CLIENT_MESSAGES.START_ROUND,
+    );
+    return unwrapAck(response);
+  }, [liveSocket]);
+
+  /**
    * Plays an action.
    *
    * `targetParticipantId` is the host acting on behalf of a seat nobody has
@@ -281,13 +312,61 @@ export function useGameSession(params: UseGameSessionParams) {
     [liveSocket],
   );
 
-  /** Host only: closes the session for good. */
+  /**
+   * Free mode: plays an action out of the table's own catalog.
+   *
+   * The same socket message as a poker move, in the other game's vocabulary:
+   * the server accepts the one its session is playing and refuses the other,
+   * which is why the client never has to decide what a move "really" is.
+   */
+  const submitCatalogAction = React.useCallback(
+    async (
+      definitionId: string,
+      amount?: number,
+      targetParticipantId?: string,
+    ): Promise<GameActionResult> => {
+      const response = await liveSocket().emitWithAck(
+        GAME_CLIENT_MESSAGES.ACTION,
+        { definitionId, amount, targetParticipantId },
+      );
+      const result = unwrapAck(response);
+      if (result.resolution) setResolution(result.resolution);
+      return result;
+    },
+    [liveSocket],
+  );
+
+  /**
+   * Host only, free mode: settles the open round.
+   *
+   * One flat list of winners, not an award per pot: a free table pools into a
+   * single pot, so there is only ever one contest to call.
+   */
+  const resolveRound = React.useCallback(
+    async (winnerParticipantIds?: string[]): Promise<GameActionResult> => {
+      const response = await liveSocket().emitWithAck(
+        GAME_CLIENT_MESSAGES.RESOLVE,
+        { winnerParticipantIds },
+      );
+      const result = unwrapAck(response);
+      setResolution(result.resolution);
+      return result;
+    },
+    [liveSocket],
+  );
+
+  /**
+   * Host only: ends the table for good.
+   *
+   * The token is deliberately kept. `/game/:uuid` is gated on holding one, and
+   * dropping it here sent the host who had just ended their own game straight
+   * to the join screen — past the recap everybody else was being shown. It is
+   * worthless from this moment either way: the session refuses to re-open.
+   */
   const closeGame = React.useCallback(async (): Promise<GameSnapshot> => {
     const response = await liveSocket().emitWithAck(GAME_CLIENT_MESSAGES.CLOSE);
-    const snapshot = unwrapAck(response);
-    if (gameId) clearPlayerToken(gameId);
-    return snapshot;
-  }, [liveSocket, gameId]);
+    return unwrapAck(response);
+  }, [liveSocket]);
 
   /** The seat this client holds, recognised through its own token. */
   const mySeat = React.useMemo(() => {

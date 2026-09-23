@@ -22,6 +22,7 @@ import {
   Street,
   type GameSnapshot,
   type ParticipantSnapshot,
+  type PokerGameSnapshot,
 } from '@tokenizer/shared/types';
 import * as React from 'react';
 
@@ -64,13 +65,14 @@ const SEATS: ParticipantSnapshot[] = [
   seat(8, { claimed: false, balance: 500 }),
 ];
 
-const baseSnapshot: GameSnapshot = {
+const baseSnapshot: PokerGameSnapshot = {
   id: '8f4dbcfb-1733-49b5-aca5-f375eaddea19',
   name: 'Friday night',
   mode: GameMode.Poker,
   joinCode: '482791',
   status: GameSessionStatus.Lobby,
   participants: SEATS,
+  dealsPlayed: 0,
   currentHand: null,
   stakes: {
     blinds: { small: 5, big: 10 },
@@ -87,8 +89,8 @@ const at = (offset: number) =>
 /** A hand mid-flop, with the button on seat 0 and a bet of 60 standing. */
 const liveHand = (
   activeParticipant: string,
-  overrides: Partial<NonNullable<GameSnapshot['currentHand']>> = {},
-): NonNullable<GameSnapshot['currentHand']> => ({
+  overrides: Partial<NonNullable<PokerGameSnapshot['currentHand']>> = {},
+): NonNullable<PokerGameSnapshot['currentHand']> => ({
   id: 'hand-1',
   handNumber: 7,
   status: HandStatus.Betting,
@@ -153,11 +155,13 @@ const liveHand = (
 
 const NO_OP_ACTIONS: TableActions = {
   startHand: () => {},
+  startRound: () => {},
   submitAction: () => {},
+  submitCatalogAction: () => {},
   declareWinners: () => {},
+  resolveRound: () => {},
   closeGame: () => {},
   renameSeat: () => {},
-  addSeat: () => {},
   shareTable: () => {},
   pending: null,
   error: null,
@@ -424,6 +428,7 @@ export const BetweenHands: Story = {
     },
     participantId: 'seat-0',
     resolution: {
+      mode: GameMode.Poker,
       handId: 'hand-1',
       reason: HandEndReason.Showdown,
       winners: ['seat-3'],

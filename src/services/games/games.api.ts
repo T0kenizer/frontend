@@ -11,9 +11,12 @@ import {
   DeclareWinnersResponse,
   JoinByCodeResponse,
   ListGameModesResponse,
+  ResolveRoundData,
+  ResolveRoundResponse,
   RetrieveGameSessionResponse,
   RetrieveRoomByCodeResponse,
   StartHandResponse,
+  StartRoundResponse,
   SubmitActionData,
   SubmitActionResponse,
 } from '@tokenizer/shared/types';
@@ -107,6 +110,14 @@ export const submitAction = async (
     asPlayer(token),
   );
 
+/** Host only, free mode: opens the next round. */
+export const startRound = async (uuid: string, token: string) =>
+  requester().post<StartRoundResponse>(
+    `${BASE_URL}/${uuid}/rounds`,
+    {},
+    asPlayer(token),
+  );
+
 /** Host only: settles the showdown on the winners the table called. */
 export const declareWinners = async (
   uuid: string,
@@ -123,5 +134,17 @@ export const declareWinners = async (
 export const closeGame = async (uuid: string, token: string) =>
   requester().delete<CloseGameSessionResponse>(
     `${BASE_URL}/${uuid}`,
+    asPlayer(token),
+  );
+
+/** Host only, free mode: settles the open round on the named winners. */
+export const resolveRound = async (
+  uuid: string,
+  token: string,
+  data: ResolveRoundData = {},
+) =>
+  requester().post<ResolveRoundResponse>(
+    `${BASE_URL}/${uuid}/rounds/current/resolve`,
+    data,
     asPlayer(token),
   );

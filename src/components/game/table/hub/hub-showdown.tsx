@@ -4,7 +4,7 @@ import { FeltNotice } from '@components/game/felt/felt-stage';
 import { WaitingDial } from '@components/game/table/hub/hub-lobby';
 import { HubShell, HubStack } from '@components/game/table/hub/hub-shell';
 import type { TableActions } from '@components/game/table/table-actions';
-import type { TableView } from '@components/game/table/use-table-view';
+import type { PokerTableView } from '@components/game/table/use-table-view';
 import { Button } from '@components/ui/button';
 import { formatAmount } from '@lib/amount';
 import { cn } from '@lib/utils';
@@ -24,7 +24,7 @@ import * as React from 'react';
  */
 
 export interface HubShowdownProps {
-  view: TableView;
+  view: PokerTableView;
   actions: TableActions;
 }
 

@@ -4,56 +4,47 @@ import { FeltNotice } from '@components/game/felt/felt-stage';
 import { WaitingDial } from '@components/game/table/hub/hub-lobby';
 import { HubShell, HubStack } from '@components/game/table/hub/hub-shell';
 import type { TableActions } from '@components/game/table/table-actions';
-import type { PokerTableView } from '@components/game/table/use-table-view';
+import type { FreeTableView } from '@components/game/table/use-table-view';
 import { Button } from '@components/ui/button';
 import { formatAmount } from '@lib/amount';
 import * as React from 'react';
 
 /**
- * Between two hands.
+ * Between two rounds.
  *
  * Short, and in a good night nobody reads it — but it is the beat where the
- * last pot is announced, and skipping straight from a settled hand to the next
- * deal is how a player ends up richer without ever being told why.
+ * last pot is announced, and skipping straight from a resolved round to the
+ * next deal is how a player ends up richer without ever being told why.
+ *
+ * It names the winners without naming amounts: a free round settles one pot and
+ * the runtime does not report what each seat took out of it — unlike a poker
+ * hand, where side pots make that the only honest way to say it.
  */
 
-export interface HubIntermissionProps {
-  view: PokerTableView;
+export interface HubFreeIntermissionProps {
+  view: FreeTableView;
   actions: TableActions;
 }
 
-export const HubIntermission: React.FC<HubIntermissionProps> = ({
+export const HubFreeIntermission: React.FC<HubFreeIntermissionProps> = ({
   view,
   actions,
 }) => {
-  const { winners, payouts, isHost, claimedCount, seatCount, inPlay, stakes } =
-    view;
-
-  const took = (participantId: string) =>
-    payouts.find((payout) => payout.participantId === participantId)?.amount;
+  const { winners, isHost, claimedCount, seatCount, inPlay } = view;
 
   const payoutLine = winners.length
-    ? winners
-        .map((winner) => {
-          const amount = took(winner.id);
-          return amount
-            ? `${winner.displayName} took ${formatAmount(amount)}`
-            : winner.displayName;
-        })
-        .join(' · ')
+    ? winners.length === 1
+      ? `${winners[0].displayName} took the pot.`
+      : `${winners.map((winner) => winner.displayName).join(' and ')} split the pot.`
     : undefined;
 
   return (
     <HubShell
-      eyebrow="Between hands"
+      eyebrow="Between rounds"
       title={winners.length ? 'Pot settled' : 'Ready to deal'}
-      description={payoutLine ?? 'The table is between hands.'}
+      description={payoutLine ?? 'The table is between rounds.'}
       facts={[
         { label: 'Seated', value: `${claimedCount}/${seatCount}` },
-        {
-          label: 'Blinds',
-          value: `${stakes.blinds.small}/${stakes.blinds.big}`,
-        },
         { label: 'In play', value: formatAmount(inPlay) },
       ]}
       footnote={
@@ -75,9 +66,9 @@ export const HubIntermission: React.FC<HubIntermissionProps> = ({
             size="xl"
             className="w-full"
             loading={actions.pending === 'start'}
-            onClick={actions.startHand}
+            onClick={actions.startRound}
           >
-            Deal the next hand
+            Deal the next round
           </Button>
           <Button
             variant="line"

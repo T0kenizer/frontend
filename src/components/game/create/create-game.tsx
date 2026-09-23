@@ -1,6 +1,7 @@
 'use client';
 
-import { Feature } from '@components/feature';
+import { CreateGameEconomy } from '@components/game/create/create-game-economy';
+import { CreateGameFlow } from '@components/game/create/create-game-flow';
 import { CreateGameMode } from '@components/game/create/create-game-mode';
 import { CreateGameSeats } from '@components/game/create/create-game-seats';
 import {
