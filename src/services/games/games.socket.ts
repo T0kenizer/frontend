@@ -77,12 +77,11 @@ interface ClientToServerEvents {
     payload: UpdateSeatData,
     ack: (response: GameAck<GameSnapshot>) => void,
   ) => void;
-  [GAME_CLIENT_MESSAGES.ADD_SEAT]: (
-    payload: AddSeatData,
-    ack: (response: GameAck<GameSnapshot>) => void,
-  ) => void;
   [GAME_CLIENT_MESSAGES.START_HAND]: (
     ack: (response: GameAck<GameActionResult>) => void,
+  ) => void;
+  [GAME_CLIENT_MESSAGES.START_ROUND]: (
+    ack: (response: GameAck<GameSnapshot>) => void,
   ) => void;
   [GAME_CLIENT_MESSAGES.ACTION]: (
     payload: SubmitActionData,

@@ -57,6 +57,12 @@ export interface JoinSeatParams {
   displayName?: string;
   /** Seat to claim; omit to take the first free one. */
   seatIndex?: number;
+  /**
+   * Pull up a chair instead of taking one: opens a further seat at a full table
+   * and sits the caller in it. Only offered when the snapshot says
+   * `canAddSeat`, and never together with `seatIndex`.
+   */
+  openExtraSeat?: boolean;
 }
 
 function unwrapAck<T>(response: GameAck<T>): T {
@@ -188,9 +194,11 @@ export function useGameSession(params: UseGameSessionParams) {
     socket.on(GAME_SERVER_EVENTS.PARTICIPANT_DISCONNECTED, setSnapshot);
     socket.on(GAME_SERVER_EVENTS.PARTICIPANT_LEFT, setSnapshot);
     socket.on(GAME_SERVER_EVENTS.HAND_STARTED, setSnapshot);
+    socket.on(GAME_SERVER_EVENTS.ROUND_STARTED, setSnapshot);
     socket.on(GAME_SERVER_EVENTS.ACTION_APPLIED, setSnapshot);
     socket.on(GAME_SERVER_EVENTS.HAND_SETTLED, handleSettled);
-    socket.on(GAME_SERVER_EVENTS.SESSION_CLOSED, setSnapshot);
+    socket.on(GAME_SERVER_EVENTS.ROUND_RESOLVED, handleSettled);
+    socket.on(GAME_SERVER_EVENTS.SESSION_CLOSED, closeSnapshot);
     socket.on(GAME_SERVER_EVENTS.ERROR, ({ error }) => setSocketError(error));
 
     return () => {
@@ -273,24 +281,6 @@ export function useGameSession(params: UseGameSessionParams) {
     async (data: { displayName?: Nullable<string> }): Promise<GameSnapshot> => {
       const response = await liveSocket().emitWithAck(
         GAME_CLIENT_MESSAGES.UPDATE_SEAT,
-        data,
-      );
-      return unwrapAck(response);
-    },
-    [liveSocket],
-  );
-
-  /**
-   * Host only: opens a further seat once every existing one is taken.
-   *
-   * Whether this is allowed at all is the snapshot's `canAddSeat` — it folds
-   * together the seating config, the plan cap and whether the table is actually
-   * full, none of which the client can work out for itself.
-   */
-  const addSeat = React.useCallback(
-    async (data: AddSeatData = {}): Promise<GameSnapshot> => {
-      const response = await liveSocket().emitWithAck(
-        GAME_CLIENT_MESSAGES.ADD_SEAT,
         data,
       );
       return unwrapAck(response);

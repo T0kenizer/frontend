@@ -18,6 +18,12 @@ import { toast } from 'sonner';
 export interface JoinIdentityStepProps {
   snapshot: GameSnapshot;
   seatIndex: number;
+  /**
+   * The chair is being pulled up rather than taken, so there is no row behind
+   * it yet — no declared name to start from, and no stack to show until the
+   * server has opened it on the table's default.
+   */
+  isNewSeat?: boolean;
   defaultDisplayName?: string;
   onSit: (data: { displayName?: string }) => Promise<void>;
   onBack: () => void;
@@ -26,13 +32,16 @@ export interface JoinIdentityStepProps {
 export const JoinIdentityStep: React.FC<JoinIdentityStepProps> = ({
   snapshot,
   seatIndex,
+  isNewSeat = false,
   defaultDisplayName,
   onSit,
   onBack,
 }) => {
-  const seat = snapshot.participants.find(
-    (participant) => participant.seatIndex === seatIndex,
-  );
+  const seat = isNewSeat
+    ? undefined
+    : snapshot.participants.find(
+        (participant) => participant.seatIndex === seatIndex,
+      );
 
   // The account name wins when there is one; otherwise the visitor starts from
   // whatever the host called this chair.
@@ -66,7 +75,11 @@ export const JoinIdentityStep: React.FC<JoinIdentityStepProps> = ({
         className="mb-6"
         eyebrow={`Seat ${seatIndex + 1} · ${snapshot.name}`}
         title="What should we call you?"
-        description="This is what the others see at the table. You can change it in play."
+        description={
+          isNewSeat
+            ? 'This chair is opened the moment you sit down, on the stack the table starts everyone with.'
+            : 'This is what the others see at the table. You can change it in play.'
+        }
       />
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -108,7 +121,11 @@ export const JoinIdentityStep: React.FC<JoinIdentityStepProps> = ({
           disabled={!displayName.trim()}
           className="w-full"
         >
-          {isSubmitting ? 'Sitting down…' : 'Sit at the table'}
+          {isSubmitting
+            ? 'Sitting down…'
+            : isNewSeat
+              ? 'Pull up a chair'
+              : 'Sit at the table'}
         </Button>
       </form>
     </FeltPanel>

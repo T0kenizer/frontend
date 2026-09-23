@@ -4,7 +4,10 @@ import { FeltPanel } from '@components/game/felt/felt-stage';
 import { JoinIdentifyStep } from '@components/game/join/join-identify-step';
 import { JoinIdentityStep } from '@components/game/join/join-identity-step';
 import { JoinScannerStep } from '@components/game/join/join-scanner-step';
-import { JoinSeatStep } from '@components/game/join/join-seat-step';
+import {
+  JoinSeatStep,
+  type PickedSeat,
+} from '@components/game/join/join-seat-step';
 import { JoinStage } from '@components/game/join/join-stage';
 import { Button } from '@components/ui/button';
 import ROUTES from '@constants/routes';
@@ -49,7 +52,7 @@ export interface JoinGameProps {
 export const JoinGame: React.FC<JoinGameProps> = ({ gameUuid }) => {
   const router = useRouter();
   const [isScanning, setIsScanning] = React.useState(false);
-  const [seatIndex, setSeatIndex] = React.useState<Nullable<number>>(null);
+  const [picked, setPicked] = React.useState<Nullable<PickedSeat>>(null);
 
   // Already holding a seat at this table? Then there is nothing to join. This
   // is the mirror of the gate on `/game/:uuid`, and between them a player is
@@ -125,7 +128,7 @@ export const JoinGame: React.FC<JoinGameProps> = ({ gameUuid }) => {
     );
   }
 
-  const step = seatIndex === null ? 'seat' : 'identity';
+  const step = picked === null ? 'seat' : 'identity';
 
   if (game.isLoading || !isSuccess) {
     return (
@@ -162,16 +165,24 @@ export const JoinGame: React.FC<JoinGameProps> = ({ gameUuid }) => {
   const snapshot = game.snapshot;
 
   /** Step three — a seat is picked, only the name is left. */
-  if (seatIndex !== null) {
+  if (picked !== null) {
     return (
       <JoinStage step="identity">
         <JoinIdentityStep
           snapshot={snapshot}
-          seatIndex={seatIndex}
+          seatIndex={picked.seatIndex}
+          isNewSeat={picked.kind === 'new'}
           defaultDisplayName={defaultDisplayName}
-          onBack={() => setSeatIndex(null)}
+          onBack={() => setPicked(null)}
           onSit={async (data) => {
-            await game.join({ seatIndex, ...data });
+            // A chair that does not exist yet is opened and claimed by the
+            // same call: asking for it in two would leave an empty seat at the
+            // table whenever the second one failed.
+            await game.join(
+              picked.kind === 'new'
+                ? { openExtraSeat: true, ...data }
+                : { seatIndex: picked.seatIndex, ...data },
+            );
             router.push(ROUTES.game(snapshot.id));
           }}
         />
@@ -184,7 +195,7 @@ export const JoinGame: React.FC<JoinGameProps> = ({ gameUuid }) => {
     <JoinStage step="seat">
       <JoinSeatStep
         snapshot={snapshot}
-        onPickSeat={setSeatIndex}
+        onPickSeat={setPicked}
         onBack={() => router.push(ROUTES.game.join())}
       />
     </JoinStage>
