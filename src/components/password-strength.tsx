@@ -4,31 +4,24 @@ import { cn } from '@lib/utils';
 import {
   PASSWORD_MIN_LENGTH,
   PASSWORD_RULES,
-  type PasswordRule,
 } from '@tokenizer/shared/constants/users.constants';
+import { PasswordRule } from '@tokenizer/shared/types';
 import { Check } from 'lucide-react';
 import { useMemo } from 'react';
 
-// The meter scores exactly what the API validates, so a full bar always means
-// an accepted password: the rules come from `@tokenizer/shared`, never from a
-// second list kept here.
 const MAX_SCORE = PASSWORD_RULES.length;
 const REASSURING_SCORE = MAX_SCORE - 1;
 
-const LABELS = ['Too short', 'Weak', 'Fair', 'Strong', 'Excellent'];
-
-export type { PasswordRule };
-
-export const defaultRules = PASSWORD_RULES;
+const LABELS = ['Too weak', 'Weak', 'Fair', 'Strong', 'Excellent'];
 
 export const scorePassword = (
   value: string,
-  rules: PasswordRule[] = defaultRules,
+  rules: PasswordRule[] = PASSWORD_RULES,
 ): number => rules.filter((rule) => rule.test(value)).length;
 
 export const usePasswordStrength = (
   value: string,
-  rules: PasswordRule[] = defaultRules,
+  rules: PasswordRule[] = PASSWORD_RULES,
 ) =>
   useMemo(() => {
     const checks = rules.map((rule) => ({ ...rule, ok: rule.test(value) }));
@@ -54,7 +47,7 @@ export type PasswordStrengthProps = Omit<
 
 export const PasswordStrength: React.FC<PasswordStrengthProps> = ({
   value,
-  rules = defaultRules,
+  rules = PASSWORD_RULES,
   meterOnly = false,
   emptyHint = `${PASSWORD_MIN_LENGTH} characters or more`,
   className,
@@ -123,5 +116,3 @@ export const PasswordStrength: React.FC<PasswordStrengthProps> = ({
     </div>
   );
 };
-
-export default PasswordStrength;
