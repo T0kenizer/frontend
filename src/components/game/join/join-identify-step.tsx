@@ -12,8 +12,8 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from '@components/ui/input-otp';
-import { JOIN_CODE_LENGTH } from '@constants/games';
 import { useQrScanningSupport } from '@hooks/use-qr-scanner';
+import { JOIN_CODE_LENGTH } from '@tokenizer/shared/constants/games.constants';
 import { ChevronRight, ScanLine } from 'lucide-react';
 import { useState } from 'react';
 

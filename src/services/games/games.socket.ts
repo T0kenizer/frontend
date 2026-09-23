@@ -1,8 +1,4 @@
 import { NEXT_PUBLIC_API_URL } from '@lib/env';
-import {
-  GAME_CLIENT_MESSAGES,
-  GAME_SERVER_EVENTS,
-} from '@tokenizer/shared/constants/games.constants';
 import type {
   AttachSocketData,
   AttachSocketResponse,
@@ -15,9 +11,9 @@ import type {
   SubmitActionData,
   UpdateSeatData,
 } from '@tokenizer/shared/types';
+import { GameClientMessage, GameServerEvent } from '@tokenizer/shared/types';
 import { io, type Socket } from 'socket.io-client';
 
-/** Failed acks come back as `{ error }` instead of the expected payload. */
 export interface GameSocketFailure {
   error: string;
 }
@@ -26,7 +22,6 @@ export type GameAck<T> = T | GameSocketFailure;
 
 export interface GameActionResult {
   snapshot: GameSnapshot;
-  /** Present when the move settled the deal — a poker hand or a free round. */
   resolution?: GameResolution;
 }
 
@@ -44,76 +39,61 @@ export type ParticipantLeftPayload = GameSnapshot & {
 
 /** Server → room broadcasts (see `GameRuntimeGateway`). */
 interface ServerToClientEvents {
-  [GAME_SERVER_EVENTS.PARTICIPANT_JOINED]: (snapshot: GameSnapshot) => void;
-  [GAME_SERVER_EVENTS.PARTICIPANT_UPDATED]: (snapshot: GameSnapshot) => void;
-  [GAME_SERVER_EVENTS.PARTICIPANT_DISCONNECTED]: (
+  [GameServerEvent.ParticipantJoined]: (snapshot: GameSnapshot) => void;
+  [GameServerEvent.ParticipantUpdated]: (snapshot: GameSnapshot) => void;
+  [GameServerEvent.ParticipantDisconnected]: (
     payload: ParticipantLeftPayload,
   ) => void;
-  [GAME_SERVER_EVENTS.PARTICIPANT_LEFT]: (
-    payload: ParticipantLeftPayload,
-  ) => void;
-  [GAME_SERVER_EVENTS.HAND_STARTED]: (snapshot: GameSnapshot) => void;
-  [GAME_SERVER_EVENTS.ROUND_STARTED]: (snapshot: GameSnapshot) => void;
-  [GAME_SERVER_EVENTS.ACTION_APPLIED]: (snapshot: GameSnapshot) => void;
-  [GAME_SERVER_EVENTS.HAND_SETTLED]: (payload: HandSettledPayload) => void;
-  [GAME_SERVER_EVENTS.ROUND_RESOLVED]: (payload: RoundResolvedPayload) => void;
-  [GAME_SERVER_EVENTS.SESSION_CLOSED]: (snapshot: GameSnapshot) => void;
-  [GAME_SERVER_EVENTS.ERROR]: (payload: GameSocketFailure) => void;
+  [GameServerEvent.ParticipantLeft]: (payload: ParticipantLeftPayload) => void;
+  [GameServerEvent.HandStarted]: (snapshot: GameSnapshot) => void;
+  [GameServerEvent.RoundStarted]: (snapshot: GameSnapshot) => void;
+  [GameServerEvent.ActionApplied]: (snapshot: GameSnapshot) => void;
+  [GameServerEvent.HandSettled]: (payload: HandSettledPayload) => void;
+  [GameServerEvent.RoundResolved]: (payload: RoundResolvedPayload) => void;
+  [GameServerEvent.SessionClosed]: (snapshot: GameSnapshot) => void;
+  [GameServerEvent.Error]: (payload: GameSocketFailure) => void;
 }
 
-/**
- * Client → server messages, acked with the fresh snapshot (or `{ error }`).
- *
- * Only `game:attach` carries an identity, and it carries a token the server
- * signed. Every other message is authorised from what the socket was bound to
- * at attach, so none of them names a game or a seat.
- */
 interface ClientToServerEvents {
-  [GAME_CLIENT_MESSAGES.ATTACH]: (
+  [GameClientMessage.Attach]: (
     payload: AttachSocketData,
     ack: (response: GameAck<AttachSocketResponse>) => void,
   ) => void;
-  [GAME_CLIENT_MESSAGES.UPDATE_SEAT]: (
+  [GameClientMessage.UpdateSeat]: (
     payload: UpdateSeatData,
     ack: (response: GameAck<GameSnapshot>) => void,
   ) => void;
-  [GAME_CLIENT_MESSAGES.START_HAND]: (
+  [GameClientMessage.StartHand]: (
     ack: (response: GameAck<GameActionResult>) => void,
   ) => void;
-  [GAME_CLIENT_MESSAGES.START_ROUND]: (
+  [GameClientMessage.StartRound]: (
     ack: (response: GameAck<GameSnapshot>) => void,
   ) => void;
-  [GAME_CLIENT_MESSAGES.ACTION]: (
+  [GameClientMessage.Action]: (
     payload: SubmitActionData,
     ack: (response: GameAck<GameActionResult>) => void,
   ) => void;
-  [GAME_CLIENT_MESSAGES.DECLARE_WINNERS]: (
+  [GameClientMessage.DeclareWinners]: (
     payload: DeclareWinnersData,
     ack: (response: GameAck<Required<GameActionResult>>) => void,
   ) => void;
-  [GAME_CLIENT_MESSAGES.RESOLVE]: (
+  [GameClientMessage.Resolve]: (
     payload: ResolveRoundData,
     ack: (response: GameAck<Required<GameActionResult>>) => void,
   ) => void;
-  [GAME_CLIENT_MESSAGES.SNAPSHOT]: (
+  [GameClientMessage.Snapshot]: (
     ack: (response: GameAck<GameSnapshot>) => void,
   ) => void;
-  [GAME_CLIENT_MESSAGES.CLOSE]: (
+  [GameClientMessage.Close]: (
     ack: (response: GameAck<GameSnapshot>) => void,
   ) => void;
 }
 
 export type GameSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
-/**
- * Opens a Socket.IO connection to the backend gateway. One socket per game page
- * is enough: `game:attach` binds it to the room named by the session uuid.
- */
 export function createGameSocket(): GameSocket {
   return io(NEXT_PUBLIC_API_URL, {
     withCredentials: true,
     transports: ['websocket'],
   });
 }
-
-export { GAME_CLIENT_MESSAGES, GAME_SERVER_EVENTS };

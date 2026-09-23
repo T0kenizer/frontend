@@ -3,6 +3,7 @@
 import { Badge } from '@components/ui/badge';
 import { Button } from '@components/ui/button';
 import { ScrollFade } from '@components/ui/scroll-fade';
+import { Separator } from '@components/ui/separator';
 import ROUTES from '@constants/routes';
 import { cn } from '@lib/utils';
 import { useSignOut } from '@services/sessions/sessions.hooks';
@@ -25,15 +26,32 @@ export const settingsNavVariants = cva(
 );
 
 export const settingsNavItemVariants = cva(
-  'text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-active:bg-sidebar-active data-active:text-sidebar-active-foreground data-active:hover:bg-sidebar-active data-active:hover:text-sidebar-active-foreground flex shrink-0 items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-2 data-active:font-semibold data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
+  'ring-sidebar-ring flex h-9 shrink-0 items-center justify-start gap-2.5 rounded-md px-2.5 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-2 data-active:font-semibold data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
+  {
+    variants: {
+      variant: {
+        default:
+          'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-active:bg-sidebar-active data-active:text-sidebar-active-foreground data-active:hover:bg-sidebar-active data-active:hover:text-sidebar-active-foreground',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  },
 );
 
+export type SettingsNavItemId =
+  | 'profile'
+  | 'preferences'
+  | 'security'
+  | 'subscription';
+
 export interface SettingsNavItem {
-  id: string;
+  id: SettingsNavItemId;
   label: string;
   renderIcon: () => React.ReactNode;
   href: string;
-  disabled?: boolean;
+  isLocked?: boolean;
 }
 
 const items: SettingsNavItem[] = [
@@ -48,7 +66,7 @@ const items: SettingsNavItem[] = [
     label: 'Preferences',
     renderIcon: () => <Settings2 />,
     href: ROUTES.settings.preferences(),
-    disabled: true,
+    isLocked: true,
   },
   {
     id: 'security',
@@ -61,7 +79,7 @@ const items: SettingsNavItem[] = [
     label: 'Subscription',
     renderIcon: () => <CreditCard />,
     href: ROUTES.settings.subscription(),
-    disabled: true,
+    isLocked: true,
   },
 ];
 
@@ -76,11 +94,11 @@ export const SettingsNav: React.FC<SettingsNavProps> = ({
   const { data: session } = useQuery(retrieveSessionOptions());
   const user = session?.user;
 
-  const activeId =
-    items.find((item) => !item.disabled && pathname.startsWith(item.href))
+  const activeId: SettingsNavItemId =
+    items.find((item) => !item.isLocked && pathname.startsWith(item.href))
       ?.id ?? items[0].id;
 
-  const attention: Record<string, number> = {
+  const attentionCounts: Partial<Record<SettingsNavItemId, number>> = {
     profile: user && !user.confirmedAt ? 1 : 0,
   };
 
@@ -93,57 +111,55 @@ export const SettingsNav: React.FC<SettingsNavProps> = ({
         {...props}
       >
         {items.map((item) => {
-          const itemClassName = settingsNavItemVariants();
-
-          if (item.disabled)
+          if (item.isLocked) {
             return (
               <span
                 key={item.id}
                 data-slot="settings-nav-item"
-                aria-disabled
                 data-disabled
-                className={itemClassName}
+                aria-disabled
+                className={settingsNavItemVariants()}
               >
                 {item.renderIcon()}
                 {item.label}
                 <Lock className="ml-auto size-3.5!" />
               </span>
             );
+          }
 
           const isActive = item.id === activeId;
-          const count = attention[item.id] ?? 0;
+          const attentionCount = attentionCounts[item.id] ?? 0;
 
           return (
             <Link
               key={item.id}
               href={item.href}
               data-slot="settings-nav-item"
-              aria-current={isActive ? 'page' : undefined}
               data-active={isActive || undefined}
-              className={itemClassName}
+              aria-current={isActive ? 'page' : undefined}
+              className={settingsNavItemVariants()}
             >
               {item.renderIcon()}
               {item.label}
-              {count > 0 && (
+              {attentionCount > 0 && (
                 <Badge
                   variant="notification"
                   size="sm"
                   className="ml-auto"
-                  aria-label={`${count} item${count > 1 ? 's' : ''} needing attention`}
+                  aria-label={`${attentionCount} item${attentionCount > 1 ? 's' : ''} needing attention`}
                 >
-                  {count}
+                  {attentionCount}
                 </Badge>
               )}
             </Link>
           );
         })}
-        <hr className="mx-1 h-5 w-0 shrink-0 self-center border-t-0 border-l lg:mx-0 lg:my-3 lg:h-0 lg:w-auto lg:self-auto lg:border-t lg:border-l-0" />
+        <Separator className="hidden lg:block" />
         <Button
-          variant="ghost-destructive"
-          size="lg"
+          variant="ghost"
           onClick={handleSignOut}
           loading={isSigningOut}
-          className="text-sidebar-foreground/50 justify-start gap-2.5 rounded-md font-medium"
+          className={settingsNavItemVariants()}
         >
           <LogOut />
           Sign out

@@ -18,12 +18,12 @@ import {
 import { Switch } from '@components/ui/switch';
 import {
   INITIAL_BALANCE_STEP,
-  MIN_SEATS,
   SEAT_DISPLAY_NAME_MAX_LENGTH,
 } from '@constants/games';
 import type { GameDraftController } from '@hooks/use-game-draft';
 import { toAmount } from '@lib/amount';
 import { cn } from '@lib/utils';
+import { MIN_SEATS } from '@tokenizer/shared/constants/games.constants';
 import { Coins, Minus, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 

@@ -8,9 +8,11 @@ import {
   DEFAULT_INTERRUPTION_WINDOW,
   DEFAULT_SMALL_BLIND,
   FORCED_BET_KINDS,
+} from '@constants/games';
+import {
   MAX_SEATS,
   MIN_SEATS,
-} from '@constants/games';
+} from '@tokenizer/shared/constants/games.constants';
 import {
   BettingStructure,
   ChipModel,

@@ -72,7 +72,7 @@ export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
               align="end"
               sideOffset={4}
             >
-              <DropdownMenuLabel className="bg-muted rounded-xs border font-normal">
+              <DropdownMenuLabel className="bg-muted rounded-sm border font-normal">
                 <ChipsGroup denominations={[25, 100, 500]} />
                 <span className="mt-2 block text-sm font-bold">
                   Join the table

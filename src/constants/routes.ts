@@ -1,6 +1,6 @@
 import { NEXT_PUBLIC_API_URL } from '@lib/env';
 import { REDIRECT_URL_PARAM } from '@lib/redirect-url';
-import { buildGameJoinPath } from '@tokenizer/shared/schemas';
+import { buildGameJoinPath } from '@tokenizer/shared/utils/games.utils';
 
 const withRedirectUrl = (path: string, redirectUrl?: string) =>
   redirectUrl
@@ -37,14 +37,6 @@ const ADMIN_ROUTES = () => '/admin';
 const GAME_ROUTES = (uuid: string) => `/game/${uuid}`;
 GAME_ROUTES.new = () => '/game/new';
 
-/**
- * The join screen. With no uuid it opens on the identification step; with one
- * it opens on the seat picker, which is what a link or a QR scan is for.
- *
- * The uuid form comes from the shared package rather than being spelled out
- * here, because the backend renders the very same path into the QR — two
- * spellings would eventually be two different rooms.
- */
 const JOIN_ROUTES = (uuid?: string) =>
   uuid ? buildGameJoinPath(uuid) : '/game/join';
 GAME_ROUTES.join = JOIN_ROUTES;

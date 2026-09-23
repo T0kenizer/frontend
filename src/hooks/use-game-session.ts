@@ -6,8 +6,6 @@ import {
 } from '@services/games/games.options';
 import {
   createGameSocket,
-  GAME_CLIENT_MESSAGES,
-  GAME_SERVER_EVENTS,
   type GameAck,
   type GameActionResult,
   type GameSocket,
@@ -21,47 +19,31 @@ import {
   writePlayerToken,
 } from '@services/games/games.tokens';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import type {
-  GameResolution,
-  GameSnapshot,
-  PokerAction,
-  PotAward,
+import {
+  GameClientMessage,
+  GameServerEvent,
+  type GameResolution,
+  type GameSnapshot,
+  type PokerAction,
+  type PotAward,
 } from '@tokenizer/shared/types';
-import { GameSessionStatus } from '@tokenizer/shared/types';
-import * as React from 'react';
+import { isGameOver } from '@tokenizer/shared/utils/games.utils';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const ACK_TIMEOUT_MS = 10_000;
 
-/**
- * How long the socket lingers after the table has ended.
- *
- * Long enough for the host's own `game:close` ack to land — they receive the
- * broadcast before the reply to their own call — and short enough that the
- * server reclaims the room while the recap is still on screen. Nothing depends
- * on it: the room has a backstop of its own, and this only spares it the wait.
- */
 const CLOSED_LINGER_MS = 2_000;
 
-/** What `SESSION_CLOSED` carries when there was no table left to describe. */
 type ClosedSessionStub = Pick<GameSnapshot, 'id' | 'status'>;
 
 export interface UseGameSessionParams {
-  /** The game session uuid; undefined while unknown (query disabled). */
   gameId: Optional<string>;
-  /** Gate the whole connection (e.g. while the auth session is loading). */
   enabled?: boolean;
 }
 
 export interface JoinSeatParams {
-  /** Explicit override; omit to fall back to the account/config default. */
   displayName?: string;
-  /** Seat to claim; omit to take the first free one. */
   seatIndex?: number;
-  /**
-   * Pull up a chair instead of taking one: opens a further seat at a full table
-   * and sits the caller in it. Only offered when the snapshot says
-   * `canAddSeat`, and never together with `seatIndex`.
-   */
   openExtraSeat?: boolean;
 }
 
@@ -72,45 +54,21 @@ function unwrapAck<T>(response: GameAck<T>): T {
   return response as T;
 }
 
-/**
- * Live connection to a game room.
- *
- * 1. Fetches the game over REST, which opens the room server-side.
- * 2. If a player token for this game is already stored, replays it: the seat comes
- *    back, which is what makes a page refresh a non-event rather than a
- *    departure. Otherwise the visitor watches the table until they call
- *    `join()` and pick a seat.
- * 3. With a token in hand, attaches the socket (`game:attach`) and streams the
- *    room. Every `game:*` broadcast refreshes the react-query cache, so
- *    `snapshot` is always the latest server state.
- *
- * The token is the only identity the client holds. Nothing here sends a user id
- * or a seat index to prove who it is.
- */
 export function useGameSession(params: UseGameSessionParams) {
   const { gameId, enabled = true } = params;
 
   const queryClient = useQueryClient();
-  const socketRef = React.useRef<Nullable<GameSocket>>(null);
-  // The stored token is read inside the socket effect, not mirrored into
-  // state: reading localStorage during render is unsafe under SSR, and a
-  // synchronous setState in an effect only to copy it there would cascade a
-  // render for nothing. This counter is what re-runs the effect when the token
-  // actually changes — a join, or a token the server refused.
-  const [tokenVersion, setTokenVersion] = React.useState(0);
-  const [participantId, setParticipantId] =
-    React.useState<Nullable<string>>(null);
-  const [isConnected, setIsConnected] = React.useState(false);
-  const [isAttached, setIsAttached] = React.useState(false);
-  const [socketError, setSocketError] = React.useState<Nullable<string>>(null);
-  // The last settlement, whichever game settled it: discriminated on `mode`,
-  // like the snapshot it belongs to.
-  const [resolution, setResolution] =
-    React.useState<Nullable<GameResolution>>(null);
+  const socketRef = useRef<Nullable<GameSocket>>(null);
+  const [tokenVersion, setTokenVersion] = useState(0);
+  const [participantId, setParticipantId] = useState<Nullable<string>>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isAttached, setIsAttached] = useState(false);
+  const [socketError, setSocketError] = useState<Nullable<string>>(null);
+  const [resolution, setResolution] = useState<Nullable<GameResolution>>(null);
 
   const query = useQuery(retrieveGameOptions(enabled ? gameId : undefined));
 
-  const setSnapshot = React.useCallback(
+  const setSnapshot = useCallback(
     (snapshot: GameSnapshot) => {
       queryClient.setQueryData(
         GAMES_QUERY_KEYS.retrieve(snapshot.id),
@@ -120,16 +78,7 @@ export function useGameSession(params: UseGameSessionParams) {
     [queryClient],
   );
 
-  /**
-   * The table is over.
-   *
-   * Normally a whole final snapshot — that is what the recap is drawn from —
-   * but a room abandoned after everyone had already gone answers with little
-   * more than a status. Merging rather than replacing means a client handed the
-   * short form keeps the seats it already had, instead of drawing a recap of a
-   * table with nobody at it.
-   */
-  const closeSnapshot = React.useCallback(
+  const closeSnapshot = useCallback(
     (payload: GameSnapshot | ClosedSessionStub) => {
       queryClient.setQueryData<GameSnapshot>(
         GAMES_QUERY_KEYS.retrieve(payload.id),
@@ -142,10 +91,7 @@ export function useGameSession(params: UseGameSessionParams) {
     [queryClient],
   );
 
-  // Socket lifecycle. A token stored from an earlier visit is a returning
-  // player, not a new one: it is replayed here, which is what turns a page
-  // refresh into a reconnection instead of a departure.
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled || !gameId) return;
 
     const token = readPlayerToken(gameId);
@@ -167,12 +113,10 @@ export function useGameSession(params: UseGameSessionParams) {
       setSocketError(null);
 
       socket.emit(
-        GAME_CLIENT_MESSAGES.ATTACH,
+        GameClientMessage.Attach,
         { gameUuid: gameId, token },
         (response) => {
           if (response && typeof response === 'object' && 'error' in response) {
-            // A token the server refuses is worthless: drop it rather than
-            // retry-loop on every reconnect.
             setSocketError(response.error);
             clearPlayerToken(gameId);
             setParticipantId(null);
@@ -189,17 +133,17 @@ export function useGameSession(params: UseGameSessionParams) {
       setIsConnected(false);
       setIsAttached(false);
     });
-    socket.on(GAME_SERVER_EVENTS.PARTICIPANT_JOINED, setSnapshot);
-    socket.on(GAME_SERVER_EVENTS.PARTICIPANT_UPDATED, setSnapshot);
-    socket.on(GAME_SERVER_EVENTS.PARTICIPANT_DISCONNECTED, setSnapshot);
-    socket.on(GAME_SERVER_EVENTS.PARTICIPANT_LEFT, setSnapshot);
-    socket.on(GAME_SERVER_EVENTS.HAND_STARTED, setSnapshot);
-    socket.on(GAME_SERVER_EVENTS.ROUND_STARTED, setSnapshot);
-    socket.on(GAME_SERVER_EVENTS.ACTION_APPLIED, setSnapshot);
-    socket.on(GAME_SERVER_EVENTS.HAND_SETTLED, handleSettled);
-    socket.on(GAME_SERVER_EVENTS.ROUND_RESOLVED, handleSettled);
-    socket.on(GAME_SERVER_EVENTS.SESSION_CLOSED, closeSnapshot);
-    socket.on(GAME_SERVER_EVENTS.ERROR, ({ error }) => setSocketError(error));
+    socket.on(GameServerEvent.ParticipantJoined, setSnapshot);
+    socket.on(GameServerEvent.ParticipantUpdated, setSnapshot);
+    socket.on(GameServerEvent.ParticipantDisconnected, setSnapshot);
+    socket.on(GameServerEvent.ParticipantLeft, setSnapshot);
+    socket.on(GameServerEvent.HandStarted, setSnapshot);
+    socket.on(GameServerEvent.RoundStarted, setSnapshot);
+    socket.on(GameServerEvent.ActionApplied, setSnapshot);
+    socket.on(GameServerEvent.HandSettled, handleSettled);
+    socket.on(GameServerEvent.RoundResolved, handleSettled);
+    socket.on(GameServerEvent.SessionClosed, closeSnapshot);
+    socket.on(GameServerEvent.Error, ({ error }) => setSocketError(error));
 
     return () => {
       socket.disconnect();
@@ -209,28 +153,9 @@ export function useGameSession(params: UseGameSessionParams) {
     };
   }, [enabled, gameId, tokenVersion, setSnapshot, closeSnapshot]);
 
-  /**
-   * Whether the table is over, whichever way it ended.
-   *
-   * Read off the snapshot rather than remembered from the event, so a client
-   * that arrives late — or comes back to a room that closed while it was
-   * reconnecting — reaches the same conclusion as the ones that were there.
-   */
-  const isOver =
-    query.data?.status === GameSessionStatus.Finished ||
-    query.data?.status === GameSessionStatus.Abandoned;
+  const isOver = query.data ? isGameOver(query.data.status) : false;
 
-  /**
-   * Leaves the room once the table has ended.
-   *
-   * The recap is drawn entirely from the snapshot already in hand, so the
-   * socket has nothing left to carry — and the room cannot be reclaimed
-   * server-side while anybody is still sitting in it. Leaving is therefore the
-   * last thing a client does for the table rather than something done to it,
-   * which is what makes the room close quietly instead of disconnecting a
-   * screenful of people mid-read.
-   */
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isOver) return;
 
     const timer = setTimeout(() => {
@@ -241,8 +166,7 @@ export function useGameSession(params: UseGameSessionParams) {
     return () => clearTimeout(timer);
   }, [isOver]);
 
-  /** Connected socket with an ack timeout, or throws. */
-  const liveSocket = React.useCallback(() => {
+  const liveSocket = useCallback(() => {
     const socket = socketRef.current;
     if (!socket?.connected) {
       throw new Error('The game socket is not connected');
@@ -250,12 +174,7 @@ export function useGameSession(params: UseGameSessionParams) {
     return socket.timeout(ACK_TIMEOUT_MS);
   }, []);
 
-  /**
-   * Takes a seat. This is an HTTP call, not a socket message: it is where the
-   * server decides who the player is (session user, else anonymous) and hands
-   * back the token everything afterwards rides on.
-   */
-  const join = React.useCallback(
+  const join = useCallback(
     async (seat: JoinSeatParams): Promise<GameSnapshot> => {
       if (!gameId) throw new Error('Missing game id');
 
@@ -268,7 +187,6 @@ export function useGameSession(params: UseGameSessionParams) {
 
       writePlayerToken(gameId, result.token);
       setParticipantId(result.participantId);
-      // Re-runs the socket effect, which picks the new token up and attaches.
       setTokenVersion((version) => version + 1);
       setSnapshot(result.snapshot);
       return result.snapshot;
@@ -276,11 +194,10 @@ export function useGameSession(params: UseGameSessionParams) {
     [gameId, setSnapshot],
   );
 
-  /** Renames the seat this token belongs to. */
-  const updateSeat = React.useCallback(
+  const updateSeat = useCallback(
     async (data: { displayName?: Nullable<string> }): Promise<GameSnapshot> => {
       const response = await liveSocket().emitWithAck(
-        GAME_CLIENT_MESSAGES.UPDATE_SEAT,
+        GameClientMessage.UpdateSeat,
         data,
       );
       return unwrapAck(response);
@@ -288,50 +205,30 @@ export function useGameSession(params: UseGameSessionParams) {
     [liveSocket],
   );
 
-  /**
-   * Host only: deals the next hand. The antes and blinds go in server-side, and
-   * the deal can settle the hand on the spot when they leave every remaining
-   * seat all-in — hence the same shape an action answers with.
-   */
-  const startHand = React.useCallback(async (): Promise<GameActionResult> => {
+  const startHand = useCallback(async (): Promise<GameActionResult> => {
     const response = await liveSocket().emitWithAck(
-      GAME_CLIENT_MESSAGES.START_HAND,
+      GameClientMessage.StartHand,
     );
     const result = unwrapAck(response);
     if (result.resolution) setResolution(result.resolution);
     return result;
   }, [liveSocket]);
 
-  /**
-   * Host only, free mode: opens the next round.
-   *
-   * Nothing can be settled by opening one — a free round ends when the table
-   * says so — so unlike a poker deal this answers a bare snapshot.
-   */
-  const startRound = React.useCallback(async (): Promise<GameSnapshot> => {
+  const startRound = useCallback(async (): Promise<GameSnapshot> => {
     const response = await liveSocket().emitWithAck(
-      GAME_CLIENT_MESSAGES.START_ROUND,
+      GameClientMessage.StartRound,
     );
     return unwrapAck(response);
   }, [liveSocket]);
 
-  /**
-   * Plays an action.
-   *
-   * `targetParticipantId` is the host acting on behalf of a seat nobody has
-   * claimed — a table never has a seat without a controller, so every declared
-   * chair plays from round one and the host is who plays the empty ones. The
-   * server enforces that: only the host may pass a target, and only at a seat
-   * that is still unclaimed.
-   */
-  const submitAction = React.useCallback(
+  const submitAction = useCallback(
     async (
       action: PokerAction,
       amount?: number,
       targetParticipantId?: string,
     ): Promise<GameActionResult> => {
       const response = await liveSocket().emitWithAck(
-        GAME_CLIENT_MESSAGES.ACTION,
+        GameClientMessage.Action,
         { action, amount, targetParticipantId },
       );
       return unwrapAck(response);
@@ -339,17 +236,10 @@ export function useGameSession(params: UseGameSessionParams) {
     [liveSocket],
   );
 
-  /**
-   * Host only: settles the showdown.
-   *
-   * One award per pot, because a side pot is a different contest with a
-   * different field — the short stack who took the main pot never paid into the
-   * one above it.
-   */
-  const declareWinners = React.useCallback(
+  const declareWinners = useCallback(
     async (awards: PotAward[]): Promise<GameActionResult> => {
       const response = await liveSocket().emitWithAck(
-        GAME_CLIENT_MESSAGES.DECLARE_WINNERS,
+        GameClientMessage.DeclareWinners,
         { awards },
       );
       return unwrapAck(response);
@@ -357,21 +247,14 @@ export function useGameSession(params: UseGameSessionParams) {
     [liveSocket],
   );
 
-  /**
-   * Free mode: plays an action out of the table's own catalog.
-   *
-   * The same socket message as a poker move, in the other game's vocabulary:
-   * the server accepts the one its session is playing and refuses the other,
-   * which is why the client never has to decide what a move "really" is.
-   */
-  const submitCatalogAction = React.useCallback(
+  const submitCatalogAction = useCallback(
     async (
       definitionId: string,
       amount?: number,
       targetParticipantId?: string,
     ): Promise<GameActionResult> => {
       const response = await liveSocket().emitWithAck(
-        GAME_CLIENT_MESSAGES.ACTION,
+        GameClientMessage.Action,
         { definitionId, amount, targetParticipantId },
       );
       const result = unwrapAck(response);
@@ -381,16 +264,10 @@ export function useGameSession(params: UseGameSessionParams) {
     [liveSocket],
   );
 
-  /**
-   * Host only, free mode: settles the open round.
-   *
-   * One flat list of winners, not an award per pot: a free table pools into a
-   * single pot, so there is only ever one contest to call.
-   */
-  const resolveRound = React.useCallback(
+  const resolveRound = useCallback(
     async (winnerParticipantIds?: string[]): Promise<GameActionResult> => {
       const response = await liveSocket().emitWithAck(
-        GAME_CLIENT_MESSAGES.RESOLVE,
+        GameClientMessage.Resolve,
         { winnerParticipantIds },
       );
       const result = unwrapAck(response);
@@ -400,52 +277,35 @@ export function useGameSession(params: UseGameSessionParams) {
     [liveSocket],
   );
 
-  /**
-   * Host only: ends the table for good.
-   *
-   * The token is deliberately kept. `/game/:uuid` is gated on holding one, and
-   * dropping it here sent the host who had just ended their own game straight
-   * to the join screen — past the recap everybody else was being shown. It is
-   * worthless from this moment either way: the session refuses to re-open.
-   */
-  const closeGame = React.useCallback(async (): Promise<GameSnapshot> => {
-    const response = await liveSocket().emitWithAck(GAME_CLIENT_MESSAGES.CLOSE);
+  const closeGame = useCallback(async (): Promise<GameSnapshot> => {
+    const response = await liveSocket().emitWithAck(GameClientMessage.Close);
     return unwrapAck(response);
   }, [liveSocket]);
 
-  /** The seat this client holds, recognised through its own token. */
-  const mySeat = React.useMemo(() => {
+  const mySeat = useMemo(() => {
     if (!participantId) return null;
     return query.data?.participants.find((p) => p.id === participantId) ?? null;
   }, [query.data, participantId]);
 
   return {
-    /** Latest server state, live-updated through the socket. */
     snapshot: query.data ?? null,
     isLoading: query.isLoading,
     error: (query.error as Nullable<RequesterError>) ?? null,
     refetch: query.refetch,
 
-    /** Socket lifecycle */
     isConnected,
-    /** The table has ended; the socket is on its way out or already gone. */
     isOver,
     isAttached,
     socketError: isOver ? null : socketError,
 
-    /** This client's seat, or null while it holds none. */
     participantId,
     mySeat,
 
-    /** Last settlement broadcast, if any — a poker hand or a free round. */
     resolution,
 
-    /** Takes a seat and issues this client's token. */
     join,
-    /** Renames the seat this client holds. */
     updateSeat,
 
-    /** Gameplay actions (acked over the socket). */
     startHand,
     startRound,
     submitAction,
