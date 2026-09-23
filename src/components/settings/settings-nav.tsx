@@ -135,7 +135,7 @@ export const SettingsNav: React.FC<SettingsNavProps> = ({
           </Link>
         );
       })}
-      <hr className="my-3" />
+      <hr className="mx-1 h-5 w-0 shrink-0 self-center border-t-0 border-l lg:mx-0 lg:my-3 lg:h-0 lg:w-auto lg:self-auto lg:border-t lg:border-l-0" />
       <Button
         variant="ghost-destructive"
         size="lg"
