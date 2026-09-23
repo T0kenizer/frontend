@@ -14,7 +14,7 @@ import type { TableActions } from '@components/game/table/table-actions';
 import type { TableView } from '@components/game/table/use-table-view';
 import { GameMode } from '@tokenizer/shared/types';
 import { AnimatePresence } from 'motion/react';
-import * as React from 'react';
+import { useMemo } from 'react';
 
 /**
  * The middle of the table: whatever the game is asking of you right now.
@@ -52,7 +52,7 @@ export const TableHub: React.FC<TableHubProps> = ({
   tableName,
   form,
 }) => {
-  const { key, panel } = React.useMemo(() => {
+  const { key, panel } = useMemo(() => {
     if (form) return { key: 'form', panel: form };
 
     switch (view.phase) {

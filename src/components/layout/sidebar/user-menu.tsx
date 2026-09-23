@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
+import { ChipsGroup } from '@components/ui/chips-group';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,11 +42,6 @@ export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
   const { isMobile } = useSidebar();
   const { signOut: handleSignOut } = useSignOut();
 
-  const avatarSrc = user?.avatarUrl ?? undefined;
-  const avatarAlt = user?.displayName
-    ? `${user?.displayName}'s Avatar`
-    : 'Avatar';
-
   if (!user) {
     return (
       <SidebarMenu>
@@ -76,11 +72,12 @@ export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
               align="end"
               sideOffset={4}
             >
-              <DropdownMenuLabel className="font-normal">
-                <span className="block text-sm font-medium">
+              <DropdownMenuLabel className="bg-muted rounded-xs border font-normal">
+                <ChipsGroup denominations={[25, 100, 500]} />
+                <span className="mt-2 block text-sm font-bold">
                   Join the table
                 </span>
-                <span className="text-muted-foreground block text-xs">
+                <span className="text-muted-foreground mt-0.5 block text-xs">
                   Sign up to host your games and invite your friends.
                 </span>
               </DropdownMenuLabel>
@@ -103,6 +100,9 @@ export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
       </SidebarMenu>
     );
   }
+
+  const avatarSrc = user.avatarUrl ?? undefined;
+  const avatarAlt = `${user.displayName}'s Avatar`;
 
   return (
     <SidebarMenu>

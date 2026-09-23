@@ -24,7 +24,6 @@ import {
   type ParticipantSnapshot,
   type PokerGameSnapshot,
 } from '@tokenizer/shared/types';
-import * as React from 'react';
 
 /**
  * The live table, in each of the states it passes through.

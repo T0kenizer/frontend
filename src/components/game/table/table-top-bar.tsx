@@ -8,7 +8,6 @@ import { cn } from '@lib/utils';
 import { gameQrUrl } from '@services/games/games.api';
 import { LogOut } from 'lucide-react';
 import Link from 'next/link';
-import * as React from 'react';
 
 /**
  * The strip over the felt: where you are, how to get others here, how to leave.

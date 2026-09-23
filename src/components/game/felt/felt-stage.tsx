@@ -1,7 +1,7 @@
 import { cn } from '@lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { ArrowLeft, CircleAlert, Info } from 'lucide-react';
-import * as React from 'react';
+import { Children, cloneElement } from 'react';
 
 /**
  * The kit every `/game` screen is built from.
@@ -215,12 +215,12 @@ export const FeltBackLink: React.FC<FeltBackLinkProps> = ({
   );
 
   if (asChild) {
-    const child = React.Children.only(children) as React.ReactElement<{
+    const child = Children.only(children) as React.ReactElement<{
       className?: string;
       children?: React.ReactNode;
     }>;
 
-    return React.cloneElement(child, {
+    return cloneElement(child, {
       className: cn(classes, child.props.className),
       children: (
         <>
@@ -243,12 +243,9 @@ export const feltNoticeVariants = cva(
   {
     variants: {
       tone: {
-        /** Something is wrong and the screen cannot go on. */
         error:
           'bg-destructive/15 border-destructive/35 [&>svg]:text-destructive',
-        /** Something is worth knowing before going on. */
         warning: 'bg-warning-soft border-warning/35 [&>svg]:text-warning',
-        /** Plain context. */
         info: 'bg-on-media-scrim border-on-media-hairline [&>svg]:text-on-media-muted-foreground',
       },
     },

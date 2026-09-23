@@ -96,6 +96,7 @@
   --color-coral-600: var(--color-coral-600);
   --color-coral-700: var(--color-coral-700);
   --color-coral-deep: var(--color-coral-deep);
+  --color-orange-500: var(--color-orange-500);
 
   --color-cobalt-600: var(--color-cobalt-600);
   --color-plum-600: var(--color-plum-600);
@@ -205,6 +206,12 @@
   --primary-soft: oklch(from var(--color-coral-500) l c h / 0.12);
   --primary-tint: oklch(from var(--color-coral-500) l c h / 0.06);
   --accent-tint: oklch(from var(--color-teal-400) l c h / 0.06);
+
+  --gradient-brand: linear-gradient(
+    110deg,
+    var(--color-coral-500),
+    var(--color-orange-500)
+  );
 
   /**
    * Status tints and the text that sits on them. The solid `--success` and
@@ -395,6 +402,19 @@
 }
 
 @layer components {
+  .text-gradient-brand {
+    color: transparent;
+    background-image: var(--gradient-brand);
+    background-clip: text;
+  }
+
+  @media (forced-colors: active) {
+    .text-gradient-brand {
+      color: CanvasText;
+      background-image: none;
+    }
+  }
+
   /**
    * The table itself: the felt wash the connection hero leads with, lifted out
    * of that one aside so every screen that is a table rather than a page —
@@ -498,70 +518,6 @@
           transparent 3px 13px
         )
         right center / var(--chip-rim-width) 100% no-repeat;
-  }
-
-  /**
-   * A chip seen face-on, as a disc rather than a rim: edge spots painted by a
-   * conic gradient, an inset face on top, and the denomination centred in it.
-   * Painted rather than drawn so it stays crisp at any size and costs no asset.
-   *
-   * Drives off `--chip-face` (the body), `--chip-stripe` (the edge spots),
-   * `--chip-ink` (the value) and `--chip-size`; the `Chip` component maps a
-   * denomination onto them.
-   */
-  .chip-disc {
-    --chip-face: var(--color-chip-5);
-    --chip-stripe: var(--color-chalk);
-    --chip-ink: var(--color-white-95);
-    --chip-size: 2.5rem;
-
-    position: relative;
-    display: grid;
-    flex: none;
-    place-items: center;
-    width: var(--chip-size);
-    height: var(--chip-size);
-    border-radius: 50%;
-    color: var(--chip-ink);
-    background: conic-gradient(
-      from -11.25deg,
-      var(--chip-stripe) 0deg 22.5deg,
-      var(--chip-face) 22.5deg 45deg,
-      var(--chip-stripe) 45deg 67.5deg,
-      var(--chip-face) 67.5deg 90deg,
-      var(--chip-stripe) 90deg 112.5deg,
-      var(--chip-face) 112.5deg 135deg,
-      var(--chip-stripe) 135deg 157.5deg,
-      var(--chip-face) 157.5deg 180deg,
-      var(--chip-stripe) 180deg 202.5deg,
-      var(--chip-face) 202.5deg 225deg,
-      var(--chip-stripe) 225deg 247.5deg,
-      var(--chip-face) 247.5deg 270deg,
-      var(--chip-stripe) 270deg 292.5deg,
-      var(--chip-face) 292.5deg 315deg,
-      var(--chip-stripe) 315deg 337.5deg,
-      var(--chip-face) 337.5deg 360deg
-    );
-    box-shadow:
-      inset 0 0 0 calc(var(--chip-size) * 0.018) oklch(0 0 0 / 0.18),
-      inset 0 calc(var(--chip-size) * -0.04) calc(var(--chip-size) * 0.08)
-        oklch(0 0 0 / 0.1),
-      inset 0 calc(var(--chip-size) * 0.04) calc(var(--chip-size) * 0.08)
-        oklch(1 0 0 / 0.16),
-      0 calc(var(--chip-size) * 0.04) calc(var(--chip-size) * 0.1)
-        oklch(0.2 0.02 270 / 0.18);
-  }
-
-  /* The face, inset so the gradient below it only shows as edge spots. */
-  .chip-disc::before {
-    content: '';
-    position: absolute;
-    inset: 13%;
-    border-radius: 50%;
-    background: var(--chip-face);
-    box-shadow:
-      inset 0 0 0 calc(var(--chip-size) * 0.018) var(--chip-stripe),
-      inset 0 0 0 calc(var(--chip-size) * 0.04) var(--chip-face);
   }
 }
 

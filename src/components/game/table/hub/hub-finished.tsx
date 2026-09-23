@@ -12,7 +12,7 @@ import { cn } from '@lib/utils';
 import { GameMode } from '@tokenizer/shared/types';
 import { motion, useReducedMotion } from 'motion/react';
 import Link from 'next/link';
-import * as React from 'react';
+import { useMemo } from 'react';
 
 /**
  * The table is over, and this is where everybody lands.
@@ -48,7 +48,7 @@ const ENDING_COPY: Record<TableEnding, { eyebrow: string; line: string }> = {
 export const HubFinished: React.FC<HubFinishedProps> = ({ view }) => {
   const reduceMotion = useReducedMotion();
 
-  const standings = React.useMemo(
+  const standings = useMemo(
     () =>
       view.seats
         .filter((entry) => entry.seat.claimed)

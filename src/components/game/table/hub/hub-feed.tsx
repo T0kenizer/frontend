@@ -3,7 +3,6 @@
 import type { TableEvent } from '@components/game/table/use-table-view';
 import { formatAmount } from '@lib/amount';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import * as React from 'react';
 
 /**
  * The two pieces the "somebody else is deciding" panel is made of, shared by

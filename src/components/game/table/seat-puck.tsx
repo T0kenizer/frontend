@@ -7,7 +7,6 @@ import { cn } from '@lib/utils';
 import type { ChipModel } from '@tokenizer/shared/types';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import * as React from 'react';
 
 /**
  * One chair, as it is drawn around the table.

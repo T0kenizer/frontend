@@ -3,9 +3,10 @@
 import { Alert, AlertDescription } from '@components/ui/alert';
 import { Button } from '@components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/ui/card';
-import { Chip } from '@components/ui/chip';
+import { ChipsGroup } from '@components/ui/chips-group';
 import { ACTION_CATALOG, BETTING_STRUCTURES } from '@constants/games';
 import type { GameDraft, GameDraftController } from '@hooks/use-game-draft';
+import { useGameName } from '@hooks/use-game-name';
 import {
   ChipModel,
   EndResolution,
@@ -13,12 +14,8 @@ import {
   TurnRegime,
 } from '@tokenizer/shared/types';
 import { CircleAlert } from 'lucide-react';
-import * as React from 'react';
 
 const amountFormat = new Intl.NumberFormat('en-US');
-
-/** The chips stacked under the name — decoration, hence hidden from readers. */
-const STACK_PREVIEW = [25, 100, 5, 500] as const;
 
 export interface CreateGameSummaryProps {
   controller: GameDraftController;
@@ -40,6 +37,7 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
   isCreating,
 }) => {
   const { draft, review, totalInPlay } = controller;
+  const name = useGameName(draft.name);
 
   const isPoker = draft.mode === GameMode.Poker;
 
@@ -55,8 +53,6 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
     .filter(Boolean)
     .join(' · ');
 
-  // The seating is the same decision in both games, so it reads the same way
-  // whichever one is being opened; everything above it is that game's own.
   const facts: [string, string][] = [
     ...(isPoker ? pokerFacts(draft) : freeFacts(draft)),
     ['Joining after the deal', draft.allowMidGameClaims ? 'Allowed' : 'Closed'],
@@ -75,19 +71,11 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
         </CardHeader>
         <CardContent>
           <p className="font-heading text-xl leading-tight font-extrabold tracking-[-0.03em]">
-            {draft.name.trim() || 'Unnamed game'}
+            {name}
           </p>
           <p className="text-on-media-muted-foreground mt-1 text-xs">{meta}</p>
 
-          <div className="mt-3.5 flex items-end" aria-hidden>
-            {STACK_PREVIEW.map((denomination, index) => (
-              <Chip
-                key={denomination}
-                denomination={denomination}
-                className={index > 0 ? '-ml-3' : undefined}
-              />
-            ))}
-          </div>
+          <ChipsGroup className="mt-3.5" size={48} staggered />
 
           <dl className="border-on-media-hairline mt-3.5 flex border-t pt-3.5">
             {(

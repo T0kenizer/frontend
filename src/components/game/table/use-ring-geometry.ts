@@ -5,7 +5,7 @@ import {
   layOutRing,
   type RingGeometry,
 } from '@components/game/table/table-geometry';
-import * as React from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 
 export interface UseRingGeometryResult {
   /** Attach to the box the seats are positioned inside. */
@@ -30,11 +30,11 @@ export interface UseRingGeometryResult {
  * stacked at the origin.
  */
 export function useRingGeometry(seatCount: number): UseRingGeometryResult {
-  const ringRef = React.useRef<Nullable<HTMLDivElement>>(null);
-  const hubRef = React.useRef<Nullable<HTMLDivElement>>(null);
-  const [geometry, setGeometry] = React.useState<RingGeometry>(EMPTY_RING);
+  const ringRef = useRef<Nullable<HTMLDivElement>>(null);
+  const hubRef = useRef<Nullable<HTMLDivElement>>(null);
+  const [geometry, setGeometry] = useState<RingGeometry>(EMPTY_RING);
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     const ring = ringRef.current;
     if (!ring) return;
 

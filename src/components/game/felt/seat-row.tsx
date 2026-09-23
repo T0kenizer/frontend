@@ -6,7 +6,6 @@ import {
   type ParticipantSnapshot,
 } from '@tokenizer/shared/types';
 import { cva, type VariantProps } from 'class-variance-authority';
-import * as React from 'react';
 
 /**
  * One chair, wherever it is shown.
@@ -23,20 +22,12 @@ export const seatRowVariants = cva(
   {
     variants: {
       state: {
-        /** Nobody in it, and takeable. */
         free: 'border-on-media-hairline bg-on-media-scrim',
-        /**
-         * Somebody else in it. Shown, not hidden: it is how you recognise the
-         * table.
-         */
         taken: 'border-on-media-hairline bg-on-media-scrim opacity-60',
-        /** Chosen but not yet claimed — the seat picker's pending state. */
         picked:
           'border-warning bg-warning-soft ring-warning/20 border-solid ring-3',
-        /** The chair this client is sitting in. */
         mine: 'border-warning/55 bg-on-media-film',
       },
-      /** Whether picking the row is what the screen is for. */
       interactive: {
         true: 'cursor-pointer',
         false: '',
@@ -60,7 +51,6 @@ export type SeatRowState = NonNullable<
   VariantProps<typeof seatRowVariants>['state']
 >;
 
-/** What the seat is doing, said plainly, when the screen has nothing better. */
 export const describeSeat = (seat: ParticipantSnapshot): string => {
   if (!seat.claimed) return 'Waiting for a player';
   return seat.connected ? 'In play' : 'Away';

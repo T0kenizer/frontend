@@ -9,7 +9,7 @@ import { Button } from '@components/ui/button';
 import { formatAmount } from '@lib/amount';
 import { cn } from '@lib/utils';
 import type { PotAward } from '@tokenizer/shared/types';
-import * as React from 'react';
+import { useState } from 'react';
 
 /**
  * The betting is finished. Who won?
@@ -31,7 +31,7 @@ export interface HubShowdownProps {
 export const HubShowdown: React.FC<HubShowdownProps> = ({ view, actions }) => {
   const { pots, pot, contenders, isHost } = view;
 
-  const [picked, setPicked] = React.useState<Record<string, string[]>>({});
+  const [picked, setPicked] = useState<Record<string, string[]>>({});
 
   const toggle = (potId: string, participantId: string) =>
     setPicked((current) => {
