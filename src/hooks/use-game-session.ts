@@ -114,6 +114,28 @@ export function useGameSession(params: UseGameSessionParams) {
     [queryClient],
   );
 
+  /**
+   * The table is over.
+   *
+   * Normally a whole final snapshot — that is what the recap is drawn from —
+   * but a room abandoned after everyone had already gone answers with little
+   * more than a status. Merging rather than replacing means a client handed the
+   * short form keeps the seats it already had, instead of drawing a recap of a
+   * table with nobody at it.
+   */
+  const closeSnapshot = React.useCallback(
+    (payload: GameSnapshot | ClosedSessionStub) => {
+      queryClient.setQueryData<GameSnapshot>(
+        GAMES_QUERY_KEYS.retrieve(payload.id),
+        (current) =>
+          'participants' in payload
+            ? payload
+            : current && { ...current, status: payload.status },
+      );
+    },
+    [queryClient],
+  );
+
   // Socket lifecycle. A token stored from an earlier visit is a returning
   // player, not a new one: it is replayed here, which is what turns a page
   // refresh into a reconnection instead of a departure.
@@ -177,7 +199,39 @@ export function useGameSession(params: UseGameSessionParams) {
       setIsConnected(false);
       setIsAttached(false);
     };
-  }, [enabled, gameId, tokenVersion, setSnapshot]);
+  }, [enabled, gameId, tokenVersion, setSnapshot, closeSnapshot]);
+
+  /**
+   * Whether the table is over, whichever way it ended.
+   *
+   * Read off the snapshot rather than remembered from the event, so a client
+   * that arrives late — or comes back to a room that closed while it was
+   * reconnecting — reaches the same conclusion as the ones that were there.
+   */
+  const isOver =
+    query.data?.status === GameSessionStatus.Finished ||
+    query.data?.status === GameSessionStatus.Abandoned;
+
+  /**
+   * Leaves the room once the table has ended.
+   *
+   * The recap is drawn entirely from the snapshot already in hand, so the
+   * socket has nothing left to carry — and the room cannot be reclaimed
+   * server-side while anybody is still sitting in it. Leaving is therefore the
+   * last thing a client does for the table rather than something done to it,
+   * which is what makes the room close quietly instead of disconnecting a
+   * screenful of people mid-read.
+   */
+  React.useEffect(() => {
+    if (!isOver) return;
+
+    const timer = setTimeout(() => {
+      socketRef.current?.disconnect();
+      setSocketError(null);
+    }, CLOSED_LINGER_MS);
+
+    return () => clearTimeout(timer);
+  }, [isOver]);
 
   /** Connected socket with an ack timeout, or throws. */
   const liveSocket = React.useCallback(() => {
@@ -201,6 +255,7 @@ export function useGameSession(params: UseGameSessionParams) {
         token: readPlayerToken(gameId) ?? undefined,
         displayName: seat.displayName,
         seatIndex: seat.seatIndex,
+        openExtraSeat: seat.openExtraSeat,
       });
 
       writePlayerToken(gameId, result.token);
@@ -383,27 +438,30 @@ export function useGameSession(params: UseGameSessionParams) {
 
     /** Socket lifecycle */
     isConnected,
+    /** The table has ended; the socket is on its way out or already gone. */
+    isOver,
     isAttached,
-    socketError,
+    socketError: isOver ? null : socketError,
 
     /** This client's seat, or null while it holds none. */
     participantId,
     mySeat,
 
-    /** Last hand settlement broadcast, if any. */
+    /** Last settlement broadcast, if any — a poker hand or a free round. */
     resolution,
 
     /** Takes a seat and issues this client's token. */
     join,
     /** Renames the seat this client holds. */
     updateSeat,
-    /** Host only: opens a further seat at a full table. */
-    addSeat,
 
     /** Gameplay actions (acked over the socket). */
     startHand,
+    startRound,
     submitAction,
+    submitCatalogAction,
     declareWinners,
+    resolveRound,
     closeGame,
   };
 }

@@ -150,6 +150,7 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
         joinCode={game.snapshot?.joinCode ?? null}
         tableName={game.snapshot?.name ?? 'Table'}
         isConnected={game.isConnected}
+        isOver={game.isOver}
       />
 
       {game.socketError && (
