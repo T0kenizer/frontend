@@ -1,55 +1,38 @@
 'use client';
 
 import { cn } from '@lib/utils';
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_RULES,
+  type PasswordRule,
+} from '@tokenizer/shared/constants/users.constants';
 import { Check } from 'lucide-react';
 import { useMemo } from 'react';
 
-const COMFORTABLE_LENGTH = 12;
-const REASSURING_SCORE = 3;
-const MAX_SCORE = 4;
-
-export type PasswordRule = {
-  id: string;
-  label: string;
-  test: (value: string) => boolean;
-};
-
-export const defaultRules: PasswordRule[] = [
-  {
-    id: 'len',
-    label: `${COMFORTABLE_LENGTH} characters or more`,
-    test: (value) => value.length >= COMFORTABLE_LENGTH,
-  },
-  {
-    id: 'case',
-    label: 'Upper and lower case letters',
-    test: (value) => /[A-Z]/.test(value) && /[a-z]/.test(value),
-  },
-  {
-    id: 'num',
-    label: 'A number or a symbol',
-    test: (value) => /[\d\W]/.test(value),
-  },
-];
+// The meter scores exactly what the API validates, so a full bar always means
+// an accepted password: the rules come from `@tokenizer/shared`, never from a
+// second list kept here.
+const MAX_SCORE = PASSWORD_RULES.length;
+const REASSURING_SCORE = MAX_SCORE - 1;
 
 const LABELS = ['Too short', 'Weak', 'Fair', 'Strong', 'Excellent'];
 
-export const scorePassword = (value: string): number => {
-  let score = 0;
-  if (value.length >= COMFORTABLE_LENGTH) score++;
-  if (/[A-Z]/.test(value) && /[a-z]/.test(value)) score++;
-  if (/\d/.test(value)) score++;
-  if (/[^\w]/.test(value)) score++;
-  return score;
-};
+export type { PasswordRule };
+
+export const defaultRules = PASSWORD_RULES;
+
+export const scorePassword = (
+  value: string,
+  rules: PasswordRule[] = defaultRules,
+): number => rules.filter((rule) => rule.test(value)).length;
 
 export const usePasswordStrength = (
   value: string,
   rules: PasswordRule[] = defaultRules,
 ) =>
   useMemo(() => {
-    const score = scorePassword(value);
     const checks = rules.map((rule) => ({ ...rule, ok: rule.test(value) }));
+    const score = checks.filter((check) => check.ok).length;
 
     return {
       score,
@@ -73,7 +56,7 @@ export const PasswordStrength: React.FC<PasswordStrengthProps> = ({
   value,
   rules = defaultRules,
   meterOnly = false,
-  emptyHint = `${COMFORTABLE_LENGTH} characters or more`,
+  emptyHint = `${PASSWORD_MIN_LENGTH} characters or more`,
   className,
   ...props
 }) => {
