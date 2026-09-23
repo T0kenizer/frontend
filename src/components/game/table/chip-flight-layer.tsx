@@ -4,7 +4,7 @@ import type { RingGeometry } from '@components/game/table/table-geometry';
 import type { ChipFlight } from '@components/game/table/use-chip-flights';
 import { formatAmount } from '@lib/amount';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import * as React from 'react';
+import { Fragment } from 'react/jsx-runtime';
 
 /**
  * The chips in the air.
@@ -49,7 +49,7 @@ export const ChipFlightLayer: React.FC<ChipFlightLayerProps> = ({
           const to = flight.direction === 'to-pot' ? geometry.centre : seat;
 
           return (
-            <React.Fragment key={flight.id}>
+            <Fragment key={flight.id}>
               {Array.from({ length: CHIPS_PER_FLIGHT }, (_, chip) => (
                 <motion.span
                   key={`${flight.id}-${chip}`}
@@ -96,7 +96,7 @@ export const ChipFlightLayer: React.FC<ChipFlightLayerProps> = ({
                 {flight.direction === 'to-pot' ? '−' : '+'}
                 {formatAmount(flight.amount)}
               </motion.span>
-            </React.Fragment>
+            </Fragment>
           );
         })}
       </AnimatePresence>

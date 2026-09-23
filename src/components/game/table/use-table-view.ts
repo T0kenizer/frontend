@@ -23,7 +23,7 @@ import {
   type Street,
   type TableStakes,
 } from '@tokenizer/shared/types';
-import * as React from 'react';
+import { useMemo } from 'react';
 
 /**
  * Everything the table screen needs to know, read off the snapshot once.
@@ -240,7 +240,7 @@ const FEED_LENGTH = 6;
 export function useTableView(game: GameSession): Nullable<TableView> {
   const { snapshot, participantId, resolution } = game;
 
-  return React.useMemo(() => {
+  return useMemo(() => {
     if (!snapshot) return null;
 
     const seats = [...snapshot.participants].sort(

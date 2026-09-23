@@ -10,7 +10,7 @@ import { formatAmount, toAmount } from '@lib/amount';
 import { cn } from '@lib/utils';
 import { PokerAction, type LegalAction } from '@tokenizer/shared/types';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import * as React from 'react';
+import { useState } from 'react';
 
 /**
  * Your move.
@@ -51,7 +51,7 @@ export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
   // because it is not their turn.
   const target = proxySeat?.id;
 
-  const [picked, setPicked] = React.useState<Nullable<LegalAction>>(null);
+  const [picked, setPicked] = useState<Nullable<LegalAction>>(null);
 
   // A new set of legal moves means the turn moved on; a half-typed raise from
   // the turn before must not survive into it. Adjusted during render rather
@@ -59,7 +59,7 @@ export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
   const legalIds = legalActions
     .map((action) => `${action.action}:${action.min}-${action.max}`)
     .join(',');
-  const [seenLegalIds, setSeenLegalIds] = React.useState(legalIds);
+  const [seenLegalIds, setSeenLegalIds] = useState(legalIds);
   if (seenLegalIds !== legalIds) {
     setSeenLegalIds(legalIds);
     setPicked(null);
@@ -179,7 +179,7 @@ const AmountStep: React.FC<{
   const reduceMotion = useReducedMotion();
   const min = action.min!;
   const max = action.max!;
-  const [amount, setAmount] = React.useState(min);
+  const [amount, setAmount] = useState(min);
 
   // A minimum, the middle, and the lot: the three sizes people actually pick,
   // without anyone doing arithmetic at a table with a drink in their hand.

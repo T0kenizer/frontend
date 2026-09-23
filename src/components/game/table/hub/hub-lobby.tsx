@@ -8,7 +8,6 @@ import { Button } from '@components/ui/button';
 import { formatAmount } from '@lib/amount';
 import { GameMode } from '@tokenizer/shared/types';
 import { motion, useReducedMotion } from 'motion/react';
-import * as React from 'react';
 
 /**
  * Before the cards come out.

@@ -13,7 +13,7 @@ import {
   type GameSession,
 } from '@components/game/table/use-table-view';
 import ROUTES from '@constants/routes';
-import * as React from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 /**
@@ -37,9 +37,9 @@ export interface TableRoomProps {
 export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
   const view = useTableView(game);
 
-  const [pending, setPending] = React.useState<Nullable<string>>(null);
-  const [error, setError] = React.useState<Nullable<string>>(null);
-  const [isRenaming, setIsRenaming] = React.useState(false);
+  const [pending, setPending] = useState<Nullable<string>>(null);
+  const [error, setError] = useState<Nullable<string>>(null);
+  const [isRenaming, setIsRenaming] = useState(false);
 
   const seats = game.snapshot?.participants ?? EMPTY_SEATS;
   const flights = useChipFlights(seats);

@@ -6,7 +6,6 @@ import type { TableActions } from '@components/game/table/table-actions';
 import type { FreeTableView } from '@components/game/table/use-table-view';
 import { Button } from '@components/ui/button';
 import { formatAmount } from '@lib/amount';
-import * as React from 'react';
 
 /**
  * Somebody else is deciding, at a free table.

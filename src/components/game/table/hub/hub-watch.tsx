@@ -4,7 +4,6 @@ import { EventFeed, ThinkingPulse } from '@components/game/table/hub/hub-feed';
 import { HubShell } from '@components/game/table/hub/hub-shell';
 import type { PokerTableView } from '@components/game/table/use-table-view';
 import { formatAmount } from '@lib/amount';
-import * as React from 'react';
 
 /**
  * Somebody else is deciding.

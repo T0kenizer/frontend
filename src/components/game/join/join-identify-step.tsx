@@ -15,7 +15,7 @@ import {
 import { JOIN_CODE_LENGTH } from '@constants/games';
 import { useQrScanningSupport } from '@hooks/use-qr-scanner';
 import { ChevronRight, ScanLine } from 'lucide-react';
-import * as React from 'react';
+import { useState } from 'react';
 
 export interface JoinIdentifyStepProps {
   onSubmitCode: (code: string) => Promise<void>;
@@ -28,9 +28,9 @@ export const JoinIdentifyStep: React.FC<JoinIdentifyStepProps> = ({
   onSubmitCode,
   onOpenScanner,
 }) => {
-  const [code, setCode] = React.useState('');
-  const [isResolving, setIsResolving] = React.useState(false);
-  const [error, setError] = React.useState<Nullable<string>>(null);
+  const [code, setCode] = useState('');
+  const [isResolving, setIsResolving] = useState(false);
+  const [error, setError] = useState<Nullable<string>>(null);
 
   const canScan = useQrScanningSupport();
 

@@ -12,7 +12,6 @@ import { ACTION_CATALOG, INTERRUPTION_WINDOWS } from '@constants/games';
 import type { GameDraftController } from '@hooks/use-game-draft';
 import { cn } from '@lib/utils';
 import { Direction, EndResolution, TurnRegime } from '@tokenizer/shared/types';
-import * as React from 'react';
 
 /** What each turn regime actually does, in one line. */
 const REGIME_HINTS: Record<TurnRegime, string> = {

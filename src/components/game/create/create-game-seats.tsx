@@ -25,11 +25,10 @@ import type { GameDraftController } from '@hooks/use-game-draft';
 import { toAmount } from '@lib/amount';
 import { cn } from '@lib/utils';
 import { Coins, Minus, Plus, X } from 'lucide-react';
-import * as React from 'react';
+import { useState } from 'react';
 
 export interface CreateGameSeatsProps {
   controller: GameDraftController;
-  /** Seats a table may open with, capped by the host's plan. */
   maxSeats: number;
 }
 
@@ -55,7 +54,7 @@ export const CreateGameSeats: React.FC<CreateGameSeatsProps> = ({
     patch,
   } = controller;
 
-  const [newSeat, setNewSeat] = React.useState('');
+  const [newSeat, setNewSeat] = useState('');
   const isFull = draft.seats.length >= maxSeats;
 
   const handleAddSeat = () => {

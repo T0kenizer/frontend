@@ -8,7 +8,6 @@ import {
 import { Label } from '@components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@components/ui/toggle-group';
 import { cn } from '@lib/utils';
-import * as React from 'react';
 
 /**
  * The pieces the create form is made of: a group of settings, a setting, and

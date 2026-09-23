@@ -7,10 +7,6 @@ import {
   PASSWORD_MIN_LENGTH,
 } from '@tokenizer/shared/constants/users.constants';
 
-/**
- * Highest tier a password under `PASSWORD_SHORT_LENGTH` can reach: `Aa1!` ticks
- * three boxes and still falls in seconds.
- */
 const SHORT_SCORE_CAP = 1;
 
 export interface PasswordCheck {
@@ -20,25 +16,14 @@ export interface PasswordCheck {
 }
 
 export interface PasswordStrength {
-  /** Satisfied advisory checks, forced to zero while a hard rule is broken. */
   score: number;
-  /** What to tell the user: the broken rule if any, the strength otherwise. */
   label: string;
-  /** False only when the schema itself would reject the password. */
   isAllowed: boolean;
   checks: PasswordCheck[];
 }
 
 const SCORE_LABELS = ['Weak', 'Fair', 'Good', 'Strong', 'Excellent'];
 
-/**
- * Scores a password against the shared schema.
- *
- * Only the length bounds are enforced server-side, so everything else is
- * advice: a short-but-allowed password scores badly, yet stays submittable.
- * Holding the user to a stricter bar than the API would reject passwords the
- * backend is happy to store.
- */
 export const evaluatePassword = (password: string): PasswordStrength => {
   const checks: PasswordCheck[] = [
     {

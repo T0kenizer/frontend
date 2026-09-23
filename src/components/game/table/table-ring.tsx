@@ -8,7 +8,6 @@ import type { SeatView } from '@components/game/table/use-table-view';
 import { cn } from '@lib/utils';
 import type { ChipModel } from '@tokenizer/shared/types';
 import { motion } from 'motion/react';
-import * as React from 'react';
 
 /**
  * The table and the people around it.

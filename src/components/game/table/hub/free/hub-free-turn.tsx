@@ -13,7 +13,7 @@ import { formatAmount, toAmount } from '@lib/amount';
 import { cn } from '@lib/utils';
 import { AmountForm } from '@tokenizer/shared/types';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import * as React from 'react';
+import { useState } from 'react';
 
 /**
  * Your move, at a table whose rules the host wrote.
@@ -44,13 +44,13 @@ export const HubFreeTurn: React.FC<HubFreeTurnProps> = ({ view, actions }) => {
   // because it is not their turn.
   const target = proxySeat?.id;
 
-  const [picked, setPicked] = React.useState<Nullable<ActionOption>>(null);
+  const [picked, setPicked] = useState<Nullable<ActionOption>>(null);
 
   // A new set of legal moves means the turn moved on; a half-typed raise from
   // the turn before must not survive into it. Adjusted during render rather
   // than in an effect, so the stale amount never gets a frame on screen.
   const legalIds = legalActions.map((action) => action.id).join(',');
-  const [seenLegalIds, setSeenLegalIds] = React.useState(legalIds);
+  const [seenLegalIds, setSeenLegalIds] = useState(legalIds);
   if (seenLegalIds !== legalIds) {
     setSeenLegalIds(legalIds);
     setPicked(null);
@@ -169,7 +169,7 @@ const AmountStep: React.FC<{
   onCancel: () => void;
 }> = ({ action, max, pending, onConfirm, onCancel }) => {
   const reduceMotion = useReducedMotion();
-  const [amount, setAmount] = React.useState(0);
+  const [amount, setAmount] = useState(0);
 
   // Quarter, half, the lot: the three bets people actually make, without
   // anyone having to do arithmetic at a table with a drink in their hand.

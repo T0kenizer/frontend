@@ -6,7 +6,7 @@ import {
   FeltPanel,
 } from '@components/game/felt/felt-stage';
 import { useQrScanner } from '@hooks/use-qr-scanner';
-import * as React from 'react';
+import { useCallback, useState } from 'react';
 
 export interface JoinScannerStepProps {
   onScanned: (gameUuid: string) => void;
@@ -24,9 +24,9 @@ export const JoinScannerStep: React.FC<JoinScannerStepProps> = ({
   onScanned,
   onBack,
 }) => {
-  const [error, setError] = React.useState<Nullable<string>>(null);
+  const [error, setError] = useState<Nullable<string>>(null);
 
-  const handleScan = React.useCallback(
+  const handleScan = useCallback(
     (value: string) => {
       const gameUuid = extractGameUuid(value);
       if (!gameUuid) {

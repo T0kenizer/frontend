@@ -12,7 +12,7 @@ import { Button } from '@components/ui/button';
 import { cn } from '@lib/utils';
 import { GameMode, type GameSnapshot } from '@tokenizer/shared/types';
 import { Plus } from 'lucide-react';
-import * as React from 'react';
+import { useMemo, useState } from 'react';
 
 /**
  * Which chair the visitor has picked: one that is already round the table, or
@@ -37,9 +37,9 @@ export const JoinSeatStep: React.FC<JoinSeatStepProps> = ({
   onPickSeat,
   onBack,
 }) => {
-  const [picked, setPicked] = React.useState<Nullable<PickedSeat>>(null);
+  const [picked, setPicked] = useState<Nullable<PickedSeat>>(null);
 
-  const seats = React.useMemo(
+  const seats = useMemo(
     () => [...snapshot.participants].sort((a, b) => a.seatIndex - b.seatIndex),
     [snapshot.participants],
   );

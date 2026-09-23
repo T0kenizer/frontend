@@ -12,7 +12,6 @@ import ROUTES from '@constants/routes';
 import { SerializedUser } from '@tokenizer/shared/types';
 import { Play, Plus } from 'lucide-react';
 import Link from 'next/link';
-import * as React from 'react';
 
 export interface SidebarFooterProps {
   user?: SerializedUser;

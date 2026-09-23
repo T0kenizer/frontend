@@ -4,7 +4,7 @@ import { Button } from '@components/ui/button';
 import { Field, FieldError, FieldLabel } from '@components/ui/field';
 import { Input } from '@components/ui/input';
 import { SEAT_DISPLAY_NAME_MAX_LENGTH } from '@constants/games';
-import * as React from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 /** What the form is for — which is all that ever differed between the two. */
@@ -61,8 +61,8 @@ export const SeatNameForm: React.FC<SeatNameFormProps> = ({
   const copy = COPY[mode];
   const fieldId = `seat-name-${mode}`;
 
-  const [displayName, setDisplayName] = React.useState(defaultDisplayName);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [displayName, setDisplayName] = useState(defaultDisplayName);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const trimmed = displayName.trim();
 

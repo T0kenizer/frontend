@@ -1,7 +1,7 @@
 'use client';
 
 import type { ParticipantSnapshot } from '@tokenizer/shared/types';
-import * as React from 'react';
+import { useEffect, useState } from 'react';
 
 /**
  * Turns stack movements into things to animate.
@@ -53,7 +53,7 @@ const balancesOf = (seats: ParticipantSnapshot[]): Map<string, number> =>
 export function useChipFlights(seats: ParticipantSnapshot[]): ChipFlight[] {
   const signature = signatureOf(seats);
 
-  const [state, setState] = React.useState<FlightState>(() => ({
+  const [state, setState] = useState<FlightState>(() => ({
     balances: balancesOf(seats),
     signature,
     // The table as we found it is not chips that moved.
@@ -92,7 +92,7 @@ export function useChipFlights(seats: ParticipantSnapshot[]): ChipFlight[] {
   // timer's callback, not the effect body: the effect's job is to own the
   // timer, which is exactly the external thing an effect is for.
   const { generation, flights } = state;
-  React.useEffect(() => {
+  useEffect(() => {
     if (!flights.length) return;
 
     const timer = setTimeout(() => {

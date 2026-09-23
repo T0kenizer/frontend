@@ -12,17 +12,12 @@ import { Input } from '@components/ui/input';
 import { SEAT_DISPLAY_NAME_MAX_LENGTH } from '@constants/games';
 import { formatAmount } from '@lib/amount';
 import type { GameSnapshot } from '@tokenizer/shared/types';
-import * as React from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 export interface JoinIdentityStepProps {
   snapshot: GameSnapshot;
   seatIndex: number;
-  /**
-   * The chair is being pulled up rather than taken, so there is no row behind
-   * it yet — no declared name to start from, and no stack to show until the
-   * server has opened it on the table's default.
-   */
   isNewSeat?: boolean;
   defaultDisplayName?: string;
   onSit: (data: { displayName?: string }) => Promise<void>;
@@ -43,11 +38,9 @@ export const JoinIdentityStep: React.FC<JoinIdentityStepProps> = ({
         (participant) => participant.seatIndex === seatIndex,
       );
 
-  // The account name wins when there is one; otherwise the visitor starts from
-  // whatever the host called this chair.
   const initialName = defaultDisplayName ?? seat?.displayName ?? '';
-  const [displayName, setDisplayName] = React.useState(initialName);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [displayName, setDisplayName] = useState(initialName);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();

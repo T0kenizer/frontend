@@ -8,7 +8,6 @@ import {
 } from '@components/game/felt/felt-stage';
 import { cn } from '@lib/utils';
 import { motion, useReducedMotion } from 'motion/react';
-import * as React from 'react';
 
 /**
  * The frame every centre panel is poured into.
