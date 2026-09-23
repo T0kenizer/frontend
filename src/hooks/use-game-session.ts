@@ -12,7 +12,7 @@ import {
   type GameActionResult,
   type GameSocket,
   type GameSocketFailure,
-  type RoundResolvedPayload,
+  type HandSettledPayload,
 } from '@services/games/games.socket';
 import {
   clearPlayerToken,
@@ -23,7 +23,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   AddSeatData,
   GameSnapshot,
-  RoundResolution,
+  HandResolution,
+  PokerAction,
+  PotAward,
 } from '@tokenizer/shared/types';
 import * as React from 'react';
 
@@ -82,7 +84,7 @@ export function useGameSession(params: UseGameSessionParams) {
   const [isAttached, setIsAttached] = React.useState(false);
   const [socketError, setSocketError] = React.useState<Nullable<string>>(null);
   const [resolution, setResolution] =
-    React.useState<Nullable<RoundResolution>>(null);
+    React.useState<Nullable<HandResolution>>(null);
 
   const query = useQuery(retrieveGameOptions(enabled ? gameId : undefined));
 
@@ -108,9 +110,9 @@ export function useGameSession(params: UseGameSessionParams) {
     const socket = createGameSocket();
     socketRef.current = socket;
 
-    const handleResolved = (payload: RoundResolvedPayload) => {
-      const { resolution: roundResolution, ...snapshot } = payload;
-      setResolution(roundResolution);
+    const handleSettled = (payload: HandSettledPayload) => {
+      const { resolution: handResolution, ...snapshot } = payload;
+      setResolution(handResolution);
       setSnapshot(snapshot);
     };
 
@@ -145,9 +147,9 @@ export function useGameSession(params: UseGameSessionParams) {
     socket.on(GAME_SERVER_EVENTS.PARTICIPANT_UPDATED, setSnapshot);
     socket.on(GAME_SERVER_EVENTS.PARTICIPANT_DISCONNECTED, setSnapshot);
     socket.on(GAME_SERVER_EVENTS.PARTICIPANT_LEFT, setSnapshot);
-    socket.on(GAME_SERVER_EVENTS.ROUND_STARTED, setSnapshot);
+    socket.on(GAME_SERVER_EVENTS.HAND_STARTED, setSnapshot);
     socket.on(GAME_SERVER_EVENTS.ACTION_APPLIED, setSnapshot);
-    socket.on(GAME_SERVER_EVENTS.ROUND_RESOLVED, handleResolved);
+    socket.on(GAME_SERVER_EVENTS.HAND_SETTLED, handleSettled);
     socket.on(GAME_SERVER_EVENTS.SESSION_CLOSED, setSnapshot);
     socket.on(GAME_SERVER_EVENTS.ERROR, ({ error }) => setSocketError(error));
 
@@ -223,12 +225,18 @@ export function useGameSession(params: UseGameSessionParams) {
     [liveSocket],
   );
 
-  /** Host only: starts a round (forced bets applied server-side). */
-  const startRound = React.useCallback(async (): Promise<GameSnapshot> => {
+  /**
+   * Host only: deals the next hand. The antes and blinds go in server-side, and
+   * the deal can settle the hand on the spot when they leave every remaining
+   * seat all-in — hence the same shape an action answers with.
+   */
+  const startHand = React.useCallback(async (): Promise<GameActionResult> => {
     const response = await liveSocket().emitWithAck(
-      GAME_CLIENT_MESSAGES.START_ROUND,
+      GAME_CLIENT_MESSAGES.START_HAND,
     );
-    return unwrapAck(response);
+    const result = unwrapAck(response);
+    if (result.resolution) setResolution(result.resolution);
+    return result;
   }, [liveSocket]);
 
   /**
@@ -242,25 +250,31 @@ export function useGameSession(params: UseGameSessionParams) {
    */
   const submitAction = React.useCallback(
     async (
-      definitionId: string,
+      action: PokerAction,
       amount?: number,
       targetParticipantId?: string,
     ): Promise<GameActionResult> => {
       const response = await liveSocket().emitWithAck(
         GAME_CLIENT_MESSAGES.ACTION,
-        { definitionId, amount, targetParticipantId },
+        { action, amount, targetParticipantId },
       );
       return unwrapAck(response);
     },
     [liveSocket],
   );
 
-  /** Host only: manual round resolution. */
-  const resolveRound = React.useCallback(
-    async (winnerParticipantIds?: string[]): Promise<GameActionResult> => {
+  /**
+   * Host only: settles the showdown.
+   *
+   * One award per pot, because a side pot is a different contest with a
+   * different field — the short stack who took the main pot never paid into the
+   * one above it.
+   */
+  const declareWinners = React.useCallback(
+    async (awards: PotAward[]): Promise<GameActionResult> => {
       const response = await liveSocket().emitWithAck(
-        GAME_CLIENT_MESSAGES.RESOLVE,
-        { winnerParticipantIds },
+        GAME_CLIENT_MESSAGES.DECLARE_WINNERS,
+        { awards },
       );
       return unwrapAck(response);
     },
@@ -297,7 +311,7 @@ export function useGameSession(params: UseGameSessionParams) {
     participantId,
     mySeat,
 
-    /** Last round resolution broadcast, if any. */
+    /** Last hand settlement broadcast, if any. */
     resolution,
 
     /** Takes a seat and issues this client's token. */
@@ -308,9 +322,9 @@ export function useGameSession(params: UseGameSessionParams) {
     addSeat,
 
     /** Gameplay actions (acked over the socket). */
-    startRound,
+    startHand,
     submitAction,
-    resolveRound,
+    declareWinners,
     closeGame,
   };
 }

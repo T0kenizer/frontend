@@ -7,9 +7,9 @@ import type {
   AddSeatData,
   AttachSocketData,
   AttachSocketResponse,
+  DeclareWinnersData,
   GameSnapshot,
-  ResolveRoundData,
-  RoundResolution,
+  HandResolution,
   SubmitActionData,
   UpdateSeatData,
 } from '@tokenizer/shared/types';
@@ -24,11 +24,11 @@ export type GameAck<T> = T | GameSocketFailure;
 
 export interface GameActionResult {
   snapshot: GameSnapshot;
-  resolution?: RoundResolution;
+  resolution?: HandResolution;
 }
 
-export type RoundResolvedPayload = GameSnapshot & {
-  resolution: RoundResolution;
+export type HandSettledPayload = GameSnapshot & {
+  resolution: HandResolution;
 };
 
 export type ParticipantLeftPayload = GameSnapshot & {
@@ -45,9 +45,9 @@ interface ServerToClientEvents {
   [GAME_SERVER_EVENTS.PARTICIPANT_LEFT]: (
     payload: ParticipantLeftPayload,
   ) => void;
-  [GAME_SERVER_EVENTS.ROUND_STARTED]: (snapshot: GameSnapshot) => void;
+  [GAME_SERVER_EVENTS.HAND_STARTED]: (snapshot: GameSnapshot) => void;
   [GAME_SERVER_EVENTS.ACTION_APPLIED]: (snapshot: GameSnapshot) => void;
-  [GAME_SERVER_EVENTS.ROUND_RESOLVED]: (payload: RoundResolvedPayload) => void;
+  [GAME_SERVER_EVENTS.HAND_SETTLED]: (payload: HandSettledPayload) => void;
   [GAME_SERVER_EVENTS.SESSION_CLOSED]: (snapshot: GameSnapshot) => void;
   [GAME_SERVER_EVENTS.ERROR]: (payload: GameSocketFailure) => void;
 }
@@ -72,15 +72,15 @@ interface ClientToServerEvents {
     payload: AddSeatData,
     ack: (response: GameAck<GameSnapshot>) => void,
   ) => void;
-  [GAME_CLIENT_MESSAGES.START_ROUND]: (
-    ack: (response: GameAck<GameSnapshot>) => void,
+  [GAME_CLIENT_MESSAGES.START_HAND]: (
+    ack: (response: GameAck<GameActionResult>) => void,
   ) => void;
   [GAME_CLIENT_MESSAGES.ACTION]: (
     payload: SubmitActionData,
     ack: (response: GameAck<GameActionResult>) => void,
   ) => void;
-  [GAME_CLIENT_MESSAGES.RESOLVE]: (
-    payload: ResolveRoundData,
+  [GAME_CLIENT_MESSAGES.DECLARE_WINNERS]: (
+    payload: DeclareWinnersData,
     ack: (response: GameAck<Required<GameActionResult>>) => void,
   ) => void;
   [GAME_CLIENT_MESSAGES.SNAPSHOT]: (

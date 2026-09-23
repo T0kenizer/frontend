@@ -66,20 +66,20 @@ export const HubLobby: React.FC<HubLobbyProps> = ({
         )}
 
         <HubStack>
-          {/* Never gated on how many chairs are taken. Every declared seat
-              plays from round one whether or not anybody claimed it, so a host
-              sitting alone at a table of six is starting a six-handed game —
-              they simply play five of the hands. Waiting for a quorum that the
-              rules do not have was the button telling the host their own
-              table was not ready. */}
+          {/* Never gated on how many chairs are taken. Every declared seat is
+              dealt in whether or not anybody claimed it, so a host sitting
+              alone at a table of six is dealing a six-handed hand — they
+              simply play five of them. Waiting for a quorum that the rules do
+              not have was the button telling the host their own table was not
+              ready. */}
           <Button
             variant="felt-inverse"
             size="xl"
             className="w-full"
             loading={actions.pending === 'start'}
-            onClick={actions.startRound}
+            onClick={actions.startHand}
           >
-            Start the game
+            Deal the first hand
           </Button>
           <Button
             variant="line"
@@ -98,7 +98,7 @@ export const HubLobby: React.FC<HubLobbyProps> = ({
     <HubShell
       eyebrow="Lobby · not started"
       title="You're seated"
-      description={`Seat ${(view.mySeat?.seatIndex ?? 0) + 1} is yours. The host starts the game.`}
+      description={`Seat ${(view.mySeat?.seatIndex ?? 0) + 1} is yours. The host deals the first hand.`}
       facts={facts}
     >
       <WaitingDial label="Waiting for the host" />

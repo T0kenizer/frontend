@@ -1,22 +1,17 @@
 'use client';
 
 import {
-  ACTION_CATALOG,
-  DEFAULT_FORCED_BET_AMOUNT,
+  DEFAULT_BIG_BLIND,
   DEFAULT_INITIAL_BALANCE,
-  DEFAULT_INTERRUPTION_WINDOW,
-  FORCED_BET_KINDS,
+  DEFAULT_SMALL_BLIND,
   MAX_SEATS,
   MIN_SEATS,
 } from '@constants/games';
 import {
+  BettingStructure,
   ChipModel,
-  Direction,
-  EndResolution,
-  PayoutMode,
-  PotMode,
-  TurnRegime,
-  type GameConfig,
+  GameMode,
+  type PokerGameConfig,
 } from '@tokenizer/shared/types';
 import * as React from 'react';
 
@@ -32,22 +27,19 @@ export interface SeatDraft {
   initialBalance: Nullable<number>;
 }
 
-export interface ForcedBetDraft {
-  key: string;
-  /** One of {@link FORCED_BET_KINDS}' labels. */
-  label: string;
-  amount: number;
-  seatOffset: number;
-}
-
 /**
- * Everything the creation screen holds. It is deliberately not a `GameConfig`:
- * a draft carries half-typed names, a per-seat toggle and an interruption
- * window that only matters under one regime, none of which the API knows about.
- * {@link buildGameConfig} is where the two meet.
+ * Everything the creation screen holds.
+ *
+ * It is deliberately not a `GameConfig`: a draft carries half-typed names and a
+ * per-seat toggle the API knows nothing about. What it does share with the API
+ * is the shape of the decision — a mode, and that mode's own parameters — so
+ * there is no field here that poker has no use for. {@link buildGameConfig} is
+ * where the two meet.
  */
 export interface GameDraft {
   name: string;
+  /** The game being set up. Everything below it is that game's own. */
+  mode: GameMode;
   seats: SeatDraft[];
   defaultInitialBalance: number;
   perSeatStacks: boolean;
@@ -57,16 +49,14 @@ export interface GameDraft {
    * Capped by the plan on top, like the seat count itself.
    */
   allowExtraSeats: boolean;
+
+  /** Poker parameters. */
+  smallBlind: number;
+  bigBlind: number;
+  /** Posted by every seat before the blinds; 0 for no ante. */
+  ante: number;
+  bettingStructure: BettingStructure;
   chipModel: ChipModel;
-  potMode: PotMode;
-  payoutMode: PayoutMode;
-  forcedBets: ForcedBetDraft[];
-  /** Ids of the enabled actions, in {@link ACTION_CATALOG} order. */
-  enabledActions: string[];
-  regime: TurnRegime;
-  direction: Direction;
-  interruptionWindow: number;
-  resolution: EndResolution;
 }
 
 /** What stops the table from opening, and what merely deserves a word. */
@@ -89,6 +79,7 @@ const createSeat = (displayName: string): SeatDraft => ({
 export function createInitialDraft(): GameDraft {
   return {
     name: '',
+    mode: GameMode.Poker,
     seats: Array.from({ length: 4 }, (_, index) =>
       createSeat(`Seat ${index + 1}`),
     ),
@@ -96,20 +87,11 @@ export function createInitialDraft(): GameDraft {
     perSeatStacks: false,
     allowMidGameClaims: true,
     allowExtraSeats: true,
+    smallBlind: DEFAULT_SMALL_BLIND,
+    bigBlind: DEFAULT_BIG_BLIND,
+    ante: 0,
+    bettingStructure: BettingStructure.NoLimit,
     chipModel: ChipModel.AbstractBalance,
-    potMode: PotMode.Single,
-    payoutMode: PayoutMode.WinnerTakesAll,
-    forcedBets: [
-      { key: nextKey('bet'), label: 'small_blind', amount: 5, seatOffset: 0 },
-      { key: nextKey('bet'), label: 'big_blind', amount: 10, seatOffset: 1 },
-    ],
-    enabledActions: ACTION_CATALOG.filter(
-      (action) => action.enabledByDefault,
-    ).map((action) => action.id),
-    regime: TurnRegime.Sequential,
-    direction: Direction.Clockwise,
-    interruptionWindow: DEFAULT_INTERRUPTION_WINDOW,
-    resolution: EndResolution.Automatic,
   };
 }
 
@@ -123,11 +105,9 @@ export const totalInPlay = (draft: GameDraft): number =>
   draft.seats.reduce((total, seat) => total + seatStack(draft, seat), 0);
 
 /** The draft as the API takes it. */
-export function buildGameConfig(draft: GameDraft): GameConfig {
-  const isInterruptible = draft.regime === TurnRegime.SequentialInterruptible;
-  const isAutomatic = draft.resolution === EndResolution.Automatic;
-
+export function buildGameConfig(draft: GameDraft): PokerGameConfig {
   return {
+    mode: GameMode.Poker,
     seating: {
       seats: draft.seats.map((seat) => ({
         displayName: seat.displayName.trim(),
@@ -141,37 +121,11 @@ export function buildGameConfig(draft: GameDraft): GameConfig {
       allowMidGameClaims: draft.allowMidGameClaims,
       allowExtraSeats: draft.allowExtraSeats,
     },
-    economy: {
-      potMode: draft.potMode,
+    rules: {
+      blinds: { small: draft.smallBlind, big: draft.bigBlind },
+      ante: draft.ante,
+      bettingStructure: draft.bettingStructure,
       chipModel: draft.chipModel,
-      payoutMode: draft.payoutMode,
-      forcedBets: draft.forcedBets.map((bet) => ({
-        label: bet.label,
-        amount: bet.amount,
-        seatOffset: bet.seatOffset,
-      })),
-    },
-    // Spelled out rather than spread: the catalog entries carry the copy the
-    // form explains them by, which is ours and not the runtime's.
-    actionCatalog: ACTION_CATALOG.filter((action) =>
-      draft.enabledActions.includes(action.id),
-    ).map((action) => ({
-      id: action.id,
-      label: action.label,
-      amountForm: action.amountForm,
-      grantsInterruption: action.grantsInterruption,
-      ...(action.foldsParticipant ? { foldsParticipant: true } : {}),
-    })),
-    turnPolicy: {
-      regime: draft.regime,
-      direction: draft.direction,
-      interruptionWindow: isInterruptible ? draft.interruptionWindow : null,
-    },
-    endPolicy: {
-      resolution: draft.resolution,
-      conditions: isAutomatic
-        ? [{ type: 'LAST_PLAYER_STANDING', params: null }]
-        : [],
     },
   };
 }
@@ -182,6 +136,9 @@ export function buildGameConfig(draft: GameDraft): GameConfig {
  */
 export function reviewDraft(draft: GameDraft): DraftReview {
   const names = draft.seats.map((seat) => seat.displayName.trim());
+  const shortestStack = Math.min(
+    ...draft.seats.map((seat) => seatStack(draft, seat)),
+  );
 
   const blocker = names.some((name) => !name)
     ? 'Every seat needs a name.'
@@ -189,19 +146,22 @@ export function reviewDraft(draft: GameDraft): DraftReview {
       ? 'Two seats share the same name — players will not know where to sit.'
       : draft.seats.length < MIN_SEATS
         ? `A table needs at least ${MIN_SEATS} seats.`
-        : !draft.enabledActions.length
-          ? 'No action is on: players would have nothing to do on their turn.'
-          : draft.forcedBets.some((bet) => bet.seatOffset >= draft.seats.length)
-            ? 'An opening bet is owed by a seat that no longer exists.'
-            : draft.forcedBets.some((bet) => bet.amount < 1)
-              ? 'An opening bet has no amount.'
+        : draft.smallBlind < 1 || draft.bigBlind < 1
+          ? 'Both blinds need an amount.'
+          : draft.bigBlind < draft.smallBlind
+            ? 'The big blind cannot be smaller than the small blind.'
+            : shortestStack <= draft.bigBlind
+              ? 'A stack has to be worth more than the big blind it posts.'
               : null;
 
-  const advice = draft.forcedBets.some(
-    (bet) => bet.amount > draft.defaultInitialBalance / 4,
-  )
-    ? 'An opening bet is over a quarter of the starting stack — stacks will melt fast.'
-    : null;
+  // A twentieth of a stack per hand is the point where a night starts running
+  // itself. Worth saying, never worth refusing.
+  const cost =
+    draft.bigBlind + draft.smallBlind + draft.ante * draft.seats.length;
+  const advice =
+    cost > draft.defaultInitialBalance / 10
+      ? 'The blinds are steep against these stacks — the table will move fast.'
+      : null;
 
   return { blocker, advice };
 }
@@ -209,7 +169,7 @@ export function reviewDraft(draft: GameDraft): DraftReview {
 export interface GameDraftController {
   draft: GameDraft;
   /** The draft as the API takes it. */
-  config: GameConfig;
+  config: PokerGameConfig;
   review: DraftReview;
   totalInPlay: number;
   patch: (changes: Partial<GameDraft>) => void;
@@ -219,23 +179,15 @@ export interface GameDraftController {
   removeSeat: (key: string) => void;
   setDefaultStack: (stack: number) => void;
   setPerSeatStacks: (on: boolean) => void;
-  toggleAction: (id: string) => void;
-  addForcedBet: () => void;
-  updateForcedBet: (
-    key: string,
-    changes: Partial<Omit<ForcedBetDraft, 'key'>>,
-  ) => void;
-  removeForcedBet: (key: string) => void;
 }
 
 /**
  * The state behind the creation screen.
  *
- * It owns the rules that span two parts of the form — removing a seat that a
- * blind was owed by, raising the default stack under seats that were following
- * it — so no section has to know what another one is holding.
- */
-/**
+ * It owns the rules that span two parts of the form — raising the default stack
+ * under seats that were following it, keeping the blinds in step with one
+ * another — so no section has to know what another one is holding.
+ *
  * @param maxSeats Seats a table may open with, capped by the host's plan;
  *   defaults to the hard ceiling the API itself enforces.
  */
@@ -246,7 +198,18 @@ export function useGameDraft(
 
   const patch = React.useCallback(
     (changes: Partial<GameDraft>) =>
-      setDraft((current) => ({ ...current, ...changes })),
+      setDraft((current) => {
+        const next = { ...current, ...changes };
+        // The big blind follows the small one up rather than quietly becoming
+        // illegal under it; a host who wants them apart still sets it after.
+        if (
+          changes.smallBlind !== undefined &&
+          changes.bigBlind === undefined
+        ) {
+          next.bigBlind = Math.max(next.bigBlind, changes.smallBlind);
+        }
+        return next;
+      }),
     [],
   );
 
@@ -286,22 +249,14 @@ export function useGameDraft(
   );
 
   const removeSeat = React.useCallback((key: string) => {
-    setDraft((current) => {
-      if (current.seats.length <= MIN_SEATS) return current;
-
-      const seats = current.seats.filter((seat) => seat.key !== key);
-
-      return {
-        ...current,
-        seats,
-        // A blind owed by the seat that just left has to land somewhere, and
-        // the last remaining seat is the only answer that is always valid.
-        forcedBets: current.forcedBets.map((bet) => ({
-          ...bet,
-          seatOffset: Math.min(bet.seatOffset, seats.length - 1),
-        })),
-      };
-    });
+    setDraft((current) =>
+      current.seats.length <= MIN_SEATS
+        ? current
+        : {
+            ...current,
+            seats: current.seats.filter((seat) => seat.key !== key),
+          },
+    );
   }, []);
 
   const setDefaultStack = React.useCallback((stack: number) => {
@@ -334,55 +289,6 @@ export function useGameDraft(
     }));
   }, []);
 
-  const toggleAction = React.useCallback((id: string) => {
-    setDraft((current) => ({
-      ...current,
-      enabledActions: current.enabledActions.includes(id)
-        ? current.enabledActions.filter((actionId) => actionId !== id)
-        : ACTION_CATALOG.filter(
-            (action) =>
-              action.id === id || current.enabledActions.includes(action.id),
-          ).map((action) => action.id),
-    }));
-  }, []);
-
-  const addForcedBet = React.useCallback(() => {
-    setDraft((current) => ({
-      ...current,
-      forcedBets: [
-        ...current.forcedBets,
-        {
-          key: nextKey('bet'),
-          label: FORCED_BET_KINDS[2].label,
-          amount: DEFAULT_FORCED_BET_AMOUNT,
-          seatOffset: Math.min(
-            current.forcedBets.length,
-            current.seats.length - 1,
-          ),
-        },
-      ],
-    }));
-  }, []);
-
-  const updateForcedBet = React.useCallback(
-    (key: string, changes: Partial<Omit<ForcedBetDraft, 'key'>>) => {
-      setDraft((current) => ({
-        ...current,
-        forcedBets: current.forcedBets.map((bet) =>
-          bet.key === key ? { ...bet, ...changes } : bet,
-        ),
-      }));
-    },
-    [],
-  );
-
-  const removeForcedBet = React.useCallback((key: string) => {
-    setDraft((current) => ({
-      ...current,
-      forcedBets: current.forcedBets.filter((bet) => bet.key !== key),
-    }));
-  }, []);
-
   const config = React.useMemo(() => buildGameConfig(draft), [draft]);
   const review = React.useMemo(() => reviewDraft(draft), [draft]);
   const total = React.useMemo(() => totalInPlay(draft), [draft]);
@@ -399,9 +305,5 @@ export function useGameDraft(
     removeSeat,
     setDefaultStack,
     setPerSeatStacks,
-    toggleAction,
-    addForcedBet,
-    updateForcedBet,
-    removeForcedBet,
   };
 }

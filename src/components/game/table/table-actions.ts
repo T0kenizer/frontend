@@ -1,3 +1,5 @@
+import type { PokerAction, PotAward } from '@tokenizer/shared/types';
+
 /**
  * What the centre panel is allowed to do.
  *
@@ -7,23 +9,27 @@
  * they decide what to offer, never how to carry it out.
  */
 export interface TableActions {
-  /** Host: deal the next round. */
-  startRound: () => void;
+  /** Host: deal the next hand. */
+  startHand: () => void;
   /**
-   * Play the named action.
+   * Play a move.
+   *
+   * `amount` is the **total** the seat will have committed on this street — the
+   * same convention the server states its `min`/`max` in, so a raise never has
+   * to be converted on the way out.
    *
    * `targetParticipantId` names the unclaimed seat the host is playing on
-   * behalf of; omitted, the action is for the caller's own chair. The server
+   * behalf of; omitted, the move is for the caller's own chair. The server
    * refuses a target from anyone but the host, and refuses one at a seat
    * somebody has since claimed.
    */
   submitAction: (
-    definitionId: string,
+    action: PokerAction,
     amount?: number,
     targetParticipantId?: string,
   ) => void;
-  /** Host: settle the round on the named winners. */
-  resolveRound: (winnerIds?: string[]) => void;
+  /** Host: settle the showdown, one award per pot. */
+  declareWinners: (awards: PotAward[]) => void;
   /** Host: close the table for good. */
   closeGame: () => void;
   /** Open the form that renames this client's chair. */

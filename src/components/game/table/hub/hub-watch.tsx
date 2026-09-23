@@ -1,12 +1,10 @@
 'use client';
 
-import { HubShell, HubStack } from '@components/game/table/hub/hub-shell';
-import type { TableActions } from '@components/game/table/table-actions';
+import { HubShell } from '@components/game/table/hub/hub-shell';
 import type {
   TableEvent,
   TableView,
 } from '@components/game/table/use-table-view';
-import { Button } from '@components/ui/button';
 import { formatAmount } from '@lib/amount';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import * as React from 'react';
@@ -27,11 +25,10 @@ import * as React from 'react';
 
 export interface HubWatchProps {
   view: TableView;
-  actions: TableActions;
 }
 
-export const HubWatch: React.FC<HubWatchProps> = ({ view, actions }) => {
-  const { activeSeat, pot, recentEvents, isHost, mySeat } = view;
+export const HubWatch: React.FC<HubWatchProps> = ({ view }) => {
+  const { activeSeat, pot, recentEvents, mySeat, streetLabel } = view;
 
   // The seat's name comes off the snapshot either way; what an unclaimed one
   // adds is who is actually pushing its chips.
@@ -43,7 +40,7 @@ export const HubWatch: React.FC<HubWatchProps> = ({ view, actions }) => {
 
   return (
     <HubShell
-      eyebrow="In progress"
+      eyebrow={streetLabel ?? 'In progress'}
       title={`${waitingOn} to act`}
       description={
         activeSeat && !activeSeat.claimed
@@ -62,20 +59,6 @@ export const HubWatch: React.FC<HubWatchProps> = ({ view, actions }) => {
       <ThinkingPulse name={waitingOn} />
 
       <EventFeed events={recentEvents} />
-
-      {isHost && (
-        <HubStack className="mt-3">
-          <Button
-            variant="line"
-            size="sm"
-            className="w-full"
-            loading={actions.pending === 'resolve'}
-            onClick={() => actions.resolveRound()}
-          >
-            Settle this round
-          </Button>
-        </HubStack>
-      )}
     </HubShell>
   );
 };
@@ -122,7 +105,7 @@ const EventFeed: React.FC<{ events: TableEvent[] }> = ({ events }) => {
   if (!events.length) {
     return (
       <p className="text-on-media-muted-foreground mt-3 text-xs">
-        The round has just opened. No moves yet.
+        The hand has just been dealt. No moves yet.
       </p>
     );
   }
@@ -141,7 +124,7 @@ const EventFeed: React.FC<{ events: TableEvent[] }> = ({ events }) => {
             className="flex items-baseline gap-2 text-xs"
           >
             <span className="min-w-0 flex-1 truncate font-semibold">
-              {event.actor}
+              {event.actor ?? '—'}
             </span>
             <span className="text-on-media-muted-foreground shrink-0">
               {event.label}

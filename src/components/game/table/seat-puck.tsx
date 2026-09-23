@@ -33,6 +33,7 @@ const discVariants = cva(
         seated: 'border-on-media-border/90 border-2 bg-black/30',
         mine: 'border-warning border-2 bg-black/30',
         folded: 'border-on-media-hairline border-2 bg-black/40 opacity-55',
+        'all-in': 'border-warning border-2 border-dashed bg-black/30',
         out: 'border-on-media-hairline border-2 border-dotted bg-black/40 opacity-40',
       },
       size: {
@@ -128,6 +129,7 @@ export const SeatPuck: React.FC<SeatPuckProps> = ({
           </Avatar>
 
           <SeatMarker view={view} />
+          <SeatPosition view={view} />
         </motion.span>
       </span>
 
@@ -200,6 +202,39 @@ const SeatMarker: React.FC<{ view: SeatView }> = ({ view }) => {
   );
 };
 
+/** What the button and the blinds are called on a chair. */
+const POSITION_LABELS = {
+  dealer: 'D',
+  'small-blind': 'SB',
+  'big-blind': 'BB',
+} as const;
+
+/**
+ * The button, and the two seats that pay for it.
+ *
+ * Its own badge rather than a fifth case of {@link SeatMarker}, because it
+ * answers a different question: that one says what this player is doing, this
+ * one says where the hand is being dealt from. A poker table without a visible
+ * button is one where nobody can tell whose blind is coming.
+ */
+const SeatPosition: React.FC<{ view: SeatView }> = ({ view }) => {
+  if (!view.marker) return null;
+
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        'border-felt-deep absolute -bottom-1 -left-1 grid h-5 min-w-5 place-items-center rounded-full border-2 px-1 text-[0.5rem] leading-none font-extrabold',
+        view.marker === 'dealer'
+          ? 'bg-on-media-foreground text-felt-inverse-foreground'
+          : 'bg-felt-bright text-white',
+      )}
+    >
+      {POSITION_LABELS[view.marker]}
+    </span>
+  );
+};
+
 /**
  * The word for what this chair is doing, when that word matters.
  *
@@ -241,6 +276,11 @@ const STATUS_STYLES: Record<
     label: 'Folded',
     className: 'bg-on-media-film text-on-media-muted-foreground',
   },
+  /** In the hand with nothing left to bet: still contesting every pot paid into. */
+  'all-in': {
+    label: 'All in',
+    className: 'bg-warning text-felt-inverse-foreground',
+  },
   /** Out of the game for good. */
   out: {
     label: 'Out',
@@ -257,4 +297,3 @@ const STATUS_STYLES: Record<
     className: 'bg-on-media-scrim text-on-media-muted-foreground',
   },
 };
-

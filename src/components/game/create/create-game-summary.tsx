@@ -4,14 +4,9 @@ import { Alert, AlertDescription } from '@components/ui/alert';
 import { Button } from '@components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/ui/card';
 import { Chip } from '@components/ui/chip';
-import { ACTION_CATALOG, FORCED_BET_KINDS } from '@constants/games';
+import { BETTING_STRUCTURES } from '@constants/games';
 import type { GameDraftController } from '@hooks/use-game-draft';
-import {
-  ChipModel,
-  Direction,
-  EndResolution,
-  PotMode,
-} from '@tokenizer/shared/types';
+import { ChipModel } from '@tokenizer/shared/types';
 import { CircleAlert } from 'lucide-react';
 import * as React from 'react';
 
@@ -24,12 +19,6 @@ export interface CreateGameSummaryProps {
   controller: GameDraftController;
   onCreate: () => void;
   isCreating: boolean;
-  /**
-   * Overrides `controller.review.blocker` — e.g. a plan without `canCustomize`
-   * that hasn't picked a template yet, which the draft itself has no notion
-   * of.
-   */
-  blocker?: Nullable<string>;
 }
 
 /**
@@ -44,50 +33,39 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
   controller,
   onCreate,
   isCreating,
-  blocker,
 }) => {
   const { draft, review, totalInPlay } = controller;
-  const effectiveBlocker = blocker ?? review.blocker;
 
-  const enabledActions = ACTION_CATALOG.filter((action) =>
-    draft.enabledActions.includes(action.id),
+  const structure = BETTING_STRUCTURES.find(
+    (entry) => entry.value === draft.bettingStructure,
   );
 
   const meta = [
-    draft.potMode === PotMode.Single ? 'one pot' : 'side pots',
+    'poker',
+    structure?.label.toLowerCase(),
     draft.chipModel === ChipModel.AbstractBalance ? 'balance' : 'chips',
-    draft.direction === Direction.Clockwise ? 'clockwise' : 'counter-clockwise',
-  ].join(' · ');
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   const facts: [string, string][] = [
     [
-      'Opening bets',
-      draft.forcedBets.length
-        ? draft.forcedBets
-            .map(
-              (bet) =>
-                `${FORCED_BET_KINDS.find((kind) => kind.label === bet.label)?.name ?? bet.label} ${amountFormat.format(bet.amount)}`,
-            )
-            .join(' · ')
-        : 'none',
+      'Blinds',
+      `${amountFormat.format(draft.smallBlind)} / ${amountFormat.format(draft.bigBlind)}`,
     ],
-    [
-      'Actions',
-      enabledActions.length
-        ? enabledActions.map((action) => action.label.toLowerCase()).join(', ')
-        : 'none',
-    ],
+    ['Ante', draft.ante ? amountFormat.format(draft.ante) : 'none'],
     ['Joining after the deal', draft.allowMidGameClaims ? 'Allowed' : 'Closed'],
     ['Extra seats', draft.allowExtraSeats ? 'Can be added' : 'Fixed'],
     [
-      'End of a round',
-      draft.resolution === EndResolution.Automatic
-        ? 'Automatic'
-        : 'Decided by the host',
+      'Showdown',
+      // Worth stating outright: it is the one point where the app has to be
+      // told something it cannot work out, and a host should not meet that
+      // for the first time mid-hand.
+      'Called by the table',
     ],
   ];
 
-  const warning = effectiveBlocker ?? review.advice;
+  const warning = review.blocker ?? review.advice;
 
   return (
     <aside className="flex flex-col gap-3.5 lg:sticky lg:top-5">
@@ -182,7 +160,7 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
           size="lg"
           className="h-11 w-full"
           loading={isCreating}
-          disabled={!!effectiveBlocker}
+          disabled={!!review.blocker}
           onClick={onCreate}
         >
           {isCreating ? 'Opening the table…' : 'Create the game'}

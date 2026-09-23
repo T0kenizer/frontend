@@ -7,13 +7,13 @@ import {
   CloseGameSessionResponse,
   CreateGameSessionData,
   CreateGameSessionResponse,
+  DeclareWinnersData,
+  DeclareWinnersResponse,
   JoinByCodeResponse,
-  ListGameTemplatesResponse,
-  ResolveRoundData,
-  ResolveRoundResponse,
+  ListGameModesResponse,
   RetrieveGameSessionResponse,
   RetrieveRoomByCodeResponse,
-  StartRoundResponse,
+  StartHandResponse,
   SubmitActionData,
   SubmitActionResponse,
 } from '@tokenizer/shared/types';
@@ -48,9 +48,9 @@ export const gameQrUrl = (uuid: string): string =>
 export const createGame = async (data: CreateGameSessionData) =>
   requester().post<CreateGameSessionResponse>(BASE_URL, data);
 
-/** Public: browsable before sign-in, same as the templates a host picks from. */
-export const listGameTemplates = async () =>
-  requester().get<ListGameTemplatesResponse>(`${BASE_URL}/templates`);
+/** Public: the games a host may open a table in, browsable before sign-in. */
+export const listGameModes = async () =>
+  requester().get<ListGameModesResponse>(`${BASE_URL}/modes`);
 
 /** Fetching a game lazily (re)opens its room server-side. */
 export const retrieveGame = async (uuid: string) =>
@@ -88,10 +88,10 @@ export const updateSeat = async (
     asPlayer(token),
   );
 
-/** Host only. */
-export const startRound = async (uuid: string, token: string) =>
-  requester().post<StartRoundResponse>(
-    `${BASE_URL}/${uuid}/rounds`,
+/** Host only: deals the next hand. */
+export const startHand = async (uuid: string, token: string) =>
+  requester().post<StartHandResponse>(
+    `${BASE_URL}/${uuid}/hands`,
     {},
     asPlayer(token),
   );
@@ -107,14 +107,14 @@ export const submitAction = async (
     asPlayer(token),
   );
 
-/** Host only. */
-export const resolveRound = async (
+/** Host only: settles the showdown on the winners the table called. */
+export const declareWinners = async (
   uuid: string,
   token: string,
-  data: ResolveRoundData = {},
+  data: DeclareWinnersData,
 ) =>
-  requester().post<ResolveRoundResponse>(
-    `${BASE_URL}/${uuid}/rounds/current/resolve`,
+  requester().post<DeclareWinnersResponse>(
+    `${BASE_URL}/${uuid}/hands/current/showdown`,
     data,
     asPlayer(token),
   );

@@ -4,6 +4,7 @@ import { HubFinished } from '@components/game/table/hub/hub-finished';
 import { HubIntermission } from '@components/game/table/hub/hub-intermission';
 import { HubLobby } from '@components/game/table/hub/hub-lobby';
 import { HubTransition } from '@components/game/table/hub/hub-shell';
+import { HubShowdown } from '@components/game/table/hub/hub-showdown';
 import { HubTurn } from '@components/game/table/hub/hub-turn';
 import { HubWatch } from '@components/game/table/hub/hub-watch';
 import type { TableActions } from '@components/game/table/table-actions';
@@ -55,12 +56,18 @@ export const TableHub: React.FC<TableHubProps> = ({
           ),
         };
 
-      case 'round':
+      case 'betting':
         // The fork the whole screen turns on: a panel you act in, or a panel
         // that tells you what is being done to you.
         return view.canAct
           ? { key: 'turn', panel: <HubTurn view={view} actions={actions} /> }
-          : { key: 'watch', panel: <HubWatch view={view} actions={actions} /> };
+          : { key: 'watch', panel: <HubWatch view={view} /> };
+
+      case 'showdown':
+        return {
+          key: 'showdown',
+          panel: <HubShowdown view={view} actions={actions} />,
+        };
 
       case 'intermission':
         return {
