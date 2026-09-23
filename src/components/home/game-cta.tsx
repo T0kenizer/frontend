@@ -1,52 +1,44 @@
 'use client';
 
+import ChipsCluster4Shadow from '@assets/images/chips-cluster-4-shadow.png';
 import { Button } from '@components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@components/ui/card';
+import { Card } from '@components/ui/card';
 import ROUTES from '@constants/routes';
-import { retrieveSessionOptions } from '@services/sessions/sessions.options';
-import { useQuery } from '@tanstack/react-query';
 import { Play } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
-export const GameCTA: React.FC = () => {
-  const { data: session } = useQuery(retrieveSessionOptions());
-  const user = session?.user;
-
-  return (
-    <Card className="grid grid-cols-[1fr_auto] gap-8" variant="brand">
-      <div>
-        <CardHeader>
-          <CardTitle>
-            <h2 className="text-2xl">Ready for another game night?</h2>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CardDescription className="text-primary-foreground pt-2">
-            <p>
-              Create a table, deal the cards with a swipe, and cast the game to
-              your TV. Each player manages their bets from their phone.
-            </p>
-          </CardDescription>
-        </CardContent>
-        <CardFooter className="space border-0 bg-transparent!">
-          <Button variant="inverse" asChild>
-            <Link href={ROUTES.game.new()}>
-              <Play />
-              Start a game
-            </Link>
-          </Button>
-          <Button variant="line" asChild>
-            <Link href={ROUTES.game.join()}>Join with a code</Link>
-          </Button>
-        </CardFooter>
+export const GameCTA: React.FC = () => (
+  <Card
+    className="flex flex-col gap-6 rounded-4xl p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between lg:px-9"
+    variant="brand"
+  >
+    <div className="max-w-md">
+      <h2 className="font-heading max-w-xs text-xl leading-none font-extrabold tracking-tight sm:text-2xl">
+        Ready for another game night?
+      </h2>
+      <p className="mt-2 leading-normal opacity-90">
+        Create a table, deal the cards with a swipe, and cast the game to your
+        TV. Each player manages their bets from their phone.
+      </p>
+      <div className="mt-5 flex flex-wrap gap-2.5">
+        <Button variant="inverse" asChild>
+          <Link href={ROUTES.game.new()}>
+            <Play />
+            Start a game
+          </Link>
+        </Button>
+        <Button variant="line" asChild>
+          <Link href={ROUTES.game.join()}>Join with a code</Link>
+        </Button>
       </div>
-    </Card>
-  );
-};
+    </div>
+    {/* Below `lg` the copy needs the full width, so the stack steps aside. */}
+    <Image
+      src={ChipsCluster4Shadow}
+      alt=""
+      height={160}
+      className="hidden shrink-0 lg:block"
+    />
+  </Card>
+);
