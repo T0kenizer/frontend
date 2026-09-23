@@ -1,14 +1,27 @@
 'use client';
 
+import {
+  HAND_EVENT_LABELS,
+  humaniseAction,
+  STREET_LABELS,
+} from '@constants/games';
 import type { useGameSession } from '@hooks/use-game-session';
 import {
   ChipModel,
+  GameMode,
   GameSessionStatus,
+  HandStatus,
   ParticipantRole,
   ParticipantStatus,
   RoundStatus,
+  type ActionDef,
   type AmountForm,
+  type HandPayout,
+  type LegalAction,
   type ParticipantSnapshot,
+  type PotSnapshot,
+  type Street,
+  type TableStakes,
 } from '@tokenizer/shared/types';
 import * as React from 'react';
 
@@ -21,20 +34,32 @@ import * as React from 'react';
  * is lives here, so the question "is it my turn" is answered in one place
  * instead of being re-derived, slightly differently, by every panel that
  * cares.
+ *
+ * Nothing here works out what a player may do. The deal decides that — the hand
+ * at a poker table, the round at a free one — and sends the answer down in
+ * `legalActions`; a client that reasons about the betting alongside the server
+ * is a client that eventually offers a button the server then refuses.
+ *
+ * The view is discriminated on `mode`, exactly as the snapshot it is read from
+ * is. Both games have a ring of chairs, a pot and a turn; only one of them has
+ * streets, blinds and a showdown, and a single view carrying both would leave
+ * every panel guessing which of its fields mean anything today.
  */
 
 export type TablePhase =
-  /** Nobody has started: seats are still being taken. */
+  /** Nobody has dealt: seats are still being taken. */
   | 'lobby'
-  /** Started, and a round is live. */
-  | 'round'
-  /** Started, but between rounds — the host deals the next one. */
+  /** A deal is live and somebody owes an action. */
+  | 'betting'
+  /** Poker only: the betting is finished and the table has to call who won. */
+  | 'showdown'
+  /** Started, but between deals — the host opens the next one. */
   | 'intermission'
   /** Over. */
   | 'finished';
 
 /** What a seat is doing, for the puck that draws it. */
-export type SeatTone = 'free' | 'seated' | 'mine' | 'folded' | 'out';
+export type SeatTone = 'free' | 'seated' | 'mine' | 'folded' | 'all-in' | 'out';
 
 /**
  * The one notable thing about a seat's state, or null when there is nothing
@@ -45,7 +70,15 @@ export type SeatTone = 'free' | 'seated' | 'mine' | 'folded' | 'out';
  * the table with their stack in front of them, and dimming their chair by
  * itself does not say so.
  */
-export type SeatStatusLabel = 'folded' | 'out' | 'away' | 'host-played';
+export type SeatStatusLabel =
+  | 'folded'
+  | 'all-in'
+  | 'out'
+  | 'away'
+  | 'host-played';
+
+/** The seat's job this hand, drawn as a marker on the chair. Poker only. */
+export type SeatMarker = 'dealer' | 'small-blind' | 'big-blind';
 
 export interface SeatView {
   seat: ParticipantSnapshot;
@@ -62,8 +95,15 @@ export interface SeatView {
    * same time, by whoever turns up next.
    */
   isFree: boolean;
-  /** Took a pot in the last resolution. */
+  /** Took a pot in the last settlement. */
   isWinner: boolean;
+  /**
+   * What this seat is holding this hand: the button, or a blind. Always null at
+   * a free table — it has no button to hold.
+   */
+  marker: Nullable<SeatMarker>;
+  /** What it has put into the pot on the street being played. */
+  committed: number;
   /** Called out under the name when it matters; null when it does not. */
   status: Nullable<SeatStatusLabel>;
   /** The line under the name, when there is no {@link status} to show. */
@@ -73,8 +113,8 @@ export interface SeatView {
 /** One line of the feed shown while another player is deciding. */
 export interface TableEvent {
   id: string;
-  /** Who acted. */
-  actor: string;
+  /** Who acted; null for something the table itself did. */
+  actor: Nullable<string>;
   /** What they did, in words. */
   label: string;
   amount: Optional<number>;
@@ -83,7 +123,11 @@ export interface TableEvent {
 
 export type GameSession = ReturnType<typeof useGameSession>;
 
-/** One button in the action panel, as the server says it is legal right now. */
+/**
+ * One button in a free table's action panel, as the server says it is legal
+ * right now — which at a free table means "the host put it in the catalog", not
+ * "the rules allow it".
+ */
 export interface ActionOption {
   id: string;
   label: string;
@@ -92,7 +136,18 @@ export interface ActionOption {
   foldsParticipant: Optional<boolean>;
 }
 
-export interface TableView {
+/**
+ * How a table stopped, once it has. Null while it is still being played.
+ *
+ * The two are not the same ending and the recap does not word them the same
+ * way: one is a host calling time, the other is a room that emptied out and was
+ * reclaimed. Telling a table it was "ended" when in truth everybody had already
+ * left would be the app taking credit for a night that fizzled.
+ */
+export type TableEnding = 'ended-by-host' | 'abandoned';
+
+/** What is true of a table whatever is being played at it. */
+export interface TableViewBase {
   phase: TablePhase;
   seats: SeatView[];
   seatCount: number;
@@ -118,17 +173,23 @@ export interface TableView {
   proxySeat: Nullable<ParticipantSnapshot>;
   /** True when this client may submit an action right now. */
   canAct: boolean;
-  /** An interruption window is open — anyone may cut in. */
-  interruptionOpen: boolean;
-  legalActions: ActionOption[];
 
   /** How every stack at this table should be drawn: a figure, or chips. */
   chipModel: ChipModel;
 
-  /** Chips on the table for the live round. */
+  /** The pots of the live deal, in the order they formed. */
+  pots: PotSnapshot[];
+  /** Chips on the table for the live deal. */
   pot: number;
   /** Chips across every stack. */
   inPlay: number;
+  /** How many deals the table got through — hands, or free rounds. */
+  dealsPlayed: number;
+  /** How it stopped, once it has; null while it is still going. */
+  ending: Nullable<TableEnding>;
+
+  /** Still contesting the pot, in seat order — who a settlement chooses from. */
+  contenders: ParticipantSnapshot[];
 
   /** Newest first, for the panel shown on someone else's turn. */
   recentEvents: TableEvent[];
@@ -145,13 +206,35 @@ export interface TableView {
   canAddSeat: boolean;
 }
 
-/** `big_blind` / `all-in` → `Big blind` / `All in`, when nothing better exists. */
-export const humaniseAction = (definitionId: string): string => {
-  const words = definitionId.replace(/[_-]+/g, ' ').trim();
-  return words.charAt(0).toUpperCase() + words.slice(1);
-};
+export interface PokerTableView extends TableViewBase {
+  mode: GameMode.Poker;
+  /** Exactly the moves the server called legal for the seat on turn. */
+  legalActions: LegalAction[];
+  /** Which hand of the night this is, and which betting round it is on. */
+  handNumber: Nullable<number>;
+  street: Nullable<Street>;
+  streetLabel: Nullable<string>;
+  /** What every seat must have in on this street to stay. */
+  currentBet: number;
+  /** What the acting seat still owes to stay in; 0 when a check is free. */
+  toCall: number;
+  /** What the table plays for. */
+  stakes: TableStakes;
+  /** What each winner took of the last pot, side pots included. */
+  payouts: HandPayout[];
+}
 
-/** How many past actions the summary panel shows before it starts scrolling. */
+export interface FreeTableView extends TableViewBase {
+  mode: GameMode.Free;
+  /** Exactly the catalog entries the server called legal for the seat on turn. */
+  legalActions: ActionOption[];
+  /** An interruption window is open — anyone seated may cut in. */
+  interruptionOpen: boolean;
+}
+
+export type TableView = PokerTableView | FreeTableView;
+
+/** How many past events the summary panel shows before it starts scrolling. */
 const FEED_LENGTH = 6;
 
 export function useTableView(game: GameSession): Nullable<TableView> {
@@ -168,6 +251,179 @@ export function useTableView(game: GameSession): Nullable<TableView> {
       ? (seats.find((seat) => seat.id === participantId) ?? null)
       : null;
     const isHost = mySeat?.role === ParticipantRole.Host;
+    const nameOf = (id: string) =>
+      seats.find((seat) => seat.id === id)?.displayName ?? 'Empty seat';
+
+    const isContender = (seat: ParticipantSnapshot) =>
+      seat.status === ParticipantStatus.Active ||
+      seat.status === ParticipantStatus.AllIn;
+
+    /** Everything the two games answer the same way. */
+    const common = {
+      seatCount: seats.length,
+      dealsPlayed: snapshot.dealsPlayed,
+      ending: endingOf(snapshot.status),
+      claimedCount: seats.filter((seat) => seat.claimed).length,
+      mySeat,
+      isHost,
+      chipModel: snapshot.chipModel,
+      inPlay: seats.reduce((total, seat) => total + seat.balance, 0),
+      contenders: seats.filter(isContender),
+      canAddSeat: isHost && snapshot.canAddSeat,
+    };
+
+    /**
+     * The chairs, drawn from what the deal says about each of them. Taken as
+     * parameters rather than read off a closure, because "whose turn is it" and
+     * "what has this seat put in" are the two facts each mode answers its own
+     * way.
+     */
+    const seatViewsFor = ({
+      phase,
+      activeSeat,
+      committedOf,
+      markerOf,
+      winnerIds,
+    }: {
+      phase: TablePhase;
+      activeSeat: Nullable<ParticipantSnapshot>;
+      committedOf: (id: string) => number;
+      markerOf: (seat: ParticipantSnapshot) => Nullable<SeatMarker>;
+      winnerIds: Set<string>;
+    }): SeatView[] =>
+      seats.map((seat) => {
+        const isMine = seat.id === participantId;
+        const isFree = !seat.claimed;
+
+        const tone: SeatTone = isFree
+          ? 'free'
+          : isMine
+            ? 'mine'
+            : seat.status === ParticipantStatus.Eliminated
+              ? 'out'
+              : seat.status === ParticipantStatus.Folded
+                ? 'folded'
+                : seat.status === ParticipantStatus.AllIn
+                  ? 'all-in'
+                  : 'seated';
+
+        return {
+          seat,
+          tone,
+          isMine,
+          isActive: activeSeat?.id === seat.id,
+          isHost: seat.role === ParticipantRole.Host,
+          isFree,
+          isWinner: winnerIds.has(seat.id),
+          marker: markerOf(seat),
+          committed: committedOf(seat.id),
+          status: statusFor({ seat, phase, isFree }),
+          caption: captionFor({ seat, phase, isFree }),
+        };
+      });
+
+    if (snapshot.mode === GameMode.Poker) {
+      const hand = snapshot.currentHand;
+      const isBetting = hand?.status === HandStatus.Betting;
+      const isShowdown = hand?.status === HandStatus.Showdown;
+
+      const phase: TablePhase =
+        snapshot.status === GameSessionStatus.Lobby
+          ? 'lobby'
+          : snapshot.status === GameSessionStatus.Running
+            ? isBetting
+              ? 'betting'
+              : isShowdown
+                ? 'showdown'
+                : 'intermission'
+            : 'finished';
+
+      const activeSeat =
+        isBetting && hand.betting.activeParticipant
+          ? (seats.find((seat) => seat.id === hand.betting.activeParticipant) ??
+            null)
+          : null;
+
+      const isMyTurn = !!mySeat && activeSeat?.id === mySeat.id;
+
+      // An unclaimed chair still takes its turn — the host plays it, because
+      // there is nobody else to. Whether that is *this* client is what decides
+      // if the action panel opens or the summary does.
+      const proxySeat =
+        isHost && activeSeat && !activeSeat.claimed ? activeSeat : null;
+
+      const currentBet = hand?.betting.currentBet ?? 0;
+      const committedOf = (id: string) => hand?.betting.committed[id] ?? 0;
+      const actingSeat = proxySeat ?? (isMyTurn ? mySeat : null);
+
+      const recentEvents: TableEvent[] = hand
+        ? [...hand.events]
+            .reverse()
+            .slice(0, FEED_LENGTH)
+            .map((event) => ({
+              id: event.id,
+              actor: event.participantId ? nameOf(event.participantId) : null,
+              label: event.participantId
+                ? HAND_EVENT_LABELS[event.type]
+                : `${STREET_LABELS[event.street]} ${HAND_EVENT_LABELS[event.type]}`,
+              amount: event.amount,
+              timestamp: event.timestamp,
+            }))
+        : [];
+
+      const settledThisHand =
+        resolution?.mode === GameMode.Poker && resolution.handId === hand?.id;
+      const winnerIds = new Set(
+        settledThisHand ? (resolution?.winners ?? []) : [],
+      );
+
+      return {
+        ...common,
+        mode: GameMode.Poker,
+        phase,
+        seats: seatViewsFor({
+          phase,
+          activeSeat,
+          committedOf,
+          markerOf: (seat) =>
+            !hand
+              ? null
+              : seat.id === hand.dealerParticipant
+                ? 'dealer'
+                : seat.id === hand.smallBlindParticipant
+                  ? 'small-blind'
+                  : seat.id === hand.bigBlindParticipant
+                    ? 'big-blind'
+                    : null,
+          winnerIds,
+        }),
+
+        activeSeat,
+        isMyTurn,
+        proxySeat,
+        canAct: isBetting && (isMyTurn || !!proxySeat),
+        legalActions: isBetting ? hand.betting.legalActions : [],
+
+        handNumber: hand?.handNumber ?? null,
+        street: hand?.street ?? null,
+        streetLabel: hand ? STREET_LABELS[hand.street] : null,
+        currentBet,
+        toCall: actingSeat
+          ? Math.max(0, currentBet - committedOf(actingSeat.id))
+          : 0,
+        stakes: snapshot.stakes,
+
+        pots: hand?.pots ?? [],
+        pot: hand?.pots.reduce((total, pot) => total + pot.amount, 0) ?? 0,
+
+        recentEvents,
+        winners: seats.filter((seat) => winnerIds.has(seat.id)),
+        payouts:
+          settledThisHand && resolution?.mode === GameMode.Poker
+            ? resolution.payouts
+            : [],
+      };
+    }
 
     const round = snapshot.currentRound;
     const isRoundLive = round?.status === RoundStatus.InProgress;
@@ -177,7 +433,7 @@ export function useTableView(game: GameSession): Nullable<TableView> {
         ? 'lobby'
         : snapshot.status === GameSessionStatus.Running
           ? isRoundLive
-            ? 'round'
+            ? 'betting'
             : 'intermission'
           : 'finished';
 
@@ -188,36 +444,14 @@ export function useTableView(game: GameSession): Nullable<TableView> {
     const isMyTurn = !!mySeat && activeSeat?.id === mySeat.id;
     const interruptionOpen = isRoundLive && round.turn.interruptionOpen;
 
-    // An unclaimed chair still takes its turn — the host plays it, because
-    // there is nobody else to. Whether that is *this* client is what decides
-    // if the action panel opens or the summary does.
-    //
-    // Not while an interruption window is open, though: that window belongs to
-    // nobody's turn, so a host cutting in is cutting in as themselves. Leaving
-    // the proxy set there would have quietly spent the empty chair's stack on
-    // a move the host made for their own.
-    const isProxiedTurn =
-      !!activeSeat && !activeSeat.claimed && !interruptionOpen;
-    const proxySeat = isHost && isProxiedTurn ? activeSeat : null;
-
-    // While a window is open the rule flips: anyone seated may cut in, the
-    // player whose turn it was included, and the only legal moves are the
-    // interrupting ones (which the server has already filtered the list to).
-    const canAct =
-      isRoundLive && (interruptionOpen ? !!mySeat : isMyTurn || !!proxySeat);
-
-    const legalActions: ActionOption[] = isRoundLive
-      ? round.turn.legalActions.map((action) => ({
-          id: action.id,
-          label: action.label,
-          amountForm: action.amountForm,
-          grantsInterruption: action.grantsInterruption,
-          foldsParticipant: action.foldsParticipant,
-        }))
-      : [];
-
-    const nameOf = (id: string) =>
-      seats.find((seat) => seat.id === id)?.displayName ?? 'Empty seat';
+    // Not while an interruption window is open: that window belongs to nobody's
+    // turn, so a host cutting in is cutting in as themselves. Leaving the proxy
+    // set there would quietly spend the empty chair's stack on a move the host
+    // made for their own.
+    const proxySeat =
+      isHost && activeSeat && !activeSeat.claimed && !interruptionOpen
+        ? activeSeat
+        : null;
 
     const labelOf = (definitionId: string) =>
       round?.turn.legalActions.find((action) => action.id === definitionId)
@@ -236,65 +470,66 @@ export function useTableView(game: GameSession): Nullable<TableView> {
           }))
       : [];
 
+    const settledThisRound =
+      resolution?.mode === GameMode.Free && resolution.roundId === round?.id;
     const winnerIds = new Set(
-      resolution?.roundId === round?.id ? (resolution?.winners ?? []) : [],
+      settledThisRound ? (resolution?.winners ?? []) : [],
     );
 
-    const seatViews: SeatView[] = seats.map((seat) => {
-      const isMine = seat.id === participantId;
-      const isFree = !seat.claimed;
-
-      const tone: SeatTone = isFree
-        ? 'free'
-        : isMine
-          ? 'mine'
-          : seat.status === ParticipantStatus.Eliminated
-            ? 'out'
-            : seat.status === ParticipantStatus.Folded
-              ? 'folded'
-              : 'seated';
-
-      return {
-        seat,
-        tone,
-        isMine,
-        isActive: activeSeat?.id === seat.id,
-        isHost: seat.role === ParticipantRole.Host,
-        isFree,
-        isWinner: winnerIds.has(seat.id),
-        status: statusFor({ seat, phase, isFree }),
-        caption: captionFor({ seat, phase, isFree }),
-      };
-    });
-
     return {
+      ...common,
+      mode: GameMode.Free,
       phase,
-      seats: seatViews,
-      seatCount: seats.length,
-      claimedCount: seats.filter((seat) => seat.claimed).length,
-
-      mySeat,
-      isHost,
+      seats: seatViewsFor({
+        phase,
+        activeSeat,
+        // A free round pools straight into the pot: nothing tracks what a seat
+        // has in on "this street", because it has no streets to have it on.
+        committedOf: () => 0,
+        markerOf: () => null,
+        winnerIds,
+      }),
 
       activeSeat,
       isMyTurn,
       proxySeat,
-      canAct,
+      // While a window is open the rule flips: anyone seated may cut in, the
+      // player whose turn it was included, and the only legal moves are the
+      // interrupting ones (which the server has already filtered the list to).
+      canAct:
+        isRoundLive && (interruptionOpen ? !!mySeat : isMyTurn || !!proxySeat),
       interruptionOpen,
-      legalActions,
+      legalActions: isRoundLive
+        ? round.turn.legalActions.map(toActionOption)
+        : [],
 
-      chipModel: snapshot.chipModel,
-
+      pots: round?.pots ?? [],
       pot: round?.pots.reduce((total, pot) => total + pot.amount, 0) ?? 0,
-      inPlay: seats.reduce((total, seat) => total + seat.balance, 0),
 
       recentEvents,
       winners: seats.filter((seat) => winnerIds.has(seat.id)),
-
-      canAddSeat: isHost && snapshot.canAddSeat,
     };
   }, [snapshot, participantId, resolution]);
 }
+
+/**
+ * A finished session was called time on; an abandoned one ran out of people.
+ * Every other status is a table still being played.
+ */
+const endingOf = (status: GameSessionStatus): Nullable<TableEnding> =>
+  status === GameSessionStatus.Finished
+    ? 'ended-by-host'
+    : status === GameSessionStatus.Abandoned
+      ? 'abandoned'
+      : null;
+
+const toActionOption = (action: ActionDef): ActionOption => ({
+  id: action.id,
+  label: action.label,
+  amountForm: action.amountForm,
+  grantsInterruption: action.grantsInterruption,
+  foldsParticipant: action.foldsParticipant,
+});
 
 /**
  * The status worth calling out, if any.
@@ -314,6 +549,7 @@ const statusFor = ({
   if (isFree) return phase === 'finished' ? null : 'host-played';
   if (seat.status === ParticipantStatus.Eliminated) return 'out';
   if (seat.status === ParticipantStatus.Folded) return 'folded';
+  if (seat.status === ParticipantStatus.AllIn) return 'all-in';
   if (!seat.connected) return 'away';
   return null;
 };
@@ -330,11 +566,12 @@ const captionFor = ({
   // Two facts about an empty chair, and a player needs both: the host is
   // playing it, and it is still there for the taking. "Empty" alone was a lie
   // — it implied the seat sits out, when in truth it has been dealt in since
-  // round one.
+  // the first deal.
   if (isFree)
     return phase === 'finished' ? 'Never claimed' : 'Free · host plays';
   if (seat.status === ParticipantStatus.Eliminated) return 'Out';
   if (seat.status === ParticipantStatus.Folded) return 'Folded';
+  if (seat.status === ParticipantStatus.AllIn) return 'All in';
   if (!seat.connected) return 'Away';
   return phase === 'lobby' ? 'Seated' : 'In play';
 };

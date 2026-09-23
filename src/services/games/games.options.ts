@@ -10,7 +10,7 @@ import {
   CreateGameSessionData,
   CreateGameSessionResponse,
   JoinByCodeResponse,
-  ListGameTemplatesResponse,
+  ListGameModesResponse,
   RetrieveGameSessionResponse,
   RetrieveRoomByCodeResponse,
 } from '@tokenizer/shared/types';
@@ -18,7 +18,7 @@ import {
 export const GAMES_QUERY_KEYS = {
   retrieve: (uuid: string) => ['games', 'retrieve', uuid] as const,
   roomByCode: (code: string) => ['games', 'roomByCode', code] as const,
-  templates: () => ['games', 'templates'] as const,
+  modes: () => ['games', 'modes'] as const,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as const satisfies Record<string, (...args: any[]) => readonly any[]>;
 
@@ -56,11 +56,11 @@ export const roomByCodeOptions = (code: Optional<string>) =>
     retry: false, // the endpoint is tightly rate-limited; do not hammer it
   });
 
-/** The server's templates. Static enough to cache for the whole session. */
-export const listGameTemplatesOptions = () =>
-  queryOptions<ListGameTemplatesResponse, RequesterError>({
-    queryKey: GAMES_QUERY_KEYS.templates(),
-    queryFn: API.listGameTemplates,
+/** The games the server runs. Static enough to cache for the whole session. */
+export const listGameModesOptions = () =>
+  queryOptions<ListGameModesResponse, RequesterError>({
+    queryKey: GAMES_QUERY_KEYS.modes(),
+    queryFn: API.listGameModes,
     staleTime: Infinity,
     gcTime: Infinity,
   });

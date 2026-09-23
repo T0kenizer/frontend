@@ -1,13 +1,18 @@
 'use client';
 
+import { HubFreeIntermission } from '@components/game/table/hub/free/hub-free-intermission';
+import { HubFreeTurn } from '@components/game/table/hub/free/hub-free-turn';
+import { HubFreeWatch } from '@components/game/table/hub/free/hub-free-watch';
 import { HubFinished } from '@components/game/table/hub/hub-finished';
 import { HubIntermission } from '@components/game/table/hub/hub-intermission';
 import { HubLobby } from '@components/game/table/hub/hub-lobby';
 import { HubTransition } from '@components/game/table/hub/hub-shell';
+import { HubShowdown } from '@components/game/table/hub/hub-showdown';
 import { HubTurn } from '@components/game/table/hub/hub-turn';
 import { HubWatch } from '@components/game/table/hub/hub-watch';
 import type { TableActions } from '@components/game/table/table-actions';
 import type { TableView } from '@components/game/table/use-table-view';
+import { GameMode } from '@tokenizer/shared/types';
 import { AnimatePresence } from 'motion/react';
 import * as React from 'react';
 
@@ -22,6 +27,10 @@ import * as React from 'react';
  *
  * All this component itself decides is _which_ panel. Each panel then decides
  * what to offer, and {@link TableActions} carries out whatever is chosen.
+ *
+ * Two of the five states are the game's own — the one you act in and the one
+ * you watch — so the mode is read before the phase for those, and once only.
+ * The lobby and the end of the night are the same screen whatever was played.
  */
 
 export interface TableHubProps {
@@ -55,17 +64,46 @@ export const TableHub: React.FC<TableHubProps> = ({
           ),
         };
 
-      case 'round':
+      case 'betting':
         // The fork the whole screen turns on: a panel you act in, or a panel
         // that tells you what is being done to you.
+        if (view.mode === GameMode.Free) {
+          return view.canAct
+            ? {
+                key: 'turn',
+                panel: <HubFreeTurn view={view} actions={actions} />,
+              }
+            : {
+                key: 'watch',
+                panel: <HubFreeWatch view={view} actions={actions} />,
+              };
+        }
         return view.canAct
           ? { key: 'turn', panel: <HubTurn view={view} actions={actions} /> }
-          : { key: 'watch', panel: <HubWatch view={view} actions={actions} /> };
+          : { key: 'watch', panel: <HubWatch view={view} /> };
+
+      case 'showdown':
+        // Poker's alone: a free round settles when the host says so, from the
+        // panel it is still being played on.
+        return view.mode === GameMode.Poker
+          ? {
+              key: 'showdown',
+              panel: <HubShowdown view={view} actions={actions} />,
+            }
+          : {
+              key: 'watch',
+              panel: <HubFreeWatch view={view} actions={actions} />,
+            };
 
       case 'intermission':
         return {
           key: 'intermission',
-          panel: <HubIntermission view={view} actions={actions} />,
+          panel:
+            view.mode === GameMode.Free ? (
+              <HubFreeIntermission view={view} actions={actions} />
+            ) : (
+              <HubIntermission view={view} actions={actions} />
+            ),
         };
 
       case 'finished':

@@ -1,12 +1,12 @@
 'use client';
 
 import { FeltNotice } from '@components/game/felt/felt-stage';
-import { AddSeatButton } from '@components/game/table/hub/add-seat-button';
 import { HubShell, HubStack } from '@components/game/table/hub/hub-shell';
 import type { TableActions } from '@components/game/table/table-actions';
 import type { TableView } from '@components/game/table/use-table-view';
 import { Button } from '@components/ui/button';
 import { formatAmount } from '@lib/amount';
+import { GameMode } from '@tokenizer/shared/types';
 import { motion, useReducedMotion } from 'motion/react';
 import * as React from 'react';
 
@@ -38,6 +38,12 @@ export const HubLobby: React.FC<HubLobbyProps> = ({
   const { claimedCount, seatCount, isHost, inPlay } = view;
   const emptySeats = seatCount - claimedCount;
 
+  // The lobby is the same screen at both tables; only the word for a deal, and
+  // the call that opens one, belong to the game.
+  const isPoker = view.mode === GameMode.Poker;
+  const dealLabel = isPoker ? 'Deal the first hand' : 'Open the first round';
+  const startDeal = isPoker ? actions.startHand : actions.startRound;
+
   const facts = [
     { label: 'Seated', value: `${claimedCount}/${seatCount}` },
     { label: 'Empty', value: `${emptySeats}` },
@@ -66,20 +72,20 @@ export const HubLobby: React.FC<HubLobbyProps> = ({
         )}
 
         <HubStack>
-          {/* Never gated on how many chairs are taken. Every declared seat
-              plays from round one whether or not anybody claimed it, so a host
-              sitting alone at a table of six is starting a six-handed game —
-              they simply play five of the hands. Waiting for a quorum that the
-              rules do not have was the button telling the host their own
-              table was not ready. */}
+          {/* Never gated on how many chairs are taken. Every declared seat is
+              dealt in whether or not anybody claimed it, so a host sitting
+              alone at a table of six is dealing a six-handed hand — they
+              simply play five of them. Waiting for a quorum that the rules do
+              not have was the button telling the host their own table was not
+              ready. */}
           <Button
             variant="felt-inverse"
             size="xl"
             className="w-full"
             loading={actions.pending === 'start'}
-            onClick={actions.startRound}
+            onClick={startDeal}
           >
-            Start the game
+            {dealLabel}
           </Button>
           <Button
             variant="line"
@@ -88,7 +94,6 @@ export const HubLobby: React.FC<HubLobbyProps> = ({
           >
             Invite · share the code
           </Button>
-          <AddSeatButton view={view} actions={actions} />
         </HubStack>
       </HubShell>
     );
@@ -98,7 +103,11 @@ export const HubLobby: React.FC<HubLobbyProps> = ({
     <HubShell
       eyebrow="Lobby · not started"
       title="You're seated"
-      description={`Seat ${(view.mySeat?.seatIndex ?? 0) + 1} is yours. The host starts the game.`}
+      description={`Seat ${(view.mySeat?.seatIndex ?? 0) + 1} is yours. ${
+        isPoker
+          ? 'The host deals the first hand.'
+          : 'The host opens the first round.'
+      }`}
       facts={facts}
     >
       <WaitingDial label="Waiting for the host" />

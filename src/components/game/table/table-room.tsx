@@ -100,16 +100,24 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
   // list said `game.snapshot?.name`, disagrees, and bails out of optimizing
   // the whole component rather than the one value.
   const actions: TableActions = {
+    startHand: () => void run('start', game.startHand),
     startRound: () => void run('start', game.startRound),
-    submitAction: (definitionId, amount, targetParticipantId) =>
-      void run(definitionId, () =>
-        game.submitAction(definitionId, amount, targetParticipantId),
+    submitAction: (action, amount, targetParticipantId) =>
+      void run(action, () =>
+        game.submitAction(action, amount, targetParticipantId),
       ),
+    // Keyed by the catalog id the host wrote, exactly as the poker call is
+    // keyed by its action: it is what the panel spins the pressed button on.
+    submitCatalogAction: (definitionId, amount, targetParticipantId) =>
+      void run(definitionId, () =>
+        game.submitCatalogAction(definitionId, amount, targetParticipantId),
+      ),
+    declareWinners: (awards) =>
+      void run('showdown', () => game.declareWinners(awards)),
     resolveRound: (winnerIds) =>
       void run('resolve', () => game.resolveRound(winnerIds)),
     closeGame: () => void run('close', game.closeGame),
     renameSeat: () => setIsRenaming(true),
-    addSeat: () => void run('add-seat', () => game.addSeat()),
     shareTable: () => void shareTable(),
     pending,
     error,
@@ -142,6 +150,7 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
         joinCode={game.snapshot?.joinCode ?? null}
         tableName={game.snapshot?.name ?? 'Table'}
         isConnected={game.isConnected}
+        isOver={game.isOver}
       />
 
       {game.socketError && (

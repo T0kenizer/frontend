@@ -25,6 +25,12 @@ export interface TableTopBarProps {
   joinCode: Nullable<string>;
   tableName: string;
   isConnected: boolean;
+  /**
+   * The table has ended. A closed room has no connection to be waiting on, so
+   * the badge says so instead of sitting on "Connecting…" forever once the
+   * socket has left.
+   */
+  isOver?: boolean;
   className?: string;
 }
 
@@ -33,6 +39,7 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
   joinCode,
   tableName,
   isConnected,
+  isOver = false,
   className,
 }) => (
   <header
@@ -43,8 +50,11 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
 
     <span className="min-w-0 flex-1">
       <span className="block truncate text-sm font-bold">{tableName}</span>
-      <FeltBadge tone={isConnected ? 'active' : 'muted'} className="mt-0.5">
-        {isConnected ? 'Live' : 'Connecting…'}
+      <FeltBadge
+        tone={isOver ? 'solid' : isConnected ? 'active' : 'muted'}
+        className="mt-0.5"
+      >
+        {isOver ? 'Closed' : isConnected ? 'Live' : 'Connecting…'}
       </FeltBadge>
     </span>
 

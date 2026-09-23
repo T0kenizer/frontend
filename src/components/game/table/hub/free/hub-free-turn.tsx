@@ -3,45 +3,38 @@
 import { FeltNotice } from '@components/game/felt/felt-stage';
 import { HubShell, HubStack } from '@components/game/table/hub/hub-shell';
 import type { TableActions } from '@components/game/table/table-actions';
-import type { PokerTableView } from '@components/game/table/use-table-view';
+import type {
+  ActionOption,
+  FreeTableView,
+} from '@components/game/table/use-table-view';
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import { formatAmount, toAmount } from '@lib/amount';
 import { cn } from '@lib/utils';
-import { PokerAction, type LegalAction } from '@tokenizer/shared/types';
+import { AmountForm } from '@tokenizer/shared/types';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import * as React from 'react';
 
 /**
- * Your move.
+ * Your move, at a table whose rules the host wrote.
  *
- * The one panel in the app that is genuinely urgent — a room full of people is
- * waiting on it — so it states whose decision it is before it states anything
- * else, and puts the legal moves within a thumb's reach of the bottom of the
- * screen.
+ * The poker panel next door asks the server how much a raise may be and draws
+ * the answer; there is no such answer here. A free table declares its moves and
+ * nothing else — the runtime never worked out a legal amount, so the only cap
+ * this panel can honestly apply is the stack in front of the seat.
  *
- * It renders exactly the moves the server called legal, at exactly the sizes it
- * called legal. Nothing here works out whether a check is available or how
- * small a raise may be: that is the hand's business, it already decided, and a
- * client that guesses alongside it is a client that eventually offers a button
- * the server then refuses.
+ * What it does still refuse to do is invent the list: the moves drawn here are
+ * exactly the ones the round called legal, which at a free table means exactly
+ * the ones the host put in its catalog.
  */
 
-/** Whether a move needs a number, or comes at one price. */
-const isSized = (action: LegalAction) =>
-  action.min !== undefined &&
-  action.max !== undefined &&
-  action.min !== action.max;
-
-const isFree = (action: LegalAction) => action.min === undefined;
-
-export interface HubTurnProps {
-  view: PokerTableView;
+export interface HubFreeTurnProps {
+  view: FreeTableView;
   actions: TableActions;
 }
 
-export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
-  const { legalActions, proxySeat, mySeat, pot, toCall, streetLabel } = view;
+export const HubFreeTurn: React.FC<HubFreeTurnProps> = ({ view, actions }) => {
+  const { legalActions, interruptionOpen, proxySeat, mySeat, pot } = view;
 
   // The host covering an empty chair spends that chair's stack, not their own.
   const actingSeat = proxySeat ?? mySeat;
@@ -51,25 +44,35 @@ export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
   // because it is not their turn.
   const target = proxySeat?.id;
 
-  const [picked, setPicked] = React.useState<Nullable<LegalAction>>(null);
+  const [picked, setPicked] = React.useState<Nullable<ActionOption>>(null);
 
   // A new set of legal moves means the turn moved on; a half-typed raise from
   // the turn before must not survive into it. Adjusted during render rather
   // than in an effect, so the stale amount never gets a frame on screen.
-  const legalIds = legalActions
-    .map((action) => `${action.action}:${action.min}-${action.max}`)
-    .join(',');
+  const legalIds = legalActions.map((action) => action.id).join(',');
   const [seenLegalIds, setSeenLegalIds] = React.useState(legalIds);
   if (seenLegalIds !== legalIds) {
     setSeenLegalIds(legalIds);
     setPicked(null);
   }
 
-  const eyebrow = proxySeat ? 'Playing an empty chair' : 'Your turn';
-  const title = proxySeat ? `Seat ${proxySeat.seatIndex + 1}` : 'Your move';
-  const description = proxySeat
-    ? 'Nobody claimed this chair, so you play it for the table.'
-    : undefined;
+  const eyebrow = interruptionOpen
+    ? 'Interruption open'
+    : proxySeat
+      ? 'Playing an empty chair'
+      : 'Your turn';
+
+  const title = proxySeat
+    ? `Seat ${proxySeat.seatIndex + 1}`
+    : interruptionOpen
+      ? 'Cut in?'
+      : 'Your move';
+
+  const description = interruptionOpen
+    ? 'Anyone can claim the turn right now. First interrupting move takes it.'
+    : proxySeat
+      ? 'Nobody claimed this chair, so you play it for the table.'
+      : undefined;
 
   return (
     <HubShell
@@ -78,17 +81,13 @@ export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
       description={description}
       facts={[
         { label: 'Pot', value: formatAmount(pot) },
-        { label: 'To call', value: toCall ? formatAmount(toCall) : '—' },
         {
           label: proxySeat ? 'Chair' : 'Your stack',
           value: formatAmount(actingSeat?.balance ?? 0),
         },
       ]}
-      footnote={streetLabel ? `${streetLabel} betting` : undefined}
-      className={cn(
-        // A live turn is worth an outline you can see from across a table.
-        'ring-warning/45 ring-3',
-      )}
+      // A live turn is worth an outline you can see from across a table.
+      className={cn('ring-warning/45 ring-3')}
     >
       {actions.error && (
         <FeltNotice tone="error" className="mb-3 text-left">
@@ -97,43 +96,41 @@ export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
       )}
 
       <HubStack className="grid-cols-2">
-        {legalActions.map((action, index) => (
+        {legalActions.map((action) => (
           <Button
-            key={action.action}
+            key={action.id}
             // Filled for the one-tap moves that commit nothing, outlined for
-            // the ones that cost chips or drop you out of the hand — so the
+            // the ones that cost chips or drop you out of the round — so the
             // safe move is the one your thumb finds without reading.
             variant={
-              action.action === PokerAction.Check ? 'felt-inverse' : 'line'
+              action.amountForm === AmountForm.None && !action.foldsParticipant
+                ? 'felt-inverse'
+                : 'line'
             }
             size="lg"
-            loading={actions.pending === action.action}
-            aria-pressed={picked?.action === action.action}
+            loading={actions.pending === action.id}
+            aria-pressed={picked?.id === action.id}
             className={cn(
               'w-full',
-              picked?.action === action.action && 'ring-warning ring-3',
+              picked?.id === action.id && 'ring-warning ring-3',
               // An odd number of moves leaves the last one spanning the row
               // rather than sitting in a half-empty one.
               legalActions.length % 2 === 1 &&
-                index === legalActions.length - 1 &&
+                action.id === legalActions[legalActions.length - 1].id &&
                 'col-span-2',
             )}
             onClick={() => {
-              if (isSized(action)) {
-                setPicked((current) =>
-                  current?.action === action.action ? null : action,
-                );
+              if (action.amountForm === AmountForm.None) {
+                setPicked(null);
+                actions.submitCatalogAction(action.id, undefined, target);
                 return;
               }
-              setPicked(null);
-              // A move at one price carries it; the server would work the
-              // same number out, and sending it keeps the two agreeing.
-              actions.submitAction(action.action, action.min, target);
+              setPicked((current) =>
+                current?.id === action.id ? null : action,
+              );
             }}
           >
-            {isFree(action)
-              ? action.label
-              : `${action.label} ${formatAmount(isSized(action) ? action.min! : action.min!)}`}
+            {action.label}
           </Button>
         ))}
       </HubStack>
@@ -141,11 +138,12 @@ export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
       <AnimatePresence initial={false}>
         {picked && (
           <AmountStep
-            key={picked.action}
+            key={picked.id}
             action={picked}
-            pending={actions.pending === picked.action}
+            max={actingSeat?.balance ?? 0}
+            pending={actions.pending === picked.id}
             onConfirm={(amount) => {
-              actions.submitAction(picked.action, amount, target);
+              actions.submitCatalogAction(picked.id, amount, target);
               setPicked(null);
             }}
             onCancel={() => setPicked(null)}
@@ -162,39 +160,26 @@ export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
   );
 };
 
-/**
- * How much, for the moves that take a number.
- *
- * Bounded by the server's own `min`/`max` rather than by the stack: under pot
- * limit and fixed limit the most that may go in is well short of what is in
- * front of the player, and a slider that let them past it would only be
- * offering a move about to be refused.
- */
+/** How much, for the moves that need a number. */
 const AmountStep: React.FC<{
-  action: LegalAction;
+  action: ActionOption;
+  max: number;
   pending: boolean;
   onConfirm: (amount: number) => void;
   onCancel: () => void;
-}> = ({ action, pending, onConfirm, onCancel }) => {
+}> = ({ action, max, pending, onConfirm, onCancel }) => {
   const reduceMotion = useReducedMotion();
-  const min = action.min!;
-  const max = action.max!;
-  const [amount, setAmount] = React.useState(min);
+  const [amount, setAmount] = React.useState(0);
 
-  // A minimum, the middle, and the lot: the three sizes people actually pick,
-  // without anyone doing arithmetic at a table with a drink in their hand.
+  // Quarter, half, the lot: the three bets people actually make, without
+  // anyone having to do arithmetic at a table with a drink in their hand.
   const presets = [
-    { label: 'Min', value: min },
-    { label: 'Half', value: Math.floor((min + max) / 2) },
-    { label: max === min ? 'Max' : 'Max', value: max },
-  ].filter(
-    (preset, index, all) =>
-      preset.value >= min &&
-      preset.value <= max &&
-      all.findIndex((other) => other.value === preset.value) === index,
-  );
+    { label: '¼', value: Math.floor(max / 4) },
+    { label: '½', value: Math.floor(max / 2) },
+    { label: 'All in', value: max },
+  ].filter((preset) => preset.value > 0);
 
-  const isValid = amount >= min && amount <= max;
+  const isValid = amount > 0 && amount <= max;
 
   return (
     <motion.div
@@ -209,7 +194,7 @@ const AmountStep: React.FC<{
           htmlFor="turn-amount"
           className="text-on-media-muted-foreground text-[0.625rem] font-bold tracking-[0.09em] uppercase"
         >
-          {action.label} to — {formatAmount(min)} to {formatAmount(max)}
+          {action.label} — how much?
         </label>
 
         <Input
@@ -219,8 +204,8 @@ const AmountStep: React.FC<{
           variant="felt"
           size="xl"
           value={amount ? formatAmount(amount) : ''}
-          placeholder={String(min)}
-          aria-invalid={!isValid || undefined}
+          placeholder="0"
+          aria-invalid={amount > max || undefined}
           onChange={(event) =>
             setAmount(Math.min(toAmount(event.target.value), max))
           }

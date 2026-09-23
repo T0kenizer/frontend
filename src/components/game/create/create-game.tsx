@@ -1,15 +1,15 @@
 'use client';
 
-import { Feature } from '@components/feature';
 import { CreateGameEconomy } from '@components/game/create/create-game-economy';
 import { CreateGameFlow } from '@components/game/create/create-game-flow';
+import { CreateGameMode } from '@components/game/create/create-game-mode';
 import { CreateGameSeats } from '@components/game/create/create-game-seats';
 import {
   CreateGameRow,
   CreateGameSection,
 } from '@components/game/create/create-game-stage';
+import { CreateGameStakes } from '@components/game/create/create-game-stakes';
 import { CreateGameSummary } from '@components/game/create/create-game-summary';
-import { CreateGameTemplates } from '@components/game/create/create-game-templates';
 import {
   FeltBackLink,
   FeltHeader,
@@ -20,14 +20,11 @@ import { Input } from '@components/ui/input';
 import { GAME_NAME_MAX_LENGTH } from '@constants/games';
 import ROUTES from '@constants/routes';
 import { useGameDraft } from '@hooks/use-game-draft';
-import { useFeature, useMaxSeats } from '@hooks/use-plan';
-import {
-  createGameOptions,
-  listGameTemplatesOptions,
-} from '@services/games/games.options';
+import { useMaxSeats } from '@hooks/use-plan';
+import { createGameOptions } from '@services/games/games.options';
 import { writePlayerToken } from '@services/games/games.tokens';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Feature as FeatureFlag } from '@tokenizer/shared/types';
+import { useMutation } from '@tanstack/react-query';
+import { GameMode } from '@tokenizer/shared/types';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -36,35 +33,25 @@ import { toast } from 'sonner';
 export const CreateGame: React.FC = () => {
   const router = useRouter();
   const maxSeats = useMaxSeats();
-  const canCustomize = useFeature(
-    FeatureFlag.CreateGame,
-    (metadata) => metadata.canCustomize,
-  );
   const controller = useGameDraft(maxSeats);
   const { draft, config, review, patch } = controller;
 
-  const { data: templates } = useQuery(listGameTemplatesOptions());
-  const [pickedTemplateId, setPickedTemplateId] =
-    React.useState<Nullable<string>>(null);
-  const templateId = pickedTemplateId ?? templates?.[0]?.id ?? null;
-
   const { mutate: createGame, isPending } = useMutation(createGameOptions());
 
-  const templateBlocker =
-    !canCustomize && !templateId ? 'Pick a table to open.' : null;
-  const blocker = review.blocker || templateBlocker;
-
   const handleCreate = () => {
-    if (blocker || isPending) return;
+    if (review.blocker || isPending) return;
 
     const name = draft.name.trim();
 
     createGame(
       {
+        mode: draft.mode,
         ...(name ? { name } : {}),
-        ...(canCustomize
-          ? { config }
-          : { templateId: templateId!, seats: config.seating.seats }),
+        // Always the whole config: a host who may open the mode may set it up,
+        // because how configurable a table is belongs to the mode rather than
+        // to the plan. What the plan still caps is the seat count, which the
+        // draft is already built against.
+        config,
       },
       {
         onSuccess: (result) => {
@@ -94,7 +81,7 @@ export const CreateGame: React.FC = () => {
       <FeltHeader
         size="lg"
         title="New game"
-        description="Name the table. Whatever your plan unlocks below stays editable until you open it."
+        description="Pick the game, name the table, set it up. Everything below stays editable until you open it."
       />
 
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_21rem]">
@@ -102,7 +89,12 @@ export const CreateGame: React.FC = () => {
           className="flex flex-col gap-4"
           onSubmit={(event) => event.preventDefault()}
         >
-          <CreateGameSection title="The game">
+          <CreateGameMode
+            selected={draft.mode}
+            onSelect={(mode) => patch({ mode })}
+          />
+
+          <CreateGameSection title="The table">
             <CreateGameRow
               label="Name"
               hint="Shown on the table and in the invitation."
@@ -120,27 +112,29 @@ export const CreateGame: React.FC = () => {
             </CreateGameRow>
           </CreateGameSection>
 
-          <CreateGameTemplates
-            selectedId={templateId}
-            onSelect={setPickedTemplateId}
-          />
-
           <CreateGameSeats controller={controller} maxSeats={maxSeats} />
 
-          <Feature
-            feature={FeatureFlag.CreateGame}
-            when={(metadata) => metadata.canCustomize}
-          >
-            <CreateGameEconomy controller={controller} />
-            <CreateGameFlow controller={controller} />
-          </Feature>
+          {/* One mode's parameters mean nothing to the other, so only the
+              chosen game's sections are on the form at all — a host switching
+              back and forth finds what they typed still there, never a
+              half-filled form belonging to a game they are not opening.
+
+              Not gated on the plan: the plan decides which games are on the
+              card above, and setting one up is part of having picked it. */}
+          {draft.mode === GameMode.Poker ? (
+            <CreateGameStakes controller={controller} />
+          ) : (
+            <>
+              <CreateGameEconomy controller={controller} />
+              <CreateGameFlow controller={controller} />
+            </>
+          )}
         </form>
 
         <CreateGameSummary
           controller={controller}
           onCreate={handleCreate}
           isCreating={isPending}
-          blocker={blocker}
         />
       </div>
     </FeltStage>

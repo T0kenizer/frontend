@@ -4,13 +4,13 @@ import { Alert, AlertDescription } from '@components/ui/alert';
 import { Button } from '@components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@components/ui/card';
 import { Chip } from '@components/ui/chip';
-import { ACTION_CATALOG, FORCED_BET_KINDS } from '@constants/games';
-import type { GameDraftController } from '@hooks/use-game-draft';
+import { ACTION_CATALOG, BETTING_STRUCTURES } from '@constants/games';
+import type { GameDraft, GameDraftController } from '@hooks/use-game-draft';
 import {
   ChipModel,
-  Direction,
   EndResolution,
-  PotMode,
+  GameMode,
+  TurnRegime,
 } from '@tokenizer/shared/types';
 import { CircleAlert } from 'lucide-react';
 import * as React from 'react';
@@ -24,12 +24,6 @@ export interface CreateGameSummaryProps {
   controller: GameDraftController;
   onCreate: () => void;
   isCreating: boolean;
-  /**
-   * Overrides `controller.review.blocker` — e.g. a plan without `canCustomize`
-   * that hasn't picked a template yet, which the draft itself has no notion
-   * of.
-   */
-  blocker?: Nullable<string>;
 }
 
 /**
@@ -44,50 +38,32 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
   controller,
   onCreate,
   isCreating,
-  blocker,
 }) => {
   const { draft, review, totalInPlay } = controller;
-  const effectiveBlocker = blocker ?? review.blocker;
 
-  const enabledActions = ACTION_CATALOG.filter((action) =>
-    draft.enabledActions.includes(action.id),
-  );
+  const isPoker = draft.mode === GameMode.Poker;
 
   const meta = [
-    draft.potMode === PotMode.Single ? 'one pot' : 'side pots',
+    isPoker ? 'poker' : 'free table',
+    isPoker
+      ? BETTING_STRUCTURES.find(
+          (entry) => entry.value === draft.bettingStructure,
+        )?.label.toLowerCase()
+      : `${draft.enabledActions.length} moves`,
     draft.chipModel === ChipModel.AbstractBalance ? 'balance' : 'chips',
-    draft.direction === Direction.Clockwise ? 'clockwise' : 'counter-clockwise',
-  ].join(' · ');
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
+  // The seating is the same decision in both games, so it reads the same way
+  // whichever one is being opened; everything above it is that game's own.
   const facts: [string, string][] = [
-    [
-      'Opening bets',
-      draft.forcedBets.length
-        ? draft.forcedBets
-            .map(
-              (bet) =>
-                `${FORCED_BET_KINDS.find((kind) => kind.label === bet.label)?.name ?? bet.label} ${amountFormat.format(bet.amount)}`,
-            )
-            .join(' · ')
-        : 'none',
-    ],
-    [
-      'Actions',
-      enabledActions.length
-        ? enabledActions.map((action) => action.label.toLowerCase()).join(', ')
-        : 'none',
-    ],
+    ...(isPoker ? pokerFacts(draft) : freeFacts(draft)),
     ['Joining after the deal', draft.allowMidGameClaims ? 'Allowed' : 'Closed'],
     ['Extra seats', draft.allowExtraSeats ? 'Can be added' : 'Fixed'],
-    [
-      'End of a round',
-      draft.resolution === EndResolution.Automatic
-        ? 'Automatic'
-        : 'Decided by the host',
-    ],
   ];
 
-  const warning = effectiveBlocker ?? review.advice;
+  const warning = review.blocker ?? review.advice;
 
   return (
     <aside className="flex flex-col gap-3.5 lg:sticky lg:top-5">
@@ -182,7 +158,7 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
           size="lg"
           className="h-11 w-full"
           loading={isCreating}
-          disabled={!!effectiveBlocker}
+          disabled={!!review.blocker}
           onClick={onCreate}
         >
           {isCreating ? 'Opening the table…' : 'Create the game'}
@@ -194,3 +170,51 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
     </aside>
   );
 };
+
+const pokerFacts = (draft: GameDraft): [string, string][] => [
+  [
+    'Blinds',
+    `${amountFormat.format(draft.smallBlind)} / ${amountFormat.format(draft.bigBlind)}`,
+  ],
+  ['Ante', draft.ante ? amountFormat.format(draft.ante) : 'none'],
+  [
+    'Showdown',
+    // Worth stating outright: it is the one point where the app has to be told
+    // something it cannot work out, and a host should not meet that for the
+    // first time mid-hand.
+    'Called by the table',
+  ],
+];
+
+const freeFacts = (draft: GameDraft): [string, string][] => [
+  [
+    'Opening bets',
+    draft.forcedBets.length
+      ? draft.forcedBets
+          .map((bet) => amountFormat.format(bet.amount))
+          .join(' / ')
+      : 'none',
+  ],
+  [
+    'Moves',
+    ACTION_CATALOG.filter((action) => draft.enabledActions.includes(action.id))
+      .map((action) => action.label)
+      .join(', ') || 'none',
+  ],
+  [
+    'Order of play',
+    draft.regime === TurnRegime.Sequential
+      ? 'One at a time'
+      : draft.regime === TurnRegime.SequentialInterruptible
+        ? 'With instant raises'
+        : 'All at once',
+  ],
+  [
+    'End of a round',
+    // The free runtime evaluates one condition and no more, so "automatic"
+    // means exactly one thing; anything else is the host's call.
+    draft.resolution === EndResolution.Automatic
+      ? 'When one player is left'
+      : 'Called by the host',
+  ],
+];

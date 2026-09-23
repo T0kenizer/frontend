@@ -1,3 +1,5 @@
+import type { PokerAction, PotAward } from '@tokenizer/shared/types';
+
 /**
  * What the centre panel is allowed to do.
  *
@@ -7,29 +9,48 @@
  * they decide what to offer, never how to carry it out.
  */
 export interface TableActions {
-  /** Host: deal the next round. */
+  /** Host, poker: deal the next hand. */
+  startHand: () => void;
+  /** Host, free mode: open the next round. */
   startRound: () => void;
   /**
-   * Play the named action.
+   * Play a move.
+   *
+   * `amount` is the **total** the seat will have committed on this street — the
+   * same convention the server states its `min`/`max` in, so a raise never has
+   * to be converted on the way out.
    *
    * `targetParticipantId` names the unclaimed seat the host is playing on
-   * behalf of; omitted, the action is for the caller's own chair. The server
+   * behalf of; omitted, the move is for the caller's own chair. The server
    * refuses a target from anyone but the host, and refuses one at a seat
    * somebody has since claimed.
    */
   submitAction: (
+    action: PokerAction,
+    amount?: number,
+    targetParticipantId?: string,
+  ) => void;
+  /**
+   * Free mode: play the named action from the table's own catalog.
+   *
+   * A separate call from {@link submitAction} rather than one that takes either
+   * vocabulary, because they are not the same move named two ways: one is a
+   * fixed poker action the server knows the rules of, the other an id the host
+   * invented and the server only logs.
+   */
+  submitCatalogAction: (
     definitionId: string,
     amount?: number,
     targetParticipantId?: string,
   ) => void;
-  /** Host: settle the round on the named winners. */
+  /** Host, poker: settle the showdown, one award per pot. */
+  declareWinners: (awards: PotAward[]) => void;
+  /** Host, free mode: settle the round on the named winners. */
   resolveRound: (winnerIds?: string[]) => void;
   /** Host: close the table for good. */
   closeGame: () => void;
   /** Open the form that renames this client's chair. */
   renameSeat: () => void;
-  /** Host: open a further seat at a full table. */
-  addSeat: () => void;
   /** Put the join code where someone else can get at it. */
   shareTable: () => void;
 

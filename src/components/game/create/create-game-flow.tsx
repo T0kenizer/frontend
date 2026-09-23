@@ -29,7 +29,7 @@ export interface CreateGameFlowProps {
 }
 
 /**
- * The shape of a turn: who speaks, in which order, for how long — and what they
+ * A free table's turn: who speaks, in which order, for how long — and what they
  * are allowed to say.
  *
  * The action catalog is the part that reaches the table most directly: what is

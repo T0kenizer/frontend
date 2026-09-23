@@ -2,17 +2,21 @@
 
 import {
   ACTION_CATALOG,
+  DEFAULT_BIG_BLIND,
   DEFAULT_FORCED_BET_AMOUNT,
   DEFAULT_INITIAL_BALANCE,
   DEFAULT_INTERRUPTION_WINDOW,
+  DEFAULT_SMALL_BLIND,
   FORCED_BET_KINDS,
   MAX_SEATS,
   MIN_SEATS,
 } from '@constants/games';
 import {
+  BettingStructure,
   ChipModel,
   Direction,
   EndResolution,
+  GameMode,
   PayoutMode,
   PotMode,
   TurnRegime,
@@ -41,13 +45,20 @@ export interface ForcedBetDraft {
 }
 
 /**
- * Everything the creation screen holds. It is deliberately not a `GameConfig`:
- * a draft carries half-typed names, a per-seat toggle and an interruption
- * window that only matters under one regime, none of which the API knows about.
- * {@link buildGameConfig} is where the two meet.
+ * Everything the creation screen holds.
+ *
+ * It is deliberately not a `GameConfig`: a draft carries half-typed names, a
+ * per-seat toggle and an interruption window that only matters under one
+ * regime, none of which the API knows about. It also carries _both_ modes'
+ * parameters at once, flat — switching the game back and forth must not throw
+ * away what was typed under the other one, and a union here would do exactly
+ * that. {@link buildGameConfig} is where the draft narrows to the one mode it is
+ * actually opening in.
  */
 export interface GameDraft {
   name: string;
+  /** The game being set up. Everything below it is that game's own. */
+  mode: GameMode;
   seats: SeatDraft[];
   defaultInitialBalance: number;
   perSeatStacks: boolean;
@@ -57,7 +68,15 @@ export interface GameDraft {
    * Capped by the plan on top, like the seat count itself.
    */
   allowExtraSeats: boolean;
-  chipModel: ChipModel;
+
+  /** Poker parameters. */
+  smallBlind: number;
+  bigBlind: number;
+  /** Posted by every seat before the blinds; 0 for no ante. */
+  ante: number;
+  bettingStructure: BettingStructure;
+
+  /** Free-mode parameters. */
   potMode: PotMode;
   payoutMode: PayoutMode;
   forcedBets: ForcedBetDraft[];
@@ -67,6 +86,9 @@ export interface GameDraft {
   direction: Direction;
   interruptionWindow: number;
   resolution: EndResolution;
+
+  /** Shared by both modes: how every stack at the table is drawn. */
+  chipModel: ChipModel;
 }
 
 /** What stops the table from opening, and what merely deserves a word. */
@@ -89,6 +111,7 @@ const createSeat = (displayName: string): SeatDraft => ({
 export function createInitialDraft(): GameDraft {
   return {
     name: '',
+    mode: GameMode.Poker,
     seats: Array.from({ length: 4 }, (_, index) =>
       createSeat(`Seat ${index + 1}`),
     ),
@@ -96,7 +119,10 @@ export function createInitialDraft(): GameDraft {
     perSeatStacks: false,
     allowMidGameClaims: true,
     allowExtraSeats: true,
-    chipModel: ChipModel.AbstractBalance,
+    smallBlind: DEFAULT_SMALL_BLIND,
+    bigBlind: DEFAULT_BIG_BLIND,
+    ante: 0,
+    bettingStructure: BettingStructure.NoLimit,
     potMode: PotMode.Single,
     payoutMode: PayoutMode.WinnerTakesAll,
     forcedBets: [
@@ -110,6 +136,7 @@ export function createInitialDraft(): GameDraft {
     direction: Direction.Clockwise,
     interruptionWindow: DEFAULT_INTERRUPTION_WINDOW,
     resolution: EndResolution.Automatic,
+    chipModel: ChipModel.AbstractBalance,
   };
 }
 
@@ -122,25 +149,50 @@ export const seatStack = (draft: GameDraft, seat: SeatDraft): number =>
 export const totalInPlay = (draft: GameDraft): number =>
   draft.seats.reduce((total, seat) => total + seatStack(draft, seat), 0);
 
-/** The draft as the API takes it. */
+/** The seating both modes share, as the API takes it. */
+function buildSeating(draft: GameDraft) {
+  return {
+    seats: draft.seats.map((seat) => ({
+      displayName: seat.displayName.trim(),
+      // Omitted rather than repeated: a seat with no stack of its own keeps
+      // following the table default, including when that default changes.
+      ...(draft.perSeatStacks && seat.initialBalance !== null
+        ? { initialBalance: seat.initialBalance }
+        : {}),
+    })),
+    defaultInitialBalance: draft.defaultInitialBalance,
+    allowMidGameClaims: draft.allowMidGameClaims,
+    allowExtraSeats: draft.allowExtraSeats,
+  };
+}
+
+/**
+ * The draft as the API takes it — one mode's half of it.
+ *
+ * `mode` is the discriminator the whole config hangs off, so it is read first
+ * and nothing from the other game reaches the payload: a free table never
+ * carries blinds, and a poker table never carries an action catalog.
+ */
 export function buildGameConfig(draft: GameDraft): GameConfig {
+  if (draft.mode === GameMode.Poker) {
+    return {
+      mode: GameMode.Poker,
+      seating: buildSeating(draft),
+      rules: {
+        blinds: { small: draft.smallBlind, big: draft.bigBlind },
+        ante: draft.ante,
+        bettingStructure: draft.bettingStructure,
+        chipModel: draft.chipModel,
+      },
+    };
+  }
+
   const isInterruptible = draft.regime === TurnRegime.SequentialInterruptible;
   const isAutomatic = draft.resolution === EndResolution.Automatic;
 
   return {
-    seating: {
-      seats: draft.seats.map((seat) => ({
-        displayName: seat.displayName.trim(),
-        // Omitted rather than repeated: a seat with no stack of its own keeps
-        // following the table default, including when that default changes.
-        ...(draft.perSeatStacks && seat.initialBalance !== null
-          ? { initialBalance: seat.initialBalance }
-          : {}),
-      })),
-      defaultInitialBalance: draft.defaultInitialBalance,
-      allowMidGameClaims: draft.allowMidGameClaims,
-      allowExtraSeats: draft.allowExtraSeats,
-    },
+    mode: GameMode.Free,
+    seating: buildSeating(draft),
     economy: {
       potMode: draft.potMode,
       chipModel: draft.chipModel,
@@ -183,19 +235,57 @@ export function buildGameConfig(draft: GameDraft): GameConfig {
 export function reviewDraft(draft: GameDraft): DraftReview {
   const names = draft.seats.map((seat) => seat.displayName.trim());
 
-  const blocker = names.some((name) => !name)
+  // The seating is the same decision in both games, so it is reviewed once and
+  // before either mode's own parameters: a table with two seats called "Bob"
+  // is wrong whatever is played at it.
+  const seating = names.some((name) => !name)
     ? 'Every seat needs a name.'
     : new Set(names.map((name) => name.toLowerCase())).size !== names.length
       ? 'Two seats share the same name — players will not know where to sit.'
       : draft.seats.length < MIN_SEATS
         ? `A table needs at least ${MIN_SEATS} seats.`
-        : !draft.enabledActions.length
-          ? 'No action is on: players would have nothing to do on their turn.'
-          : draft.forcedBets.some((bet) => bet.seatOffset >= draft.seats.length)
-            ? 'An opening bet is owed by a seat that no longer exists.'
-            : draft.forcedBets.some((bet) => bet.amount < 1)
-              ? 'An opening bet has no amount.'
-              : null;
+        : null;
+
+  const review =
+    draft.mode === GameMode.Poker ? reviewPoker(draft) : reviewFree(draft);
+
+  return { blocker: seating ?? review.blocker, advice: review.advice };
+}
+
+function reviewPoker(draft: GameDraft): DraftReview {
+  const shortestStack = Math.min(
+    ...draft.seats.map((seat) => seatStack(draft, seat)),
+  );
+
+  const blocker =
+    draft.smallBlind < 1 || draft.bigBlind < 1
+      ? 'Both blinds need an amount.'
+      : draft.bigBlind < draft.smallBlind
+        ? 'The big blind cannot be smaller than the small blind.'
+        : shortestStack <= draft.bigBlind
+          ? 'A stack has to be worth more than the big blind it posts.'
+          : null;
+
+  // A twentieth of a stack per hand is the point where a night starts running
+  // itself. Worth saying, never worth refusing.
+  const cost =
+    draft.bigBlind + draft.smallBlind + draft.ante * draft.seats.length;
+  const advice =
+    cost > draft.defaultInitialBalance / 10
+      ? 'The blinds are steep against these stacks — the table will move fast.'
+      : null;
+
+  return { blocker, advice };
+}
+
+function reviewFree(draft: GameDraft): DraftReview {
+  const blocker = !draft.enabledActions.length
+    ? 'No action is on: players would have nothing to do on their turn.'
+    : draft.forcedBets.some((bet) => bet.seatOffset >= draft.seats.length)
+      ? 'An opening bet is owed by a seat that no longer exists.'
+      : draft.forcedBets.some((bet) => bet.amount < 1)
+        ? 'An opening bet has no amount.'
+        : null;
 
   const advice = draft.forcedBets.some(
     (bet) => bet.amount > draft.defaultInitialBalance / 4,
@@ -219,7 +309,9 @@ export interface GameDraftController {
   removeSeat: (key: string) => void;
   setDefaultStack: (stack: number) => void;
   setPerSeatStacks: (on: boolean) => void;
+  /** Free mode: put an action on the table, or take it off. */
   toggleAction: (id: string) => void;
+  /** Free mode: opening bets. */
   addForcedBet: () => void;
   updateForcedBet: (
     key: string,
@@ -231,11 +323,10 @@ export interface GameDraftController {
 /**
  * The state behind the creation screen.
  *
- * It owns the rules that span two parts of the form — removing a seat that a
- * blind was owed by, raising the default stack under seats that were following
- * it — so no section has to know what another one is holding.
- */
-/**
+ * It owns the rules that span two parts of the form — raising the default stack
+ * under seats that were following it, keeping the blinds in step with one
+ * another — so no section has to know what another one is holding.
+ *
  * @param maxSeats Seats a table may open with, capped by the host's plan;
  *   defaults to the hard ceiling the API itself enforces.
  */
@@ -246,7 +337,18 @@ export function useGameDraft(
 
   const patch = React.useCallback(
     (changes: Partial<GameDraft>) =>
-      setDraft((current) => ({ ...current, ...changes })),
+      setDraft((current) => {
+        const next = { ...current, ...changes };
+        // The big blind follows the small one up rather than quietly becoming
+        // illegal under it; a host who wants them apart still sets it after.
+        if (
+          changes.smallBlind !== undefined &&
+          changes.bigBlind === undefined
+        ) {
+          next.bigBlind = Math.max(next.bigBlind, changes.smallBlind);
+        }
+        return next;
+      }),
     [],
   );
 
@@ -286,22 +388,14 @@ export function useGameDraft(
   );
 
   const removeSeat = React.useCallback((key: string) => {
-    setDraft((current) => {
-      if (current.seats.length <= MIN_SEATS) return current;
-
-      const seats = current.seats.filter((seat) => seat.key !== key);
-
-      return {
-        ...current,
-        seats,
-        // A blind owed by the seat that just left has to land somewhere, and
-        // the last remaining seat is the only answer that is always valid.
-        forcedBets: current.forcedBets.map((bet) => ({
-          ...bet,
-          seatOffset: Math.min(bet.seatOffset, seats.length - 1),
-        })),
-      };
-    });
+    setDraft((current) =>
+      current.seats.length <= MIN_SEATS
+        ? current
+        : {
+            ...current,
+            seats: current.seats.filter((seat) => seat.key !== key),
+          },
+    );
   }, []);
 
   const setDefaultStack = React.useCallback((stack: number) => {
@@ -337,6 +431,9 @@ export function useGameDraft(
   const toggleAction = React.useCallback((id: string) => {
     setDraft((current) => ({
       ...current,
+      // Rebuilt from the catalog rather than appended to, so the enabled ids
+      // stay in the order the form lists them in — which is the order the
+      // buttons then appear in at the table.
       enabledActions: current.enabledActions.includes(id)
         ? current.enabledActions.filter((actionId) => actionId !== id)
         : ACTION_CATALOG.filter(

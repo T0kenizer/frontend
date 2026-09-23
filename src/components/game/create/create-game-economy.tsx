@@ -45,8 +45,12 @@ export interface CreateGameEconomyProps {
 }
 
 /**
- * How the table counts, pools and pays out — and what it takes off the players
- * before a round is even played.
+ * How a free table counts, pools and pays out — and what it takes off the
+ * players before a round is even played.
+ *
+ * Poker asks none of this: its pot, its payout and its forced bets all follow
+ * from the rules of the game, and the host is only asked for the stakes. Here
+ * there are no rules to follow from, so every one of them is a question.
  */
 export const CreateGameEconomy: React.FC<CreateGameEconomyProps> = ({
   controller,
