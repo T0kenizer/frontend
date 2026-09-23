@@ -24,8 +24,6 @@ export const validateResetTokenOptions = (token: string) =>
     queryKey: PASSWORD_RESETS_QUERY_KEYS.validate(token),
     queryFn: () => API.validateToken(token),
     enabled: !!token,
-    // A token is single-use and short-lived: never retry it, never serve it
-    // stale once it has been spent.
     retry: false,
     staleTime: 0,
     gcTime: 0,
@@ -41,8 +39,6 @@ export const applyResetOptions = () =>
   mutationOptions<void, RequesterError, { token: string } & ApplyResetData>({
     mutationKey: PASSWORD_RESETS_MUTATION_KEYS.apply(),
     mutationFn: ({ token, ...data }) => API.applyReset(token, data),
-    // The token is spent once this resolves, so a cached validation of it must
-    // not survive to make the link look usable again.
     onSuccess: (_data, { token }) => {
       getQueryClient().removeQueries({
         queryKey: PASSWORD_RESETS_QUERY_KEYS.validate(token),

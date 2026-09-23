@@ -8,10 +8,10 @@ import {
   SidebarFooter as UISidebarFooter,
   useSidebar,
 } from '@components/ui/sidebar';
+import ROUTES from '@constants/routes';
 import { SerializedUser } from '@tokenizer/shared/types';
 import { Play, Plus } from 'lucide-react';
 import Link from 'next/link';
-import * as React from 'react';
 
 export interface SidebarFooterProps {
   user?: SerializedUser;
@@ -26,20 +26,29 @@ export const SidebarFooter: React.FC<SidebarFooterProps> = ({ user }) => {
       {isMobile && (
         <SidebarGroup>
           <SidebarGroupContent className="flex flex-col gap-3">
-            {user && (
+            {user ? (
+              <>
+                <Button size="sm" asChild>
+                  <Link href={ROUTES.game.new()} onClick={close}>
+                    <Plus />
+                    New Game
+                  </Link>
+                </Button>
+                <Button size="sm" variant="secondary" asChild>
+                  <Link href={ROUTES.game.join()}>
+                    <Play />
+                    Join
+                  </Link>
+                </Button>
+              </>
+            ) : (
               <Button size="sm" asChild>
-                <Link href="#" onClick={close}>
-                  <Plus />
-                  New Game
+                <Link href={ROUTES.game.join()} onClick={close}>
+                  <Play />
+                  Join
                 </Link>
               </Button>
             )}
-            <Button size="sm" variant="secondary" asChild>
-              <Link href="#" onClick={close}>
-                <Play />
-                Join
-              </Link>
-            </Button>
           </SidebarGroupContent>
         </SidebarGroup>
       )}

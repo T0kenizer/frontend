@@ -1,5 +1,7 @@
+import { getQueryClient } from '@lib/query-client';
 import { RequesterError } from '@lib/requester';
 import * as API from '@services/account-confirmations/account-confirmations.api';
+import { SESSIONS_QUERY_KEYS } from '@services/sessions/sessions.options';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 import {
   RequestConfirmationData,
@@ -40,4 +42,13 @@ export const applyConfirmationOptions = () =>
   mutationOptions<void, RequesterError, { token: string }>({
     mutationKey: ACCOUNT_CONFIRMATIONS_MUTATION_KEYS.apply(),
     mutationFn: ({ token }) => API.applyConfirmation(token),
+    // A signed-in user's cached session still reports the account as
+    // unconfirmed once this resolves. The spent validation is left alone on
+    // purpose: removing it would make the still-mounted confirmation page
+    // refetch a token the backend has just consumed.
+    onSuccess: () => {
+      getQueryClient().invalidateQueries({
+        queryKey: SESSIONS_QUERY_KEYS.retrieve('current'),
+      });
+    },
   });

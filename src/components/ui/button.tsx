@@ -20,6 +20,8 @@ export const buttonVariants = cva(
           'hover:bg-muted aria-expanded:bg-muted text-muted-foreground aria-invalid:border-destructive aria-invalid:text-destructive',
         destructive:
           'bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40',
+        'ghost-destructive':
+          'text-muted-foreground hover:bg-muted hover:text-destructive aria-expanded:bg-muted focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
         inverse:
           'bg-inverse text-inverse-foreground [box-shadow:0_6px_0_var(--primary-lip),0_12px_24px_-10px_var(--primary-glow)] active:not-aria-[haspopup]:translate-y-1 active:[box-shadow:0_2px_0_var(--primary-lip),0_4px_12px_-8px_var(--primary-glow)] disabled:[box-shadow:none]',
         link: 'text-primary underline-offset-4 hover:underline',
@@ -36,6 +38,7 @@ export const buttonVariants = cva(
         xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
         lg: 'h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
+        xl: 'h-11 gap-2 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3',
         icon: 'size-8',
         'icon-xs':
           "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",

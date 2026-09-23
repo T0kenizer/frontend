@@ -1,43 +1,48 @@
 'use client';
 
-import { Button } from '@components/ui/button';
+import { EmailInput } from '@components/inputs/email-input';
+import { UsernameInput } from '@components/inputs/username-input';
+import { EmailConfirmationNotice } from '@components/settings/email-confirmation-notice';
+import { SettingsRow } from '@components/settings/settings-row';
+import { useSettingsSaveBar } from '@components/settings/settings-save-bar';
+import { Field, FieldError } from '@components/ui/field';
 import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@components/ui/field';
-import { Input } from '@components/ui/input';
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@components/ui/input-group';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { applyServerError } from '@lib/form-errors';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { partialUpdateUserOptions } from '@services/users/users.options';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { userInputSchema } from '@tokenizer/shared/schemas';
+import { partialUpdateUserDataSchema } from '@tokenizer/shared/schemas';
 import { PartialUpdateUserData } from '@tokenizer/shared/types';
+import { User } from 'lucide-react';
+import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-const schema = userInputSchema.pick({
-  username: true,
-  displayName: true,
-  email: true,
-});
+type FormData = z.infer<typeof partialUpdateUserDataSchema>;
 
-type FormData = z.infer<typeof schema>;
+const DISCARD_DIRTY = { keepDirtyValues: false } as const;
 
 export const ProfileForm: React.FC = () => {
   const { data: session } = useQuery(retrieveSessionOptions());
   const user = session?.user;
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(schema),
-    values: {
-      username: user?.username ?? '',
+  const values: FormData = useMemo(
+    () => ({
       displayName: user?.displayName ?? '',
       email: user?.email ?? '',
-    },
+    }),
+    [user?.displayName, user?.email],
+  );
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(partialUpdateUserDataSchema),
+    values,
     resetOptions: { keepDirtyValues: true },
   });
   const { mutate: partialUpdateUser, isPending } = useMutation(
@@ -47,11 +52,9 @@ export const ProfileForm: React.FC = () => {
   const handleSubmit = (data: FormData) => {
     if (isPending || !user) return;
 
-    // Partial update: only the fields the user actually touched are sent.
     const { dirtyFields } = form.formState;
     const payload: PartialUpdateUserData = {};
 
-    if (dirtyFields.username) payload.username = data.username;
     if (dirtyFields.displayName) payload.displayName = data.displayName;
     if (dirtyFields.email) payload.email = data.email;
 
@@ -61,6 +64,7 @@ export const ProfileForm: React.FC = () => {
       { uuid: user.uuid, data: payload },
       {
         onSuccess: () => {
+          form.reset(data, DISCARD_DIRTY);
           toast.success(
             payload.email !== undefined
               ? 'Profile updated — check your inbox to confirm your new email address'
@@ -72,67 +76,67 @@ export const ProfileForm: React.FC = () => {
     );
   };
 
+  useSettingsSaveBar({
+    dirtyCount: Object.keys(form.formState.dirtyFields).length,
+    isPending,
+    onSave: form.handleSubmit(handleSubmit),
+    onReset: () => form.reset(values, DISCARD_DIRTY),
+  });
+
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)}>
-      <FieldGroup>
-        <Controller
-          name="username"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="profile-username">Username</FieldLabel>
-              <Input
-                {...field}
-                id="profile-username"
-                autoComplete="username"
-                aria-invalid={fieldState.invalid}
-              />
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="contents">
+      <SettingsRow label="Username" htmlFor="profile-username">
+        <UsernameInput
+          id="profile-username"
+          value={user?.username ?? ''}
+          groupClassName="max-w-sm"
+          disabled
+        />
+      </SettingsRow>
+      <Controller
+        name="displayName"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <SettingsRow label="Display name" htmlFor="profile-display-name">
+            <Field data-invalid={fieldState.invalid} className="gap-1.5">
+              <InputGroup className="max-w-sm">
+                <InputGroupAddon>
+                  <User />
+                </InputGroupAddon>
+                <InputGroupInput
+                  {...field}
+                  value={field.value ?? ''}
+                  id="profile-display-name"
+                  autoComplete="name"
+                  aria-invalid={fieldState.invalid}
+                  placeholder={user?.displayName ?? ''}
+                />
+              </InputGroup>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
-          )}
-        />
-        <Controller
-          name="displayName"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="profile-display-name">
-                Display name
-              </FieldLabel>
-              <Input
-                {...field}
-                id="profile-display-name"
-                autoComplete="name"
-                aria-invalid={fieldState.invalid}
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
-        <Controller
-          name="email"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="profile-email">Email</FieldLabel>
-              <Input
+          </SettingsRow>
+        )}
+      />
+      <Controller
+        name="email"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <SettingsRow label="Email" htmlFor="profile-email">
+            <Field data-invalid={fieldState.invalid} className="gap-1.5">
+              <EmailInput
                 {...field}
                 id="profile-email"
                 autoComplete="email"
                 aria-invalid={fieldState.invalid}
+                groupClassName="max-w-sm"
+                placeholder={user?.email ?? ''}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              <EmailConfirmationNotice />
             </Field>
-          )}
-        />
-        <Button
-          type="submit"
-          disabled={isPending || !form.formState.isDirty}
-          className="w-full"
-        >
-          Save changes
-        </Button>
-      </FieldGroup>
+          </SettingsRow>
+        )}
+      />
     </form>
   );
 };

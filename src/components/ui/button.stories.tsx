@@ -6,6 +6,7 @@ import {
   CoinsIcon,
   ExternalLinkIcon,
   LogInIcon,
+  LogOutIcon,
   MenuIcon,
   PlayIcon,
   PlusIcon,
@@ -41,6 +42,7 @@ const meta = {
         'paper',
         'ghost',
         'destructive',
+        'ghost-destructive',
         'danger',
         'inverse',
         'link',
@@ -112,6 +114,18 @@ export const Destructive: Story = {
   render: withAndWithoutIcon(
     <Trash2Icon data-icon="inline-start" />,
     'Delete game',
+  ),
+};
+
+/**
+ * Quiet until hovered: a destructive action that sits among neutral ones, such
+ * as signing out from the settings navigation.
+ */
+export const GhostDestructive: Story = {
+  args: { variant: 'ghost-destructive', children: 'Sign out' },
+  render: withAndWithoutIcon(
+    <LogOutIcon data-icon="inline-start" />,
+    'Sign out',
   ),
 };
 
@@ -232,6 +246,11 @@ export const AllVariants: Story = {
         <Button variant="destructive">
           <Trash2Icon data-icon="inline-start" />
           Destructive
+        </Button>
+        <Button variant="ghost-destructive">Ghost destructive</Button>
+        <Button variant="ghost-destructive">
+          <LogOutIcon data-icon="inline-start" />
+          Ghost destructive
         </Button>
         <Button variant="danger">Danger</Button>
         <Button variant="danger">

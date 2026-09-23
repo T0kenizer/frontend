@@ -5,6 +5,8 @@ WORKDIR /app
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
+RUN apk add --no-cache git
+
 COPY package*.json ./
 RUN npm ci
 
