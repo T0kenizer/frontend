@@ -20,6 +20,7 @@ import { Input } from '@components/ui/input';
 import { GAME_NAME_MAX_LENGTH } from '@constants/games';
 import ROUTES from '@constants/routes';
 import { useGameDraft } from '@hooks/use-game-draft';
+import { useGameName } from '@hooks/use-game-name';
 import { useMaxSeats } from '@hooks/use-plan';
 import { createGameOptions } from '@services/games/games.options';
 import { writePlayerToken } from '@services/games/games.tokens';
@@ -27,7 +28,6 @@ import { useMutation } from '@tanstack/react-query';
 import { GameMode } from '@tokenizer/shared/types';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import * as React from 'react';
 import { toast } from 'sonner';
 
 export const CreateGame: React.FC = () => {
@@ -35,18 +35,20 @@ export const CreateGame: React.FC = () => {
   const maxSeats = useMaxSeats();
   const controller = useGameDraft(maxSeats);
   const { draft, config, review, patch } = controller;
+  const name = useGameName(draft.name);
 
   const { mutate: createGame, isPending } = useMutation(createGameOptions());
 
   const handleCreate = () => {
     if (review.blocker || isPending) return;
 
-    const name = draft.name.trim();
-
     createGame(
       {
         mode: draft.mode,
-        ...(name ? { name } : {}),
+        // Always a name: the API requires one, and what an unnamed table is
+        // called is decided here rather than server-side, so the overview beside
+        // this form shows the very name the table opens under.
+        name,
         // Always the whole config: a host who may open the mode may set it up,
         // because how configurable a table is belongs to the mode rather than
         // to the plan. What the plan still caps is the seat count, which the
