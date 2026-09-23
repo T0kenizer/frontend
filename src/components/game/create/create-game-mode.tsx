@@ -45,11 +45,16 @@ export const CreateGameMode: React.FC<CreateGameModeProps> = ({
   onSelect,
 }) => {
   const { data: modes, isPending } = useQuery(listGameModesOptions());
+  const { modes: allowedModes } = useFeatureMetadata(FeatureFlag.CreateGame);
+
+  const available = modes?.filter((entry) =>
+    allowedModes.includes(entry.mode),
+  ).length;
 
   return (
     <CreateGameSection
       title="The game"
-      meta={modes?.length ? `${modes.length} available` : undefined}
+      meta={available ? `${available} available` : undefined}
     >
       <div className="py-2">
         {isPending && <CreateGameHint>Loading the games…</CreateGameHint>}
@@ -60,32 +65,61 @@ export const CreateGameMode: React.FC<CreateGameModeProps> = ({
 
         <ul className="grid gap-2 sm:grid-cols-2">
           {modes?.map((entry) => {
-            const isSelected = entry.mode === selected;
+            const isLocked = !allowedModes.includes(entry.mode);
+            const isSelected = !isLocked && entry.mode === selected;
 
             return (
               <li key={entry.mode}>
                 <button
                   type="button"
+                  disabled={isLocked}
                   aria-pressed={isSelected}
                   onClick={() => onSelect(entry.mode)}
                   className={cn(
                     'border-on-media-hairline bg-on-media-scrim flex w-full flex-col gap-1.5 rounded-xl border p-3 text-left transition-colors',
-                    isSelected
-                      ? 'border-warning bg-on-media-film'
-                      : 'hover:bg-on-media-film',
+                    isLocked
+                      ? 'cursor-not-allowed opacity-55'
+                      : isSelected
+                        ? 'border-warning bg-on-media-film'
+                        : 'hover:bg-on-media-film',
                   )}
                 >
                   <span className="flex items-center justify-between gap-2">
-                    <span className="text-on-media-foreground text-sm font-bold">
-                      {entry.name}
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="text-on-media-foreground text-sm font-bold">
+                        {entry.name}
+                      </span>
+                      {entry.experimental && (
+                        <FeltBadge tone="solid">Experimental</FeltBadge>
+                      )}
                     </span>
-                    {isSelected && (
-                      <Check className="text-warning size-4 shrink-0" />
+                    {isLocked ? (
+                      <Lock className="text-on-media-muted-foreground size-4 shrink-0" />
+                    ) : (
+                      isSelected && (
+                        <Check className="text-warning size-4 shrink-0" />
+                      )
                     )}
                   </span>
                   <span className="text-on-media-muted-foreground text-xs leading-relaxed">
                     {entry.description}
                   </span>
+                  {/* What it would take to open one, rather than the bare fact
+                      that you cannot: a lock that does not say how to get past
+                      it is just a dead card on the screen. */}
+                  {isLocked && (
+                    <span className="text-on-media-muted-foreground text-xs leading-relaxed">
+                      Part of the paid plan — upgrade to open a table in this
+                      game.
+                    </span>
+                  )}
+                  {/* Only once it is the table being opened: on every card it
+                      would read as a warning about the list, not the choice. */}
+                  {entry.experimental && isSelected && (
+                    <span className="text-warning text-xs leading-relaxed">
+                      {EXPERIMENTAL_MODE_NOTE[entry.mode]}
+                    </span>
+                  )}
                 </button>
               </li>
             );
