@@ -11,7 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import * as React from 'react';
+import { useLayoutEffect } from 'react';
 
 interface GameRoomProps {
   gameId: string;
@@ -64,7 +64,7 @@ export const GameRoom: React.FC<GameRoomProps> = ({ gameId }) => {
 
   const isMember = token !== null;
 
-  React.useEffect(() => {
+  useLayoutEffect(() => {
     if (!isMember) router.replace(ROUTES.game.join(gameId));
   }, [isMember, gameId, router]);
 

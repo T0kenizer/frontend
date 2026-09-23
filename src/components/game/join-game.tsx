@@ -18,14 +18,9 @@ import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import * as React from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 
 export interface JoinGameProps {
-  /**
-   * The table to join, when the visitor already named one — a link, or a QR
-   * they scanned somewhere other than this screen. Undefined means the flow
-   * starts at the identification step.
-   */
   gameUuid?: string;
 }
 
@@ -51,8 +46,8 @@ export interface JoinGameProps {
  */
 export const JoinGame: React.FC<JoinGameProps> = ({ gameUuid }) => {
   const router = useRouter();
-  const [isScanning, setIsScanning] = React.useState(false);
-  const [picked, setPicked] = React.useState<Nullable<PickedSeat>>(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const [picked, setPicked] = useState<Nullable<PickedSeat>>(null);
 
   // Already holding a seat at this table? Then there is nothing to join. This
   // is the mirror of the gate on `/game/:uuid`, and between them a player is
@@ -63,22 +58,16 @@ export const JoinGame: React.FC<JoinGameProps> = ({ gameUuid }) => {
   const token = usePlayerToken(gameUuid);
   const isSeated = gameUuid !== undefined && token !== null;
 
-  React.useEffect(() => {
+  useLayoutEffect(() => {
     if (isSeated && gameUuid) router.replace(ROUTES.game(gameUuid));
   }, [isSeated, gameUuid, router]);
 
-  // Who the player is stays a server decision: the join call reads the session
-  // cookie if there is one. Gating on the query means a signed-in visitor is
-  // never seated before their cookie could be read, which would seat them as a
-  // guest.
   const { data: session, isSuccess } = useQuery(retrieveSessionOptions());
-  const defaultDisplayName =
-    session?.user.displayName ?? session?.user.username;
 
   const game = useGameSession({ gameId: gameUuid, enabled: isSuccess });
   const { mutateAsync: joinByCode } = useMutation(joinByCodeOptions());
 
-  const goToTable = React.useCallback(
+  const goToTable = useCallback(
     (uuid: string) => router.push(ROUTES.game.join(uuid)),
     [router],
   );
@@ -88,7 +77,7 @@ export const JoinGame: React.FC<JoinGameProps> = ({ gameUuid }) => {
     goToTable(resolved);
   };
 
-  const handleScanned = React.useCallback(
+  const handleScanned = useCallback(
     (uuid: string) => {
       setIsScanning(false);
       goToTable(uuid);
@@ -172,7 +161,7 @@ export const JoinGame: React.FC<JoinGameProps> = ({ gameUuid }) => {
           snapshot={snapshot}
           seatIndex={picked.seatIndex}
           isNewSeat={picked.kind === 'new'}
-          defaultDisplayName={defaultDisplayName}
+          defaultDisplayName={session?.user?.displayName}
           onBack={() => setPicked(null)}
           onSit={async (data) => {
             // A chair that does not exist yet is opened and claimed by the
