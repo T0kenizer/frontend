@@ -5,6 +5,7 @@ import { SeatPuck } from '@components/game/table/seat-puck';
 import type { RingGeometry } from '@components/game/table/table-geometry';
 import type { ChipFlight } from '@components/game/table/use-chip-flights';
 import type { SeatView } from '@components/game/table/use-table-view';
+import { ScrollFade } from '@components/ui/scroll-fade';
 import { cn } from '@lib/utils';
 import type { ChipModel } from '@tokenizer/shared/types';
 import { motion } from 'motion/react';
@@ -140,18 +141,20 @@ const SeatRail: React.FC<{ seats: SeatView[]; chipModel: ChipModel }> = ({
         </span>
       </p>
 
-      <div className="flex [scrollbar-width:none] gap-2.5 overflow-x-auto px-4 pb-4 [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        {seats.map((view, index) => (
-          <SeatPuck
-            key={view.seat.id}
-            view={view}
-            index={index}
-            chipModel={chipModel}
-            size="sm"
-            className="shrink-0 snap-start"
-          />
-        ))}
-      </div>
+      <ScrollFade asChild>
+        <div className="flex scrollbar-none gap-2.5 px-4 pb-4 [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          {seats.map((view, index) => (
+            <SeatPuck
+              key={view.seat.id}
+              view={view}
+              index={index}
+              chipModel={chipModel}
+              size="sm"
+              className="shrink-0 snap-start"
+            />
+          ))}
+        </div>
+      </ScrollFade>
     </div>
   );
 };

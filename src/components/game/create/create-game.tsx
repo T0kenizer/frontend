@@ -86,7 +86,7 @@ export const CreateGame: React.FC = () => {
         description="Pick the game, name the table, set it up. Everything below stays editable until you open it."
       />
 
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_21rem]">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-[minmax(0,1fr)_21rem]">
         <form
           className="flex flex-col gap-4"
           onSubmit={(event) => event.preventDefault()}

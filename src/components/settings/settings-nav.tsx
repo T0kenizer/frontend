@@ -2,6 +2,7 @@
 
 import { Badge } from '@components/ui/badge';
 import { Button } from '@components/ui/button';
+import { ScrollFade } from '@components/ui/scroll-fade';
 import ROUTES from '@constants/routes';
 import { cn } from '@lib/utils';
 import { useSignOut } from '@services/sessions/sessions.hooks';
@@ -20,7 +21,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export const settingsNavVariants = cva(
-  'flex gap-1 overflow-x-auto border-b pb-1 lg:sticky lg:top-8 lg:flex-col lg:overflow-visible lg:border-b-0 lg:pb-0',
+  'flex gap-1 border-b pb-1 lg:sticky lg:top-8 lg:flex-col lg:overflow-visible lg:border-b-0 lg:pb-0',
 );
 
 export const settingsNavItemVariants = cva(
@@ -84,68 +85,70 @@ export const SettingsNav: React.FC<SettingsNavProps> = ({
   };
 
   return (
-    <nav
-      data-slot="settings-nav"
-      aria-label="Settings sections"
-      className={cn(settingsNavVariants(), className)}
-      {...props}
-    >
-      {items.map((item) => {
-        const itemClassName = settingsNavItemVariants();
+    <ScrollFade asChild>
+      <nav
+        data-slot="settings-nav"
+        aria-label="Settings sections"
+        className={cn(settingsNavVariants(), className)}
+        {...props}
+      >
+        {items.map((item) => {
+          const itemClassName = settingsNavItemVariants();
 
-        if (item.disabled)
+          if (item.disabled)
+            return (
+              <span
+                key={item.id}
+                data-slot="settings-nav-item"
+                aria-disabled
+                data-disabled
+                className={itemClassName}
+              >
+                {item.renderIcon()}
+                {item.label}
+                <Lock className="ml-auto size-3.5!" />
+              </span>
+            );
+
+          const isActive = item.id === activeId;
+          const count = attention[item.id] ?? 0;
+
           return (
-            <span
+            <Link
               key={item.id}
+              href={item.href}
               data-slot="settings-nav-item"
-              aria-disabled
-              data-disabled
+              aria-current={isActive ? 'page' : undefined}
+              data-active={isActive || undefined}
               className={itemClassName}
             >
               {item.renderIcon()}
               {item.label}
-              <Lock className="ml-auto size-3.5!" />
-            </span>
+              {count > 0 && (
+                <Badge
+                  variant="notification"
+                  size="sm"
+                  className="ml-auto"
+                  aria-label={`${count} item${count > 1 ? 's' : ''} needing attention`}
+                >
+                  {count}
+                </Badge>
+              )}
+            </Link>
           );
-
-        const isActive = item.id === activeId;
-        const count = attention[item.id] ?? 0;
-
-        return (
-          <Link
-            key={item.id}
-            href={item.href}
-            data-slot="settings-nav-item"
-            aria-current={isActive ? 'page' : undefined}
-            data-active={isActive || undefined}
-            className={itemClassName}
-          >
-            {item.renderIcon()}
-            {item.label}
-            {count > 0 && (
-              <Badge
-                variant="notification"
-                size="sm"
-                className="ml-auto"
-                aria-label={`${count} item${count > 1 ? 's' : ''} needing attention`}
-              >
-                {count}
-              </Badge>
-            )}
-          </Link>
-        );
-      })}
-      <hr className="mx-1 h-5 w-0 shrink-0 self-center border-t-0 border-l lg:mx-0 lg:my-3 lg:h-0 lg:w-auto lg:self-auto lg:border-t lg:border-l-0" />
-      <Button
-        variant="ghost-destructive"
-        size="lg"
-        onClick={handleSignOut}
-        loading={isSigningOut}
-        className="text-sidebar-foreground/50 justify-start gap-2.5 rounded-md font-medium"
-      >
-        <LogOut />
-        Sign out
-      </Button>
-    </nav>
+        })}
+        <hr className="mx-1 h-5 w-0 shrink-0 self-center border-t-0 border-l lg:mx-0 lg:my-3 lg:h-0 lg:w-auto lg:self-auto lg:border-t lg:border-l-0" />
+        <Button
+          variant="ghost-destructive"
+          size="lg"
+          onClick={handleSignOut}
+          loading={isSigningOut}
+          className="text-sidebar-foreground/50 justify-start gap-2.5 rounded-md font-medium"
+        >
+          <LogOut />
+          Sign out
+        </Button>
+      </nav>
+    </ScrollFade>
   );
 };
