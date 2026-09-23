@@ -1,72 +1,160 @@
+import Token1At128 from '@assets/images/chips/128/token-1.png';
+import Token10At128 from '@assets/images/chips/128/token-10.png';
+import Token100At128 from '@assets/images/chips/128/token-100.png';
+import Token1kAt128 from '@assets/images/chips/128/token-1k.png';
+import Token25At128 from '@assets/images/chips/128/token-25.png';
+import Token5At128 from '@assets/images/chips/128/token-5.png';
+import Token50At128 from '@assets/images/chips/128/token-50.png';
+import Token500At128 from '@assets/images/chips/128/token-500.png';
+import Token1At256 from '@assets/images/chips/256/token-1.png';
+import Token10At256 from '@assets/images/chips/256/token-10.png';
+import Token100At256 from '@assets/images/chips/256/token-100.png';
+import Token1kAt256 from '@assets/images/chips/256/token-1k.png';
+import Token25At256 from '@assets/images/chips/256/token-25.png';
+import Token5At256 from '@assets/images/chips/256/token-5.png';
+import Token50At256 from '@assets/images/chips/256/token-50.png';
+import Token500At256 from '@assets/images/chips/256/token-500.png';
+import Token1At512 from '@assets/images/chips/512/token-1.png';
+import Token10At512 from '@assets/images/chips/512/token-10.png';
+import Token100At512 from '@assets/images/chips/512/token-100.png';
+import Token1kAt512 from '@assets/images/chips/512/token-1k.png';
+import Token25At512 from '@assets/images/chips/512/token-25.png';
+import Token5At512 from '@assets/images/chips/512/token-5.png';
+import Token50At512 from '@assets/images/chips/512/token-50.png';
+import Token500At512 from '@assets/images/chips/512/token-500.png';
+import Token1At64 from '@assets/images/chips/64/token-1.png';
+import Token10At64 from '@assets/images/chips/64/token-10.png';
+import Token100At64 from '@assets/images/chips/64/token-100.png';
+import Token1kAt64 from '@assets/images/chips/64/token-1k.png';
+import Token25At64 from '@assets/images/chips/64/token-25.png';
+import Token5At64 from '@assets/images/chips/64/token-5.png';
+import Token50At64 from '@assets/images/chips/64/token-50.png';
+import Token500At64 from '@assets/images/chips/64/token-500.png';
+import { cn } from '@lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
+import Image, { type StaticImageData } from 'next/image';
 import * as React from 'react';
 
-import { cn } from '@lib/utils';
-
-/**
- * The denominations a chip can be minted in, in ascending order. They mirror
- * the `--chip-*` rim tokens, so a chip and a chip-rimmed card of the same value
- * always read as the same colour.
- */
 export const CHIP_DENOMINATIONS = [1, 5, 10, 25, 50, 100, 500, '1k'] as const;
 
 export type ChipDenomination = (typeof CHIP_DENOMINATIONS)[number];
 
-export const chipVariants = cva(
-  'chip-disc font-heading leading-none font-extrabold tracking-[-0.04em] tabular-nums select-none',
-  {
-    variants: {
-      /**
-       * Face colour, and — for the pale faces — a dark edge spot and dark
-       * value, which are the only two that would otherwise lose their
-       * contrast.
-       */
-      denomination: {
-        1: '[--chip-face:var(--color-chip-1)] [--chip-ink:var(--chip-stripe-dark)] [--chip-stripe:var(--chip-stripe-dark)]',
-        5: '[--chip-face:var(--color-chip-5)]',
-        10: '[--chip-face:var(--color-chip-10)]',
-        25: '[--chip-face:var(--color-chip-25)]',
-        50: '[--chip-face:var(--color-chip-50)] [--chip-ink:var(--chip-stripe-dark)] [--chip-stripe:var(--chip-stripe-dark)]',
-        100: '[--chip-face:var(--color-chip-100)]',
-        500: '[--chip-face:var(--color-chip-500)]',
-        '1k': '[--chip-face:var(--color-chip-1k)] [--chip-ink:var(--chip-stripe-dark)] [--chip-stripe:var(--chip-stripe-dark)]',
-      },
-      size: {
-        sm: '[--chip-size:1.75rem] text-[0.5rem]',
-        default: '[--chip-size:2.5rem] text-[0.675rem]',
-        lg: '[--chip-size:2.75rem] text-[0.75rem]',
-      },
-    },
-    defaultVariants: {
-      denomination: 5,
-      size: 'default',
+export const CHIP_SIZES = [32, 48, 64, 128, 256, 512] as const;
+
+export type ChipSize = (typeof CHIP_SIZES)[number];
+
+export const CHIP_IMAGES: Record<
+  ChipDenomination,
+  Record<ChipSize, StaticImageData>
+> = {
+  1: {
+    32: Token1At64,
+    48: Token1At64,
+    64: Token1At64,
+    128: Token1At128,
+    256: Token1At256,
+    512: Token1At512,
+  },
+  5: {
+    32: Token5At64,
+    48: Token5At64,
+    64: Token5At64,
+    128: Token5At128,
+    256: Token5At256,
+    512: Token5At512,
+  },
+  10: {
+    32: Token10At64,
+    48: Token10At64,
+    64: Token10At64,
+    128: Token10At128,
+    256: Token10At256,
+    512: Token10At512,
+  },
+  25: {
+    32: Token25At64,
+    48: Token25At64,
+    64: Token25At64,
+    128: Token25At128,
+    256: Token25At256,
+    512: Token25At512,
+  },
+  50: {
+    32: Token50At64,
+    48: Token50At64,
+    64: Token50At64,
+    128: Token50At128,
+    256: Token50At256,
+    512: Token50At512,
+  },
+  100: {
+    32: Token100At64,
+    48: Token100At64,
+    64: Token100At64,
+    128: Token100At128,
+    256: Token100At256,
+    512: Token100At512,
+  },
+  500: {
+    32: Token500At64,
+    48: Token500At64,
+    64: Token500At64,
+    128: Token500At128,
+    256: Token500At256,
+    512: Token500At512,
+  },
+  '1k': {
+    32: Token1kAt64,
+    48: Token1kAt64,
+    64: Token1kAt64,
+    128: Token1kAt128,
+    256: Token1kAt256,
+    512: Token1kAt512,
+  },
+};
+
+const DEFAULT_SIZE: ChipSize = 64;
+
+export const chipVariants = cva('shrink-0 object-contain select-none', {
+  variants: {
+    size: {
+      32: 'size-8',
+      48: 'size-12',
+      64: 'size-16',
+      128: 'size-32',
+      256: 'size-64',
+      512: 'size-128',
     },
   },
-);
+  defaultVariants: {
+    size: DEFAULT_SIZE,
+  },
+});
 
 export interface ChipProps
   extends
-    Omit<React.ComponentPropsWithoutRef<'span'>, 'children'>,
-    VariantProps<typeof chipVariants> {}
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Image>,
+      'src' | 'alt' | 'width' | 'height'
+    >,
+    VariantProps<typeof chipVariants> {
+  denomination?: ChipDenomination;
+  alt?: string;
+}
 
-/**
- * A poker chip seen face-on, painted in CSS from the denomination tokens.
- *
- * The value is rendered as text rather than baked into the face, so a chip is
- * readable by a screen reader and searchable like any other number on screen.
- */
 export const Chip: React.FC<ChipProps> = ({
   className,
   denomination = 5,
   size,
+  alt,
   ...props
 }) => (
-  <span
+  <Image
     data-slot="chip"
     data-denomination={denomination}
-    className={cn(chipVariants({ denomination, size }), className)}
+    src={CHIP_IMAGES[denomination][size ?? DEFAULT_SIZE]}
+    alt={alt ?? `${denomination} chip`}
+    className={cn(chipVariants({ size }), className)}
     {...props}
-  >
-    <span className="relative">{String(denomination).toUpperCase()}</span>
-  </span>
+  />
 );

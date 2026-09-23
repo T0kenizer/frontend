@@ -9,7 +9,6 @@ import { formatAmount } from '@lib/amount';
 import { cn } from '@lib/utils';
 import { ChipModel } from '@tokenizer/shared/types';
 import { AnimatePresence, motion } from 'motion/react';
-import * as React from 'react';
 
 /**
  * What a seat is holding.
@@ -97,11 +96,12 @@ export const SeatStack: React.FC<SeatStackProps> = ({
             <Chip
               key={`${denomination}-${index}`}
               denomination={denomination}
-              size="sm"
+              alt=""
               className={cn(
-                'ring-felt-deep/70 shadow-[0_1px_3px_oklch(0_0_0/.5)] ring-1',
-                size === 'sm' && 'text-[0.45rem] [--chip-size:1.15rem]',
-                size === 'default' && 'text-[0.5rem] [--chip-size:1.35rem]',
+                // Follows the art's alpha, so the chip reads against the felt
+                // without a box around a round image.
+                'drop-shadow-[0_1px_3px_oklch(0_0_0/.5)]',
+                size === 'sm' ? 'size-[1.15rem]' : 'size-[1.35rem]',
               )}
             />
           ))}

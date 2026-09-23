@@ -6,16 +6,12 @@ import {
   CreateGameSection,
   CreateGameSegment,
 } from '@components/game/create/create-game-stage';
-import { Chip } from '@components/ui/chip';
+import { ChipsGroup } from '@components/ui/chips-group';
 import { Input } from '@components/ui/input';
 import { BETTING_STRUCTURES } from '@constants/games';
 import type { GameDraftController } from '@hooks/use-game-draft';
 import { toAmount } from '@lib/amount';
 import { BettingStructure, ChipModel } from '@tokenizer/shared/types';
-import * as React from 'react';
-
-/** The denominations shown as a sample of what a chip table plays with. */
-const SAMPLE_CHIPS = [1, 5, 25, 100] as const;
 
 export interface CreateGameStakesProps {
   controller: GameDraftController;
@@ -134,13 +130,7 @@ export const CreateGameStakes: React.FC<CreateGameStakesProps> = ({
             { value: ChipModel.Denominated, label: 'Chips' },
           ]}
         />
-        {draft.chipModel === ChipModel.Denominated && (
-          <div className="flex gap-2" aria-hidden>
-            {SAMPLE_CHIPS.map((denomination) => (
-              <Chip key={denomination} denomination={denomination} size="sm" />
-            ))}
-          </div>
-        )}
+        {draft.chipModel === ChipModel.Denominated && <ChipsGroup />}
       </CreateGameRow>
     </CreateGameSection>
   );

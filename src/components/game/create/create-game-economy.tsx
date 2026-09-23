@@ -7,7 +7,7 @@ import {
   CreateGameSegment,
 } from '@components/game/create/create-game-stage';
 import { Button } from '@components/ui/button';
-import { Chip } from '@components/ui/chip';
+import { ChipsGroup } from '@components/ui/chips-group';
 import { Input } from '@components/ui/input';
 import {
   Select,
@@ -22,7 +22,6 @@ import { toAmount } from '@lib/amount';
 import { cn } from '@lib/utils';
 import { ChipModel, PayoutMode, PotMode } from '@tokenizer/shared/types';
 import { Plus, X } from 'lucide-react';
-import * as React from 'react';
 
 /** What each way of paying out actually does, in one line. */
 const PAYOUT_HINTS: Record<PayoutMode, string> = {
@@ -32,9 +31,6 @@ const PAYOUT_HINTS: Record<PayoutMode, string> = {
   [PayoutMode.PeerToPeer]:
     'Winnings settle directly between players, with no shared pot.',
 };
-
-/** The denominations shown as a sample of what a chip table plays with. */
-const SAMPLE_CHIPS = [1, 5, 25, 100] as const;
 
 /** The grid both the blind rows and their header sit on. */
 const FORCED_BET_GRID =
@@ -73,13 +69,7 @@ export const CreateGameEconomy: React.FC<CreateGameEconomyProps> = ({
             { value: ChipModel.Denominated, label: 'Chips' },
           ]}
         />
-        {draft.chipModel === ChipModel.Denominated && (
-          <div className="flex gap-2" aria-hidden>
-            {SAMPLE_CHIPS.map((denomination) => (
-              <Chip key={denomination} denomination={denomination} size="sm" />
-            ))}
-          </div>
-        )}
+        {draft.chipModel === ChipModel.Denominated && <ChipsGroup />}
       </CreateGameRow>
 
       <CreateGameRow label="The pot" hint="Side pots come later.">
