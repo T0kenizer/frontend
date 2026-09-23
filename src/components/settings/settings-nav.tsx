@@ -1,12 +1,21 @@
 'use client';
 
 import { Badge } from '@components/ui/badge';
+import { Button } from '@components/ui/button';
 import ROUTES from '@constants/routes';
 import { cn } from '@lib/utils';
+import { useSignOut } from '@services/sessions/sessions.hooks';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useQuery } from '@tanstack/react-query';
 import { cva } from 'class-variance-authority';
-import { CreditCard, Lock, Settings2, Shield, User } from 'lucide-react';
+import {
+  CreditCard,
+  Lock,
+  LogOut,
+  Settings2,
+  Shield,
+  User,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -62,6 +71,7 @@ export const SettingsNav: React.FC<SettingsNavProps> = ({
   ...props
 }) => {
   const pathname = usePathname();
+  const { signOut: handleSignOut, isPending: isSigningOut } = useSignOut();
   const { data: session } = useQuery(retrieveSessionOptions());
   const user = session?.user;
 
@@ -125,6 +135,17 @@ export const SettingsNav: React.FC<SettingsNavProps> = ({
           </Link>
         );
       })}
+      <hr className="my-3" />
+      <Button
+        variant="ghost-destructive"
+        size="lg"
+        onClick={handleSignOut}
+        loading={isSigningOut}
+        className="text-sidebar-foreground/50 justify-start gap-2.5 rounded-md font-medium"
+      >
+        <LogOut />
+        Sign out
+      </Button>
     </nav>
   );
 };

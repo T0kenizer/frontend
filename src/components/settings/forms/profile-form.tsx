@@ -88,7 +88,7 @@ export const ProfileForm: React.FC = () => {
       <SettingsRow label="Username" htmlFor="profile-username">
         <UsernameInput
           id="profile-username"
-          value={user?.username}
+          value={user?.username ?? ''}
           groupClassName="max-w-sm"
           disabled
         />
