@@ -11,7 +11,7 @@ import {
   MAX_FILE_SIZE_BYTES,
 } from '@tokenizer/shared/constants/files.constants';
 import { Loader2, Pencil } from 'lucide-react';
-import * as React from 'react';
+import { useRef } from 'react';
 import { toast } from 'sonner';
 
 const MAX_FILE_SIZE_MB = Math.round(MAX_FILE_SIZE_BYTES / (1024 * 1024));
@@ -22,7 +22,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
   className,
   ...props
 }) => {
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { data: session } = useQuery(retrieveSessionOptions());
   const user = session?.user;
@@ -45,7 +45,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
 
     // Mirror the server-side upload validators so an invalid pick fails fast.
     if (!ALLOWED_MIME_TYPES.includes(file.type as never)) {
-      toast.error('Avatar must be a PNG or JPEG image');
+      toast.error('Avatar must be a PNG, JPEG, WebP or GIF image');
       return;
     }
 
@@ -94,7 +94,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
         <Avatar size="4xl">
           <AvatarImage
             src={user?.avatarUrl ?? undefined}
-            alt={user?.displayName ? `${user?.displayName}'s Avatar` : 'Avatar'}
+            alt={user ? `${user.displayName}'s Avatar` : 'Avatar'}
           />
           <AvatarFallback />
         </Avatar>
