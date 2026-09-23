@@ -54,10 +54,10 @@ export const PageGreeting: React.FC<PageGreetingProps> = ({
   return (
     <div
       data-slot="page-greeting"
-      className={cn('space-y-1', className)}
+      className={cn('space-y-0.5', className)}
       {...props}
     >
-      <p className="text-muted-foreground text-sm font-light">
+      <p className="text-muted-foreground text-sm">
         {user
           ? now && (
               <>
@@ -67,17 +67,17 @@ export const PageGreeting: React.FC<PageGreetingProps> = ({
             )
           : 'Welcome to Tokenizer'}
       </p>
-      <h1 className="font-heading text-foreground text-3xl font-bold tracking-tight text-balance">
+      <h1 className="font-heading text-foreground text-3xl font-extrabold tracking-tight text-balance">
         {user ? (
           <>
             {now ? getSalutation(now.getHours()) : 'Hello'},{' '}
-            <span className="text-primary">{user.displayName}</span>{' '}
+            <span className="text-gradient-brand">{user.displayName}</span>{' '}
             <span aria-hidden>👋</span>
           </>
         ) : (
           <>
             The companion app for your{' '}
-            <span className="text-primary">game nights</span>
+            <span className="text-gradient-brand">game nights</span>
           </>
         )}
       </h1>

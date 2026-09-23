@@ -6,7 +6,9 @@ export const metadata = {
 };
 
 const GameLayout: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <main className="flex h-dvh w-full flex-col overflow-hidden">{children}</main>
+  <main className="felt-surface flex min-h-dvh w-full flex-col self-start">
+    {children}
+  </main>
 );
 
 export default GameLayout;

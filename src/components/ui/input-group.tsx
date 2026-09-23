@@ -4,19 +4,42 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 
 import { Button } from '@components/ui/button';
-import { Input } from '@components/ui/input';
+import { Input, type InputProps } from '@components/ui/input';
 import { Textarea } from '@components/ui/textarea';
 import { cn } from '@lib/utils';
 
-function InputGroup({ className, ...props }: React.ComponentProps<'div'>) {
+const inputGroupVariants = cva(
+  'group/input-group relative flex h-10 w-full min-w-0 items-center rounded-lg border transition-colors outline-none in-data-[slot=combobox-content]:focus-within:border-inherit in-data-[slot=combobox-content]:focus-within:ring-0 has-disabled:opacity-50 has-[[data-slot=input-group-control]:focus-visible]:ring-3 has-[[data-slot][aria-invalid=true]]:ring-3 has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5',
+  {
+    variants: {
+      variant: {
+        default:
+          'border-input has-disabled:bg-input/50 has-[[data-slot=input-group-control]:focus-visible]:border-primary has-[[data-slot=input-group-control]:focus-visible]:ring-primary/50 has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:ring-destructive/20 dark:bg-input/30 dark:has-disabled:bg-input/80 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40',
+        felt: 'border-on-media-border bg-on-media-scrim text-on-media-foreground has-[[data-slot=input-group-control]:focus-visible]:border-warning has-[[data-slot=input-group-control]:focus-visible]:ring-warning/25 has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:ring-destructive/25 [&_[data-slot=input-group-addon]]:text-on-media-muted-foreground [&_[data-slot=input-group-text]]:text-on-media-muted-foreground [&_[data-slot=button]]:text-on-media-muted-foreground [&_[data-slot=button]:hover]:bg-on-media-film [&_[data-slot=button]:hover]:text-on-media-foreground',
+      },
+      size: {
+        sm: 'h-8',
+        default: 'h-10',
+        lg: 'h-9',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  },
+);
+
+type InputGroupProps = Omit<React.ComponentProps<'div'>, 'size'> &
+  VariantProps<typeof inputGroupVariants>;
+
+function InputGroup({ className, variant, size, ...props }: InputGroupProps) {
   return (
     <div
       data-slot="input-group"
+      data-variant={variant}
       role="group"
-      className={cn(
-        'group/input-group border-input has-disabled:bg-input/50 has-[[data-slot=input-group-control]:focus-visible]:border-primary has-[[data-slot=input-group-control]:focus-visible]:ring-primary/50 has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:ring-destructive/20 dark:bg-input/30 dark:has-disabled:bg-input/80 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40 relative flex h-10 w-full min-w-0 items-center rounded-lg border transition-colors outline-none in-data-[slot=combobox-content]:focus-within:border-inherit in-data-[slot=combobox-content]:focus-within:ring-0 has-disabled:opacity-50 has-[[data-slot=input-group-control]:focus-visible]:ring-3 has-[[data-slot][aria-invalid=true]]:ring-3 has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5',
-        className,
-      )}
+      className={cn(inputGroupVariants({ variant, size }), className)}
       {...props}
     />
   );
@@ -105,6 +128,7 @@ function InputGroupButton({
 function InputGroupText({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span
+      data-slot="input-group-text"
       className={cn(
         "text-muted-foreground flex items-center gap-2 text-sm [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
         className,
@@ -114,10 +138,7 @@ function InputGroupText({ className, ...props }: React.ComponentProps<'span'>) {
   );
 }
 
-function InputGroupInput({
-  className,
-  ...props
-}: React.ComponentProps<'input'>) {
+function InputGroupInput({ className, ...props }: InputProps) {
   return (
     <Input
       data-slot="input-group-control"

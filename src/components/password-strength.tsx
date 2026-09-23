@@ -1,56 +1,31 @@
 'use client';
 
 import { cn } from '@lib/utils';
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_RULES,
+} from '@tokenizer/shared/constants/users.constants';
+import { PasswordRule } from '@tokenizer/shared/types';
 import { Check } from 'lucide-react';
 import { useMemo } from 'react';
 
-const COMFORTABLE_LENGTH = 12;
-const REASSURING_SCORE = 3;
-const MAX_SCORE = 4;
+const MAX_SCORE = PASSWORD_RULES.length;
+const REASSURING_SCORE = MAX_SCORE - 1;
 
-export type PasswordRule = {
-  id: string;
-  label: string;
-  test: (value: string) => boolean;
-};
+const LABELS = ['Too weak', 'Weak', 'Fair', 'Strong', 'Excellent'];
 
-export const defaultRules: PasswordRule[] = [
-  {
-    id: 'len',
-    label: `${COMFORTABLE_LENGTH} caractères minimum`,
-    test: (value) => value.length >= COMFORTABLE_LENGTH,
-  },
-  {
-    id: 'case',
-    label: 'Une majuscule et une minuscule',
-    test: (value) => /[A-Z]/.test(value) && /[a-z]/.test(value),
-  },
-  {
-    id: 'num',
-    label: 'Un chiffre ou un symbole',
-    test: (value) => /[\d\W]/.test(value),
-  },
-];
-
-const LABELS = ['Trop court', 'Faible', 'Correct', 'Solide', 'Excellent'];
-
-/** 0–4, same scoring as the Tokenizer auth screens. */
-export const scorePassword = (value: string): number => {
-  let score = 0;
-  if (value.length >= COMFORTABLE_LENGTH) score++;
-  if (/[A-Z]/.test(value) && /[a-z]/.test(value)) score++;
-  if (/\d/.test(value)) score++;
-  if (/[^\w]/.test(value)) score++;
-  return score;
-};
+export const scorePassword = (
+  value: string,
+  rules: PasswordRule[] = PASSWORD_RULES,
+): number => rules.filter((rule) => rule.test(value)).length;
 
 export const usePasswordStrength = (
   value: string,
-  rules: PasswordRule[] = defaultRules,
+  rules: PasswordRule[] = PASSWORD_RULES,
 ) =>
   useMemo(() => {
-    const score = scorePassword(value);
     const checks = rules.map((rule) => ({ ...rule, ok: rule.test(value) }));
+    const score = checks.filter((check) => check.ok).length;
 
     return {
       score,
@@ -72,9 +47,9 @@ export type PasswordStrengthProps = Omit<
 
 export const PasswordStrength: React.FC<PasswordStrengthProps> = ({
   value,
-  rules = defaultRules,
+  rules = PASSWORD_RULES,
   meterOnly = false,
-  emptyHint = `${COMFORTABLE_LENGTH} caractères minimum`,
+  emptyHint = `${PASSWORD_MIN_LENGTH} characters or more`,
   className,
   ...props
 }) => {
@@ -91,9 +66,7 @@ export const PasswordStrength: React.FC<PasswordStrengthProps> = ({
       <div
         className="flex gap-1"
         role="img"
-        aria-label={
-          value ? `Force du mot de passe : ${label}` : 'Force du mot de passe'
-        }
+        aria-label={value ? `Password strength: ${label}` : 'Password strength'}
       >
         {Array.from({ length: MAX_SCORE }, (_, index) => (
           <span
@@ -143,5 +116,3 @@ export const PasswordStrength: React.FC<PasswordStrengthProps> = ({
     </div>
   );
 };
-
-export default PasswordStrength;

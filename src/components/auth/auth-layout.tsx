@@ -27,8 +27,7 @@ export const AuthLeftContainer: React.FC<AuthLeftContainerProps> = ({
   <aside
     data-slot="auth-left"
     className={cn(
-      'text-white-95 relative isolate hidden flex-col overflow-hidden p-12 lg:flex',
-      'bg-[radial-gradient(ellipse_80%_70%_at_30%_20%,var(--color-felt-bright),var(--color-felt-deep)_58%,var(--color-night-950))]',
+      'felt-surface hidden flex-col overflow-hidden p-12 lg:flex',
       className,
     )}
     {...props}

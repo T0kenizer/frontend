@@ -3,12 +3,14 @@ import { RequesterError } from '@lib/requester';
 import * as API from '@services/games/games.api';
 import { writePlayerToken } from '@services/games/games.tokens';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
+import { JOIN_CODE_REGEX } from '@tokenizer/shared/constants/games.constants';
 import {
   ClaimSeatData,
   ClaimSeatResponse,
   CreateGameSessionData,
   CreateGameSessionResponse,
   JoinByCodeResponse,
+  ListGameModesResponse,
   RetrieveGameSessionResponse,
   RetrieveRoomByCodeResponse,
 } from '@tokenizer/shared/types';
@@ -16,6 +18,7 @@ import {
 export const GAMES_QUERY_KEYS = {
   retrieve: (uuid: string) => ['games', 'retrieve', uuid] as const,
   roomByCode: (code: string) => ['games', 'roomByCode', code] as const,
+  modes: () => ['games', 'modes'] as const,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as const satisfies Record<string, (...args: any[]) => readonly any[]>;
 
@@ -48,9 +51,18 @@ export const roomByCodeOptions = (code: Optional<string>) =>
   queryOptions<RetrieveRoomByCodeResponse, RequesterError>({
     queryKey: GAMES_QUERY_KEYS.roomByCode(code ?? ''),
     queryFn: () => API.retrieveRoomByCode(code!),
-    enabled: !!code && /^\d{6}$/.test(code),
+    enabled: !!code && JOIN_CODE_REGEX.test(code),
     staleTime: 10_000,
     retry: false, // the endpoint is tightly rate-limited; do not hammer it
+  });
+
+/** The games the server runs. Static enough to cache for the whole session. */
+export const listGameModesOptions = () =>
+  queryOptions<ListGameModesResponse, RequesterError>({
+    queryKey: GAMES_QUERY_KEYS.modes(),
+    queryFn: API.listGameModes,
+    staleTime: Infinity,
+    gcTime: Infinity,
   });
 
 export const createGameOptions = () =>

@@ -1,10 +1,10 @@
 'use client';
 
+import { PasswordInput } from '@components/inputs/password-input';
+import { PasswordStrength } from '@components/password-strength';
 import { SettingsRow } from '@components/settings/settings-row';
 import { Button } from '@components/ui/button';
 import { Field, FieldError } from '@components/ui/field';
-import { PasswordInput } from '@components/inputs/password-input';
-import { PasswordStrength } from '@components/password-strength';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { applyServerError } from '@lib/form-errors';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';

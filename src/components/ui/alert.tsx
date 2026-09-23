@@ -16,6 +16,13 @@ const alertVariants = cva(
           'border-success/30 bg-success-soft font-semibold text-success-soft-foreground *:data-[slot=alert-description]:text-success-soft-foreground/90 *:[svg]:text-current',
         warning:
           'border-warning/30 bg-warning-soft font-semibold text-warning-soft-foreground *:data-[slot=alert-description]:text-warning-soft-foreground/90 *:[svg]:text-current',
+        /**
+         * The same warning, dressed for the felt. Theme-invariant like the
+         * table it sits on: the backdrop is baize, not a theme, so the wash
+         * comes from `--warning` and the text from the `on-media` family rather
+         * than from a themed foreground that would flip under it.
+         */
+        felt: 'border-warning/35 bg-warning/15 font-semibold text-on-media-foreground *:data-[slot=alert-description]:text-on-media-foreground *:[svg]:text-warning',
       },
     },
     defaultVariants: {

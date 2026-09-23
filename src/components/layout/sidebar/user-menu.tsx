@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
+import { ChipsGroup } from '@components/ui/chips-group';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +15,6 @@ import {
   useSidebar,
 } from '@components/ui/sidebar';
 import ROUTES from '@constants/routes';
-import { NEXT_PUBLIC_API_URL } from '@lib/env';
 import { useSignOut } from '@services/sessions/sessions.hooks';
 import { SerializedUser } from '@tokenizer/shared/types';
 import {
@@ -41,10 +41,6 @@ export interface SidebarUserMenuProps {
 export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
   const { isMobile } = useSidebar();
   const { signOut: handleSignOut } = useSignOut();
-
-  const avatarSrc = user?.avatarUrl
-    ? `${NEXT_PUBLIC_API_URL}${user.avatarUrl}`
-    : undefined;
 
   if (!user) {
     return (
@@ -76,11 +72,12 @@ export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
               align="end"
               sideOffset={4}
             >
-              <DropdownMenuLabel className="font-normal">
-                <span className="block text-sm font-medium">
+              <DropdownMenuLabel className="bg-muted rounded-sm border font-normal">
+                <ChipsGroup denominations={[25, 100, 500]} />
+                <span className="mt-2 block text-sm font-bold">
                   Join the table
                 </span>
-                <span className="text-muted-foreground block text-xs">
+                <span className="text-muted-foreground mt-0.5 block text-xs">
                   Sign up to host your games and invite your friends.
                 </span>
               </DropdownMenuLabel>
@@ -104,6 +101,9 @@ export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
     );
   }
 
+  const avatarSrc = user.avatarUrl ?? undefined;
+  const avatarAlt = `${user.displayName}'s Avatar`;
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -114,7 +114,7 @@ export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={avatarSrc} alt={user.displayName} />
+                <AvatarImage src={avatarSrc} alt={avatarAlt} />
                 <AvatarFallback />
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -133,7 +133,7 @@ export const SidebarUserMenu: React.FC<SidebarUserMenuProps> = ({ user }) => {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={avatarSrc} alt={user.displayName} />
+                  <AvatarImage src={avatarSrc} alt={avatarAlt} />
                   <AvatarFallback />
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">

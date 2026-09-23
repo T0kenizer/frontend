@@ -1,5 +1,4 @@
-import requester, { client } from '@lib/requester';
-import { buildFileUrl } from '@tokenizer/shared/schemas';
+import requester from '@lib/requester';
 import {
   CreateFileQuery,
   CreateFileResponse,
@@ -20,7 +19,3 @@ export const createFile = async (file: File, query: CreateFileQuery = {}) => {
 
 export const retrieveFile = async (uuid: string) =>
   requester().get<RetrieveFileResponse>(`${BASE_URL}/${uuid}`);
-
-/** Absolute URL of the content route, e.g. for an `<img>` src. */
-export const getFileContentUrl = (uuid: string): string =>
-  `${client.defaults.baseURL}${buildFileUrl(uuid)}`;

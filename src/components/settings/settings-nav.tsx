@@ -1,29 +1,57 @@
 'use client';
 
 import { Badge } from '@components/ui/badge';
+import { Button } from '@components/ui/button';
+import { ScrollFade } from '@components/ui/scroll-fade';
+import { Separator } from '@components/ui/separator';
 import ROUTES from '@constants/routes';
 import { cn } from '@lib/utils';
+import { useSignOut } from '@services/sessions/sessions.hooks';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useQuery } from '@tanstack/react-query';
 import { cva } from 'class-variance-authority';
-import { CreditCard, Lock, Settings2, Shield, User } from 'lucide-react';
+import {
+  CreditCard,
+  Lock,
+  LogOut,
+  Settings2,
+  Shield,
+  User,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export const settingsNavVariants = cva(
-  'flex gap-1 overflow-x-auto border-b pb-1 lg:sticky lg:top-8 lg:flex-col lg:overflow-visible lg:border-b-0 lg:pb-0',
+  'flex gap-1 border-b pb-1 lg:sticky lg:top-8 lg:flex-col lg:overflow-visible lg:border-b-0 lg:pb-0',
 );
 
 export const settingsNavItemVariants = cva(
-  'text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-active:bg-sidebar-active data-active:text-sidebar-active-foreground data-active:hover:bg-sidebar-active data-active:hover:text-sidebar-active-foreground flex shrink-0 items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-2 data-active:font-semibold data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
+  'ring-sidebar-ring flex h-9 shrink-0 items-center justify-start gap-2.5 rounded-md px-2.5 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-2 data-active:font-semibold data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
+  {
+    variants: {
+      variant: {
+        default:
+          'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-active:bg-sidebar-active data-active:text-sidebar-active-foreground data-active:hover:bg-sidebar-active data-active:hover:text-sidebar-active-foreground',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  },
 );
 
+export type SettingsNavItemId =
+  | 'profile'
+  | 'preferences'
+  | 'security'
+  | 'subscription';
+
 export interface SettingsNavItem {
-  id: string;
+  id: SettingsNavItemId;
   label: string;
   renderIcon: () => React.ReactNode;
   href: string;
-  disabled?: boolean;
+  isLocked?: boolean;
 }
 
 const items: SettingsNavItem[] = [
@@ -38,7 +66,7 @@ const items: SettingsNavItem[] = [
     label: 'Preferences',
     renderIcon: () => <Settings2 />,
     href: ROUTES.settings.preferences(),
-    disabled: true,
+    isLocked: true,
   },
   {
     id: 'security',
@@ -51,7 +79,7 @@ const items: SettingsNavItem[] = [
     label: 'Subscription',
     renderIcon: () => <CreditCard />,
     href: ROUTES.settings.subscription(),
-    disabled: true,
+    isLocked: true,
   },
 ];
 
@@ -62,69 +90,81 @@ export const SettingsNav: React.FC<SettingsNavProps> = ({
   ...props
 }) => {
   const pathname = usePathname();
+  const { signOut: handleSignOut, isPending: isSigningOut } = useSignOut();
   const { data: session } = useQuery(retrieveSessionOptions());
   const user = session?.user;
 
-  const activeId =
-    items.find((item) => !item.disabled && pathname.startsWith(item.href))
+  const activeId: SettingsNavItemId =
+    items.find((item) => !item.isLocked && pathname.startsWith(item.href))
       ?.id ?? items[0].id;
 
-  const attention: Record<string, number> = {
+  const attentionCounts: Partial<Record<SettingsNavItemId, number>> = {
     profile: user && !user.confirmedAt ? 1 : 0,
   };
 
   return (
-    <nav
-      data-slot="settings-nav"
-      aria-label="Settings sections"
-      className={cn(settingsNavVariants(), className)}
-      {...props}
-    >
-      {items.map((item) => {
-        const itemClassName = settingsNavItemVariants();
+    <ScrollFade asChild>
+      <nav
+        data-slot="settings-nav"
+        aria-label="Settings sections"
+        className={cn(settingsNavVariants(), className)}
+        {...props}
+      >
+        {items.map((item) => {
+          if (item.isLocked) {
+            return (
+              <span
+                key={item.id}
+                data-slot="settings-nav-item"
+                data-disabled
+                aria-disabled
+                className={settingsNavItemVariants()}
+              >
+                {item.renderIcon()}
+                {item.label}
+                <Lock className="ml-auto size-3.5!" />
+              </span>
+            );
+          }
 
-        if (item.disabled)
+          const isActive = item.id === activeId;
+          const attentionCount = attentionCounts[item.id] ?? 0;
+
           return (
-            <span
+            <Link
               key={item.id}
+              href={item.href}
               data-slot="settings-nav-item"
-              aria-disabled
-              data-disabled
-              className={itemClassName}
+              data-active={isActive || undefined}
+              aria-current={isActive ? 'page' : undefined}
+              className={settingsNavItemVariants()}
             >
               {item.renderIcon()}
               {item.label}
-              <Lock className="ml-auto size-3.5!" />
-            </span>
+              {attentionCount > 0 && (
+                <Badge
+                  variant="notification"
+                  size="sm"
+                  className="ml-auto"
+                  aria-label={`${attentionCount} item${attentionCount > 1 ? 's' : ''} needing attention`}
+                >
+                  {attentionCount}
+                </Badge>
+              )}
+            </Link>
           );
-
-        const isActive = item.id === activeId;
-        const count = attention[item.id] ?? 0;
-
-        return (
-          <Link
-            key={item.id}
-            href={item.href}
-            data-slot="settings-nav-item"
-            aria-current={isActive ? 'page' : undefined}
-            data-active={isActive || undefined}
-            className={itemClassName}
-          >
-            {item.renderIcon()}
-            {item.label}
-            {count > 0 && (
-              <Badge
-                variant="notification"
-                size="sm"
-                className="ml-auto"
-                aria-label={`${count} item${count > 1 ? 's' : ''} needing attention`}
-              >
-                {count}
-              </Badge>
-            )}
-          </Link>
-        );
-      })}
-    </nav>
+        })}
+        <Separator className="hidden lg:block" />
+        <Button
+          variant="ghost"
+          onClick={handleSignOut}
+          loading={isSigningOut}
+          className={settingsNavItemVariants()}
+        >
+          <LogOut />
+          Sign out
+        </Button>
+      </nav>
+    </ScrollFade>
   );
 };

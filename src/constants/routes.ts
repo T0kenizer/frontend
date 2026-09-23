@@ -1,5 +1,6 @@
 import { NEXT_PUBLIC_API_URL } from '@lib/env';
 import { REDIRECT_URL_PARAM } from '@lib/redirect-url';
+import { buildGameJoinPath } from '@tokenizer/shared/utils/games.utils';
 
 const withRedirectUrl = (path: string, redirectUrl?: string) =>
   redirectUrl
@@ -35,7 +36,10 @@ const ADMIN_ROUTES = () => '/admin';
 
 const GAME_ROUTES = (uuid: string) => `/game/${uuid}`;
 GAME_ROUTES.new = () => '/game/new';
-GAME_ROUTES.join = () => '/game/join';
+
+const JOIN_ROUTES = (uuid?: string) =>
+  uuid ? buildGameJoinPath(uuid) : '/game/join';
+GAME_ROUTES.join = JOIN_ROUTES;
 
 const ROUTES = {
   home: () => '/',
