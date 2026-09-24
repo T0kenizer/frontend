@@ -7,6 +7,7 @@ import type {
 } from '@components/game/table/use-table-view';
 import { Button } from '@components/ui/button';
 import ROUTES from '@constants/routes';
+import { useHomeRoute } from '@hooks/use-home-route';
 import { formatAmount } from '@lib/amount';
 import { cn } from '@lib/utils';
 import { GameMode } from '@tokenizer/shared/types';
@@ -14,26 +15,10 @@ import { motion, useReducedMotion } from 'motion/react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
-/**
- * The table is over, and this is where everybody lands.
- *
- * Not a page of its own: the moment the host calls time, every client swaps
- * this in where the game was, on the same screen, with the same chairs still
- * drawn around it. A table that ends by throwing its players out to a route
- * they have to be redirected to is a table that ends by losing them — and the
- * one thing a night of poker owes its players at the end is the final column.
- *
- * What people want here is one thing — who won — and then, a moment later, the
- * full standings so they can argue about it. So the leader is the title, the
- * column is the panel, and the two facts that put it in context (how it ended,
- * how long it ran) sit between them.
- */
-
 export interface HubFinishedProps {
   view: TableView;
 }
 
-/** How the night stopped, in the words the table would use about it. */
 const ENDING_COPY: Record<TableEnding, { eyebrow: string; line: string }> = {
   'ended-by-host': {
     eyebrow: 'Game over',
@@ -47,6 +32,7 @@ const ENDING_COPY: Record<TableEnding, { eyebrow: string; line: string }> = {
 
 export const HubFinished: React.FC<HubFinishedProps> = ({ view }) => {
   const reduceMotion = useReducedMotion();
+  const homeRoute = useHomeRoute();
 
   const standings = useMemo(
     () =>
@@ -59,8 +45,6 @@ export const HubFinished: React.FC<HubFinishedProps> = ({ view }) => {
   const leader = standings[0];
   const ending = ENDING_COPY[view.ending ?? 'ended-by-host'];
 
-  // A table nobody ever sat down at has no winner to name and no column to
-  // draw, so it says what happened instead of pretending to a result.
   const title = leader
     ? `${leader.seat.displayName} wins`
     : `No ${dealLabel(view).toLowerCase()} played`;
@@ -127,14 +111,13 @@ export const HubFinished: React.FC<HubFinishedProps> = ({ view }) => {
           <Link href={ROUTES.game.new()}>Start another table</Link>
         </Button>
         <Button variant="line" className="w-full" asChild>
-          <Link href={ROUTES.home()}>Back home</Link>
+          <Link href={homeRoute}>Back home</Link>
         </Button>
       </HubStack>
     </HubShell>
   );
 };
 
-/** What this table counted its deals in — hands at poker, rounds at a free one. */
 const dealLabel = (view: TableView): string => {
   const noun = view.mode === GameMode.Poker ? 'Hand' : 'Round';
   return view.dealsPlayed === 1 ? noun : `${noun}s`;

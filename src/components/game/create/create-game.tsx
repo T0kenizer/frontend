@@ -45,24 +45,11 @@ export const CreateGame: React.FC = () => {
     createGame(
       {
         mode: draft.mode,
-        // Always a name: the API requires one, and what an unnamed table is
-        // called is decided here rather than server-side, so the overview beside
-        // this form shows the very name the table opens under.
         name,
-        // Always the whole config: a host who may open the mode may set it up,
-        // because how configurable a table is belongs to the mode rather than
-        // to the plan. What the plan still caps is the seat count, which the
-        // draft is already built against.
         config,
       },
       {
         onSuccess: (result) => {
-          // Creating a table seats you at it: the server claims seat 0 for the
-          // host and issues their player token in this very response. Storing
-          // it is what makes the host a member like any other — the table is
-          // gated on holding a token, so dropping it on the floor here sent
-          // the host who just made the game to the join screen to ask for a
-          // seat they were already sitting in.
           writePlayerToken(result.snapshot.id, result.token);
           router.push(ROUTES.game(result.snapshot.id));
         },
@@ -76,7 +63,7 @@ export const CreateGame: React.FC = () => {
       <div className="flex items-center gap-3.5">
         <Logo />
         <FeltBackLink className="ml-auto" asChild>
-          <Link href={ROUTES.home()}>Cancel</Link>
+          <Link href={ROUTES.dashboard()}>Cancel</Link>
         </FeltBackLink>
       </div>
 
@@ -116,13 +103,6 @@ export const CreateGame: React.FC = () => {
 
           <CreateGameSeats controller={controller} maxSeats={maxSeats} />
 
-          {/* One mode's parameters mean nothing to the other, so only the
-              chosen game's sections are on the form at all — a host switching
-              back and forth finds what they typed still there, never a
-              half-filled form belonging to a game they are not opening.
-
-              Not gated on the plan: the plan decides which games are on the
-              card above, and setting one up is part of having picked it. */}
           {draft.mode === GameMode.Poker ? (
             <CreateGameStakes controller={controller} />
           ) : (

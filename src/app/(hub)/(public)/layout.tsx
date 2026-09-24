@@ -1,7 +1,7 @@
-import { HubShell } from '@components/layout/hub-shell';
+import { PublicShell } from '@components/layout/public-shell';
 
 const PublicLayout: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <HubShell>{children}</HubShell>
+  <PublicShell>{children}</PublicShell>
 );
 
 export default PublicLayout;

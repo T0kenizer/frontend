@@ -57,7 +57,6 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ ...props }) => {
     createSessionOptions(),
   );
   const isPending = isCreatingUser || isCreatingSession;
-  // The terms box counts as a field: unticked, there is nothing to send.
   const [username, email, password, acceptTerms] = useWatch({
     control: form.control,
     name: ['username', 'email', 'password', 'acceptTerms'],
@@ -78,7 +77,8 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ ...props }) => {
           createSession(
             { login: data.email, password: data.password },
             {
-              onSuccess: () => router.replace(redirectUrl ?? ROUTES.home()),
+              onSuccess: () =>
+                router.replace(redirectUrl ?? ROUTES.dashboard()),
               onError: (error) => applyServerError(form, error),
             },
           );

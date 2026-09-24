@@ -12,7 +12,13 @@ import {
 import ROUTES from '@constants/routes';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useQuery } from '@tanstack/react-query';
-import { BarChart2, CircleDot, Home } from 'lucide-react';
+import {
+  BarChart2,
+  CircleDot,
+  LayoutDashboard,
+  Settings,
+  User,
+} from 'lucide-react';
 
 export type SidebarProps = Omit<UISidebarProps, 'children' | 'collapsible'>;
 
@@ -23,7 +29,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ ...props }) => {
   return (
     <UISidebar {...props} collapsible="icon">
       <SidebarHeader>
-        <Logo collapsible />
+        <Logo href={ROUTES.dashboard()} collapsible />
       </SidebarHeader>
       <SidebarContent>
         <SidebarMain
@@ -31,10 +37,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ ...props }) => {
             {
               items: [
                 {
-                  label: 'Home',
-                  href: ROUTES.home(),
-                  renderIcon: () => <Home />,
-                  isActive: (pathname) => pathname === ROUTES.home(),
+                  label: 'Dashboard',
+                  href: ROUTES.dashboard(),
+                  renderIcon: () => <LayoutDashboard />,
+                  isActive: (pathname) => pathname === ROUTES.dashboard(),
                 },
               ],
             },
@@ -43,14 +49,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ ...props }) => {
               items: [
                 {
                   label: 'Games',
-                  href: ROUTES.home(),
+                  href: ROUTES.dashboard(),
                   renderIcon: () => <CircleDot />,
                   isLocked: true,
                 },
                 {
                   label: 'Statistics',
-                  href: ROUTES.home(),
+                  href: ROUTES.dashboard(),
                   renderIcon: () => <BarChart2 />,
+                  isLocked: true,
+                },
+              ],
+            },
+            {
+              label: 'Account',
+              items: [
+                {
+                  label: 'Profile',
+                  href: ROUTES.profile(),
+                  renderIcon: () => <User />,
+                  isLocked: true,
+                },
+                {
+                  label: 'Preferences',
+                  href: ROUTES.settings.preferences(),
+                  renderIcon: () => <Settings />,
                   isLocked: true,
                 },
               ],
