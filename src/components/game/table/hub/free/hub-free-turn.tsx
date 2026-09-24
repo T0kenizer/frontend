@@ -15,19 +15,6 @@ import { AmountForm } from '@tokenizer/shared/types';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
 
-/**
- * Your move, at a table whose rules the host wrote.
- *
- * The poker panel next door asks the server how much a raise may be and draws
- * the answer; there is no such answer here. A free table declares its moves and
- * nothing else — the runtime never worked out a legal amount, so the only cap
- * this panel can honestly apply is the stack in front of the seat.
- *
- * What it does still refuse to do is invent the list: the moves drawn here are
- * exactly the ones the round called legal, which at a free table means exactly
- * the ones the host put in its catalog.
- */
-
 export interface HubFreeTurnProps {
   view: FreeTableView;
   actions: TableActions;
@@ -36,19 +23,12 @@ export interface HubFreeTurnProps {
 export const HubFreeTurn: React.FC<HubFreeTurnProps> = ({ view, actions }) => {
   const { legalActions, interruptionOpen, proxySeat, mySeat, pot } = view;
 
-  // The host covering an empty chair spends that chair's stack, not their own.
   const actingSeat = proxySeat ?? mySeat;
 
-  // Naming the seat is what makes the move legal server-side: without it the
-  // host's action would be read as one for their own chair, and refused
-  // because it is not their turn.
   const target = proxySeat?.id;
 
   const [picked, setPicked] = useState<Nullable<ActionOption>>(null);
 
-  // A new set of legal moves means the turn moved on; a half-typed raise from
-  // the turn before must not survive into it. Adjusted during render rather
-  // than in an effect, so the stale amount never gets a frame on screen.
   const legalIds = legalActions.map((action) => action.id).join(',');
   const [seenLegalIds, setSeenLegalIds] = useState(legalIds);
   if (seenLegalIds !== legalIds) {
@@ -79,12 +59,9 @@ export const HubFreeTurn: React.FC<HubFreeTurnProps> = ({ view, actions }) => {
         {legalActions.map((action) => (
           <Button
             key={action.id}
-            // Filled for the one-tap moves that commit nothing, outlined for
-            // the ones that cost chips or drop you out of the round — so the
-            // safe move is the one your thumb finds without reading.
             variant={
               action.amountForm === AmountForm.None && !action.foldsParticipant
-                ? 'felt-inverse'
+                ? 'gold'
                 : 'line'
             }
             size="lg"
@@ -93,8 +70,6 @@ export const HubFreeTurn: React.FC<HubFreeTurnProps> = ({ view, actions }) => {
             className={cn(
               'w-full',
               picked?.id === action.id && 'ring-warning ring-3',
-              // An odd number of moves leaves the last one spanning the row
-              // rather than sitting in a half-empty one.
               legalActions.length % 2 === 1 &&
                 action.id === legalActions[legalActions.length - 1].id &&
                 'col-span-2',
@@ -140,7 +115,6 @@ export const HubFreeTurn: React.FC<HubFreeTurnProps> = ({ view, actions }) => {
   );
 };
 
-/** How much, for the moves that need a number. */
 const AmountStep: React.FC<{
   action: ActionOption;
   max: number;
@@ -151,8 +125,6 @@ const AmountStep: React.FC<{
   const reduceMotion = useReducedMotion();
   const [amount, setAmount] = useState(0);
 
-  // Quarter, half, the lot: the three bets people actually make, without
-  // anyone having to do arithmetic at a table with a drink in their hand.
   const presets = [
     { label: '¼', value: Math.floor(max / 4) },
     { label: '½', value: Math.floor(max / 2) },
@@ -219,7 +191,7 @@ const AmountStep: React.FC<{
           </Button>
           <Button
             type="button"
-            variant="felt-inverse"
+            variant="gold"
             size="lg"
             className="flex-2"
             loading={pending}

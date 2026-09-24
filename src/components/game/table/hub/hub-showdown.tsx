@@ -138,7 +138,7 @@ export const HubShowdown: React.FC<HubShowdownProps> = ({ view, actions }) => {
 
       <HubStack className="mt-4">
         <Button
-          variant="felt-inverse"
+          variant="gold"
           size="xl"
           className="w-full"
           disabled={!isComplete}

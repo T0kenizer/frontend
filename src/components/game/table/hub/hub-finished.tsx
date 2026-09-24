@@ -117,7 +117,7 @@ export const HubFinished: React.FC<HubFinishedProps> = ({ view }) => {
 
       {view.mySeat && (
         <HubStack className="mt-4">
-          <Button variant="felt-inverse" size="xl" className="w-full" asChild>
+          <Button variant="gold" size="xl" className="w-full" asChild>
             <Link href={ROUTES.game.new()}>Start another table</Link>
           </Button>
           <Button variant="line" className="w-full" asChild>
