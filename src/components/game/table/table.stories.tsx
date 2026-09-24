@@ -1,9 +1,8 @@
-import { TableHub } from '@components/game/table/hub/table-hub';
-import type { TableActions } from '@components/game/table/table-actions';
-import { TableRing } from '@components/game/table/table-ring';
-import { TableTopBar } from '@components/game/table/table-top-bar';
-import { useChipFlights } from '@components/game/table/use-chip-flights';
-import { useRingGeometry } from '@components/game/table/use-ring-geometry';
+import {
+  NO_TABLE_ACTIONS,
+  type TableActions,
+} from '@components/game/table/table-actions';
+import { TableLayout } from '@components/game/table/table-layout';
 import {
   useTableView,
   type GameSession,
@@ -158,25 +157,12 @@ const liveHand = (
   ...overrides,
 });
 
-const NO_OP_ACTIONS: TableActions = {
-  startHand: () => {},
-  startRound: () => {},
-  submitAction: () => {},
-  submitCatalogAction: () => {},
-  declareWinners: () => {},
-  resolveRound: () => {},
-  closeGame: () => {},
-  renameSeat: () => {},
-  shareTable: () => {},
-  pending: null,
-  error: null,
-};
-
 interface HarnessProps {
   snapshot: GameSnapshot;
   participantId: Nullable<string>;
   resolution?: GameSession['resolution'];
   actions?: TableActions;
+  spectatorMode?: boolean;
 }
 
 /** The two halves wired together, without a socket behind them. */
@@ -184,44 +170,28 @@ const TableHarness: React.FC<HarnessProps> = ({
   snapshot,
   participantId,
   resolution = null,
-  actions = NO_OP_ACTIONS,
+  actions = NO_TABLE_ACTIONS,
+  spectatorMode = false,
 }) => {
-  const view = useTableView({
+  const game = {
     snapshot,
     participantId,
     resolution,
-  } as GameSession);
-
-  const flights = useChipFlights(snapshot.participants);
-  const { ringRef, hubRef, geometry } = useRingGeometry(
-    snapshot.participants.length,
-  );
+    isConnected: true,
+  } as GameSession;
+  const view = useTableView(game);
 
   if (!view) return null;
 
   return (
     <div className="felt-surface flex h-dvh w-full flex-col overflow-hidden">
-      <TableTopBar
+      <TableLayout
         gameId={snapshot.id}
-        joinCode={snapshot.joinCode}
-        tableName={snapshot.name}
-        isConnected
+        game={game}
+        view={view}
+        actions={actions}
+        spectatorMode={spectatorMode}
       />
-      <TableRing
-        seats={view.seats}
-        geometry={geometry}
-        flights={flights}
-        ringRef={ringRef}
-        hubRef={hubRef}
-        chipModel={view.chipModel}
-      >
-        <TableHub
-          view={view}
-          actions={actions}
-          tableName={snapshot.name}
-          form={null}
-        />
-      </TableRing>
     </div>
   );
 };
@@ -359,7 +329,7 @@ const TurnHandoffDemo = () => {
       snapshot={snapshot}
       participantId="seat-0"
       actions={{
-        ...NO_OP_ACTIONS,
+        ...NO_TABLE_ACTIONS,
         submitCatalogAction: () => setTurn((value) => value + 1),
       }}
     />
@@ -424,6 +394,19 @@ export const WatchingAnotherPlayer: Story = {
       currentHand: liveHand('seat-1'),
     },
     participantId: 'seat-3',
+  },
+};
+
+/** The shared screen: no seat, the QR code to join, and nothing to press. */
+export const Spectator: Story = {
+  args: {
+    snapshot: {
+      ...baseSnapshot,
+      status: GameSessionStatus.Running,
+      currentHand: liveHand('seat-1'),
+    },
+    participantId: null,
+    spectatorMode: true,
   },
 };
 

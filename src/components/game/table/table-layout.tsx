@@ -2,43 +2,52 @@
 
 import { FeltNotice } from '@components/game/felt/felt-stage';
 import { TableHub } from '@components/game/table/hub/table-hub';
-import type { TableActions } from '@components/game/table/table-actions';
+import {
+  NO_TABLE_ACTIONS,
+  type TableActions,
+} from '@components/game/table/table-actions';
 import { TableRing } from '@components/game/table/table-ring';
-import { EMPTY_SEATS } from '@components/game/table/table-room';
 import { TableTopBar } from '@components/game/table/table-top-bar';
 import { useChipFlights } from '@components/game/table/use-chip-flights';
 import { useRingGeometry } from '@components/game/table/use-ring-geometry';
-import {
-  useTableView,
-  type GameSession,
+import type {
+  GameSession,
+  TableView,
 } from '@components/game/table/use-table-view';
 
-export interface SpectatorTableProps {
+export interface TableLayoutProps {
   gameId: string;
   game: GameSession;
+  view: TableView;
+  actions?: TableActions;
+  form?: Nullable<React.ReactNode>;
+  spectatorMode?: boolean;
 }
 
-export const SpectatorTable: React.FC<SpectatorTableProps> = ({
+/** The live table as both the players and the shared screen see it. */
+export const TableLayout: React.FC<TableLayoutProps> = ({
   gameId,
   game,
+  view,
+  actions = NO_TABLE_ACTIONS,
+  form = null,
+  spectatorMode = false,
 }) => {
-  const view = useTableView(game);
-
   const seats = game.snapshot?.participants ?? EMPTY_SEATS;
   const flights = useChipFlights(seats);
   const { ringRef, hubRef, geometry } = useRingGeometry(seats.length);
 
-  if (!view) return null;
+  const tableName = game.snapshot?.name ?? 'Table';
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col">
       <TableTopBar
         gameId={gameId}
         joinCode={game.snapshot?.joinCode ?? null}
-        tableName={game.snapshot?.name ?? 'Table'}
+        tableName={tableName}
         isConnected={game.isConnected}
         isOver={game.isOver}
-        spectatorMode
+        spectatorMode={spectatorMode}
       />
 
       {game.socketError && (
@@ -57,30 +66,14 @@ export const SpectatorTable: React.FC<SpectatorTableProps> = ({
       >
         <TableHub
           view={view}
-          actions={SPECTATOR_ACTIONS}
-          tableName={game.snapshot?.name ?? 'Table'}
+          actions={actions}
+          tableName={tableName}
+          form={form}
         />
       </TableRing>
     </div>
   );
 };
 
-const noop = () => {};
-
-/**
- * A spectator has no seat, so every panel shows its waiting state; nothing here
- * is ever called.
- */
-const SPECTATOR_ACTIONS: TableActions = {
-  startHand: noop,
-  startRound: noop,
-  submitAction: noop,
-  submitCatalogAction: noop,
-  declareWinners: noop,
-  resolveRound: noop,
-  closeGame: noop,
-  renameSeat: noop,
-  shareTable: noop,
-  pending: null,
-  error: null,
-};
+/** Stable empty array: a fresh `[]` each render would restart the chip diff. */
+const EMPTY_SEATS: NonNullable<GameSession['snapshot']>['participants'] = [];

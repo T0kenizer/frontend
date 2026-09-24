@@ -1,7 +1,6 @@
 'use client';
 
-import { FeltPanel } from '@components/game/felt/felt-stage';
-import { RoomLoading, RoomShell } from '@components/game/room-shell';
+import { RoomLoading, RoomUnavailable } from '@components/game/room-shell';
 import { TableRoom } from '@components/game/table/table-room';
 import { Button } from '@components/ui/button';
 import ROUTES from '@constants/routes';
@@ -37,16 +36,11 @@ export const GameRoom: React.FC<GameRoomProps> = ({ gameId }) => {
 
   if (game.error || !game.snapshot) {
     return (
-      <RoomShell>
-        <FeltPanel className="flex flex-col items-center gap-4 py-10 text-center">
-          <p className="text-sm font-semibold">
-            {game.error?.message ?? 'That table is no longer available.'}
-          </p>
-          <Button variant="line" asChild>
-            <Link href={ROUTES.game.join()}>Enter a code instead</Link>
-          </Button>
-        </FeltPanel>
-      </RoomShell>
+      <RoomUnavailable message={game.error?.message}>
+        <Button variant="line" asChild>
+          <Link href={ROUTES.game.join()}>Enter a code instead</Link>
+        </Button>
+      </RoomUnavailable>
     );
   }
 

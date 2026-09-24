@@ -19,3 +19,22 @@ export const RoomLoading: React.FC<React.PropsWithChildren> = ({
     </FeltPanel>
   </RoomShell>
 );
+
+interface RoomUnavailableProps extends React.PropsWithChildren {
+  message: Optional<string>;
+}
+
+/** The table could not be reached; `children` offers a way out. */
+export const RoomUnavailable: React.FC<RoomUnavailableProps> = ({
+  message,
+  children,
+}) => (
+  <RoomShell>
+    <FeltPanel className="flex flex-col items-center gap-4 py-10 text-center">
+      <p className="text-sm font-semibold xl:text-lg">
+        {message ?? 'That table is no longer available.'}
+      </p>
+      {children}
+    </FeltPanel>
+  </RoomShell>
+);
