@@ -1,6 +1,6 @@
 'use client';
 
-import { FeltNotice, FeltPanel } from '@components/game/felt/felt-stage';
+import { FeltNotice } from '@components/game/felt/felt-stage';
 import { SeatNameForm } from '@components/game/seat-name-form';
 import { TableHub } from '@components/game/table/hub/table-hub';
 import type { TableActions } from '@components/game/table/table-actions';
@@ -130,17 +130,15 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
   // anybody.
   const form =
     isRenaming && view.mySeat ? (
-      <FeltPanel size="sm" className="rounded-3xl px-5 py-5">
-        <SeatNameForm
-          mode="rename"
-          defaultDisplayName={view.mySeat.displayName}
-          onCancel={() => setIsRenaming(false)}
-          onSubmit={async (data) => {
-            await game.updateSeat(data);
-            setIsRenaming(false);
-          }}
-        />
-      </FeltPanel>
+      <SeatNameForm
+        mode="rename"
+        defaultDisplayName={view.mySeat.displayName}
+        onCancel={() => setIsRenaming(false)}
+        onSubmit={async (data) => {
+          await game.updateSeat(data);
+          setIsRenaming(false);
+        }}
+      />
     ) : null;
 
   return (
