@@ -1,13 +1,8 @@
 'use client';
 
-import { FeltNotice } from '@components/game/felt/felt-stage';
 import { SeatNameForm } from '@components/game/seat-name-form';
-import { TableHub } from '@components/game/table/hub/table-hub';
 import type { TableActions } from '@components/game/table/table-actions';
-import { TableRing } from '@components/game/table/table-ring';
-import { TableTopBar } from '@components/game/table/table-top-bar';
-import { useChipFlights } from '@components/game/table/use-chip-flights';
-import { useRingGeometry } from '@components/game/table/use-ring-geometry';
+import { TableLayout } from '@components/game/table/table-layout';
 import {
   useTableView,
   type GameSession,
@@ -15,19 +10,6 @@ import {
 import ROUTES from '@constants/routes';
 import { useState } from 'react';
 import { toast } from 'sonner';
-
-/**
- * The live table, assembled.
- *
- * Two halves and nothing else: {@link TableRing} draws the chairs and the people
- * in them, {@link TableHub} draws whatever the game is asking for. This
- * component is the only place that knows about both, and all it does is hold
- * the state neither of them should own — what is in flight, what the server
- * last refused, which form is open — and hand each half what it needs.
- *
- * Nothing here decides what a state of the game _means_; that is
- * {@link useTableView}, once, off the snapshot.
- */
 
 export interface TableRoomProps {
   gameId: string;
@@ -41,15 +23,6 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
   const [error, setError] = useState<Nullable<string>>(null);
   const [isRenaming, setIsRenaming] = useState(false);
 
-  const seats = game.snapshot?.participants ?? EMPTY_SEATS;
-  const flights = useChipFlights(seats);
-  const { ringRef, hubRef, geometry } = useRingGeometry(seats.length);
-
-  /**
-   * One wrapper around every call that can fail, because they all fail the same
-   * way: the socket acks with a message, and the player needs to see it on the
-   * panel they pressed rather than in a toast that has already gone.
-   */
   const run = async (id: string, call: () => Promise<unknown>) => {
     setPending(id);
     setError(null);
@@ -71,8 +44,6 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
     ).toString();
     const code = game.snapshot?.joinCode;
 
-    // `navigator.share` is the one that actually gets the link to someone in
-    // the room; the clipboard is the fallback for a laptop with no share sheet.
     if (navigator.share) {
       try {
         await navigator.share({
@@ -81,10 +52,7 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
           url,
         });
         return;
-      } catch {
-        // Dismissing the share sheet throws. That is not a failure worth
-        // reporting, so fall through to the clipboard.
-      }
+      } catch {}
     }
 
     try {
@@ -142,39 +110,12 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
     ) : null;
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col">
-      <TableTopBar
-        gameId={gameId}
-        joinCode={game.snapshot?.joinCode ?? null}
-        tableName={game.snapshot?.name ?? 'Table'}
-        isConnected={game.isConnected}
-        isOver={game.isOver}
-      />
-
-      {game.socketError && (
-        <FeltNotice tone="error" className="mx-4 mb-2 shrink-0">
-          {game.socketError}
-        </FeltNotice>
-      )}
-
-      <TableRing
-        seats={view.seats}
-        geometry={geometry}
-        flights={flights}
-        ringRef={ringRef}
-        hubRef={hubRef}
-        chipModel={view.chipModel}
-      >
-        <TableHub
-          view={view}
-          actions={actions}
-          tableName={game.snapshot?.name ?? 'Table'}
-          form={form}
-        />
-      </TableRing>
-    </div>
+    <TableLayout
+      gameId={gameId}
+      game={game}
+      view={view}
+      actions={actions}
+      form={form}
+    />
   );
 };
-
-/** Stable empty array: a fresh `[]` each render would restart the chip diff. */
-const EMPTY_SEATS: NonNullable<GameSession['snapshot']>['participants'] = [];

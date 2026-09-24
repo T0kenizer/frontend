@@ -2,13 +2,32 @@
 
 import {
   FeltEyebrow,
+  FeltPanel,
   FeltStat,
   FeltStatGroup,
 } from '@components/game/felt/felt-stage';
+import { HubProgress } from '@components/game/table/hub/hub-progress';
+import type { TableView } from '@components/game/table/use-table-view';
 import { cn } from '@lib/utils';
 import { motion, useReducedMotion } from 'motion/react';
 
-/** The content of a centre panel; {@link TableHub} draws the frame around it. */
+/**
+ * One frame for every state, so the panel never jumps a few pixels when the
+ * state of play changes. The progress header stays mounted inside it, which is
+ * what lets the next player slide into the current slot.
+ */
+export const HubFrame: React.FC<{
+  view: TableView;
+  showProgress?: boolean;
+  children: React.ReactNode;
+}> = ({ view, showProgress = true, children }) => (
+  <FeltPanel size="sm" className="rounded-3xl px-5 py-5">
+    {showProgress && <HubProgress view={view} />}
+    {children}
+  </FeltPanel>
+);
+
+/** The content of a centre panel; {@link HubFrame} draws the frame around it. */
 
 export interface HubFact {
   label: React.ReactNode;

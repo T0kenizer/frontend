@@ -2,6 +2,7 @@
 
 import { HubShell, HubStack } from '@components/game/table/hub/hub-shell';
 import type {
+  SeatView,
   TableEnding,
   TableView,
 } from '@components/game/table/use-table-view';
@@ -30,17 +31,64 @@ const ENDING_COPY: Record<TableEnding, { eyebrow: string; line: string }> = {
   },
 };
 
-export const HubFinished: React.FC<HubFinishedProps> = ({ view }) => {
+const standingsOf = (seats: SeatView[]): SeatView[] =>
+  seats
+    .filter((entry) => entry.seat.claimed)
+    .sort((a, b) => b.seat.balance - a.seat.balance);
+
+export const Standings: React.FC<{ standings: SeatView[] }> = ({
+  standings,
+}) => {
   const reduceMotion = useReducedMotion();
+
+  if (!standings.length) return null;
+
+  return (
+    <ol className="max-h-45 space-y-1 overflow-y-auto text-left">
+      {standings.map((entry, index) => (
+        <motion.li
+          key={entry.seat.id}
+          initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: reduceMotion ? 0 : 0.2 + index * 0.08,
+            type: 'spring',
+            stiffness: 380,
+            damping: 30,
+          }}
+          className={cn(
+            'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs',
+            index === 0
+              ? 'bg-warning-soft border-warning/35 border'
+              : 'bg-on-media-scrim',
+            entry.isMine && index !== 0 && 'border-on-media-border border',
+          )}
+        >
+          <span className="text-on-media-muted-foreground w-4 shrink-0 text-center font-bold tabular-nums">
+            {index + 1}
+          </span>
+          <span className="min-w-0 flex-1 truncate font-semibold">
+            {entry.seat.displayName}
+            {entry.isMine && (
+              <span className="text-on-media-muted-foreground font-medium">
+                {' '}
+                · you
+              </span>
+            )}
+          </span>
+          <span className="shrink-0 font-extrabold tabular-nums">
+            {formatAmount(entry.seat.balance)}
+          </span>
+        </motion.li>
+      ))}
+    </ol>
+  );
+};
+
+export const HubFinished: React.FC<HubFinishedProps> = ({ view }) => {
   const homeRoute = useHomeRoute();
 
-  const standings = useMemo(
-    () =>
-      view.seats
-        .filter((entry) => entry.seat.claimed)
-        .sort((a, b) => b.seat.balance - a.seat.balance),
-    [view.seats],
-  );
+  const standings = useMemo(() => standingsOf(view.seats), [view.seats]);
 
   const leader = standings[0];
   const ending = ENDING_COPY[view.ending ?? 'ended-by-host'];
@@ -65,55 +113,18 @@ export const HubFinished: React.FC<HubFinishedProps> = ({ view }) => {
       ]}
       footnote="The table is closed — the code and the link no longer work."
     >
-      {standings.length > 0 && (
-        <ol className="max-h-45 space-y-1 overflow-y-auto text-left">
-          {standings.map((entry, index) => (
-            <motion.li
-              key={entry.seat.id}
-              initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                delay: reduceMotion ? 0 : 0.2 + index * 0.08,
-                type: 'spring',
-                stiffness: 380,
-                damping: 30,
-              }}
-              className={cn(
-                'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs',
-                index === 0
-                  ? 'bg-warning-soft border-warning/35 border'
-                  : 'bg-on-media-scrim',
-                entry.isMine && index !== 0 && 'border-on-media-border border',
-              )}
-            >
-              <span className="text-on-media-muted-foreground w-4 shrink-0 text-center font-bold tabular-nums">
-                {index + 1}
-              </span>
-              <span className="min-w-0 flex-1 truncate font-semibold">
-                {entry.seat.displayName}
-                {entry.isMine && (
-                  <span className="text-on-media-muted-foreground font-medium">
-                    {' '}
-                    · you
-                  </span>
-                )}
-              </span>
-              <span className="shrink-0 font-extrabold tabular-nums">
-                {formatAmount(entry.seat.balance)}
-              </span>
-            </motion.li>
-          ))}
-        </ol>
-      )}
+      <Standings standings={standings} />
 
-      <HubStack className="mt-4">
-        <Button variant="felt-inverse" size="xl" className="w-full" asChild>
-          <Link href={ROUTES.game.new()}>Start another table</Link>
-        </Button>
-        <Button variant="line" className="w-full" asChild>
-          <Link href={homeRoute}>Back home</Link>
-        </Button>
-      </HubStack>
+      {view.mySeat && (
+        <HubStack className="mt-4">
+          <Button variant="felt-inverse" size="xl" className="w-full" asChild>
+            <Link href={ROUTES.game.new()}>Start another table</Link>
+          </Button>
+          <Button variant="line" className="w-full" asChild>
+            <Link href={homeRoute}>Back home</Link>
+          </Button>
+        </HubStack>
+      )}
     </HubShell>
   );
 };
