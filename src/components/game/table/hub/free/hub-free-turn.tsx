@@ -56,38 +56,18 @@ export const HubFreeTurn: React.FC<HubFreeTurnProps> = ({ view, actions }) => {
     setPicked(null);
   }
 
-  const eyebrow = interruptionOpen
-    ? 'Interruption open'
-    : proxySeat
-      ? 'Playing an empty chair'
-      : 'Your turn';
-
-  const title = proxySeat
-    ? `Seat ${proxySeat.seatIndex + 1}`
-    : interruptionOpen
-      ? 'Cut in?'
-      : 'Your move';
-
-  const description = interruptionOpen
-    ? 'Anyone can claim the turn right now. First interrupting move takes it.'
-    : proxySeat
-      ? 'Nobody claimed this chair, so you play it for the table.'
-      : undefined;
-
   return (
     <HubShell
-      eyebrow={eyebrow}
-      title={title}
-      description={description}
       facts={[
         { label: 'Pot', value: formatAmount(pot) },
         {
-          label: proxySeat ? 'Chair' : 'Your stack',
+          label: proxySeat ? 'Seat stack' : 'Your stack',
           value: formatAmount(actingSeat?.balance ?? 0),
         },
       ]}
-      // A live turn is worth an outline you can see from across a table.
-      className={cn('ring-warning/45 ring-3')}
+      footnote={
+        interruptionOpen ? 'First interrupting move takes the turn.' : undefined
+      }
     >
       {actions.error && (
         <FeltNotice tone="error" className="mb-3 text-left">

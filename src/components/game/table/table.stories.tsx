@@ -1,6 +1,7 @@
 import { TableHub } from '@components/game/table/hub/table-hub';
 import type { TableActions } from '@components/game/table/table-actions';
 import { TableRing } from '@components/game/table/table-ring';
+import { TableTopBar } from '@components/game/table/table-top-bar';
 import { useChipFlights } from '@components/game/table/use-chip-flights';
 import { useRingGeometry } from '@components/game/table/use-ring-geometry';
 import {
@@ -9,6 +10,7 @@ import {
 } from '@components/game/table/use-table-view';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import {
+  AmountForm,
   BettingStructure,
   ChipModel,
   GameMode,
@@ -19,11 +21,14 @@ import {
   ParticipantRole,
   ParticipantStatus,
   PokerAction,
+  RoundStatus,
   Street,
+  type FreeGameSnapshot,
   type GameSnapshot,
   type ParticipantSnapshot,
   type PokerGameSnapshot,
 } from '@tokenizer/shared/types';
+import { useState } from 'react';
 
 /**
  * The live table, in each of the states it passes through.
@@ -107,6 +112,7 @@ const liveHand = (
   ],
   betting: {
     activeParticipant,
+    nextParticipant: `seat-${(Number(activeParticipant.split('-')[1]) + 1) % SEATS.length}`,
     currentBet: 60,
     minRaiseTo: 120,
     committed: { 'seat-1': 60, 'seat-2': 60 },
@@ -170,6 +176,7 @@ interface HarnessProps {
   snapshot: GameSnapshot;
   participantId: Nullable<string>;
   resolution?: GameSession['resolution'];
+  actions?: TableActions;
 }
 
 /** The two halves wired together, without a socket behind them. */
@@ -177,6 +184,7 @@ const TableHarness: React.FC<HarnessProps> = ({
   snapshot,
   participantId,
   resolution = null,
+  actions = NO_OP_ACTIONS,
 }) => {
   const view = useTableView({
     snapshot,
@@ -193,6 +201,12 @@ const TableHarness: React.FC<HarnessProps> = ({
 
   return (
     <div className="felt-surface flex h-dvh w-full flex-col overflow-hidden">
+      <TableTopBar
+        gameId={snapshot.id}
+        joinCode={snapshot.joinCode}
+        tableName={snapshot.name}
+        isConnected
+      />
       <TableRing
         seats={view.seats}
         geometry={geometry}
@@ -203,7 +217,7 @@ const TableHarness: React.FC<HarnessProps> = ({
       >
         <TableHub
           view={view}
-          actions={NO_OP_ACTIONS}
+          actions={actions}
           tableName={snapshot.name}
           form={null}
         />
@@ -260,6 +274,121 @@ export const YourTurn: Story = {
   },
 };
 
+const freeSnapshot: FreeGameSnapshot = {
+  id: baseSnapshot.id,
+  name: baseSnapshot.name,
+  mode: GameMode.Free,
+  joinCode: baseSnapshot.joinCode,
+  status: GameSessionStatus.Running,
+  participants: SEATS,
+  dealsPlayed: 12,
+  chipModel: ChipModel.AbstractBalance,
+  canAddSeat: false,
+  currentRound: {
+    id: 'round-12',
+    status: RoundStatus.InProgress,
+    pots: [
+      {
+        id: 'pot-1',
+        amount: 120,
+        eligibleParticipants: SEATS.map((entry) => entry.id),
+        isSidePot: false,
+      },
+    ],
+    turn: {
+      activeParticipant: 'seat-3',
+      nextParticipant: 'seat-2',
+      interruptionOpen: false,
+      pendingClaims: 0,
+      legalActions: [
+        {
+          id: 'check',
+          label: 'Check',
+          amountForm: AmountForm.None,
+          grantsInterruption: false,
+        },
+        {
+          id: 'bet',
+          label: 'Bet',
+          amountForm: AmountForm.Free,
+          grantsInterruption: false,
+        },
+        {
+          id: 'fold',
+          label: 'Fold',
+          amountForm: AmountForm.None,
+          grantsInterruption: false,
+          foldsParticipant: true,
+        },
+      ],
+    },
+    actionLog: [],
+  },
+};
+
+export const FreeRound: Story = {
+  args: { snapshot: freeSnapshot, participantId: 'seat-3' },
+};
+
+export const FreeRoundWatching: Story = {
+  args: { snapshot: freeSnapshot, participantId: 'seat-0' },
+};
+
+/** Click a move repeatedly to inspect the next-to-current handoff. */
+const TurnHandoffDemo = () => {
+  const [turn, setTurn] = useState(0);
+  const participants = SEATS.slice(0, 3).map((entry, index) => ({
+    ...entry,
+    claimed: index === 0,
+  }));
+  const snapshot: FreeGameSnapshot = {
+    ...freeSnapshot,
+    participants,
+    currentRound: {
+      ...freeSnapshot.currentRound!,
+      turn: {
+        ...freeSnapshot.currentRound!.turn,
+        activeParticipant: participants[turn % participants.length].id,
+        nextParticipant: participants[(turn + 1) % participants.length].id,
+      },
+    },
+  };
+
+  return (
+    <TableHarness
+      snapshot={snapshot}
+      participantId="seat-0"
+      actions={{
+        ...NO_OP_ACTIONS,
+        submitCatalogAction: () => setTurn((value) => value + 1),
+      }}
+    />
+  );
+};
+
+export const TurnHandoff: Story = {
+  args: { snapshot: freeSnapshot, participantId: 'seat-0' },
+  render: () => <TurnHandoffDemo />,
+};
+
+export const LongPlayerNames: Story = {
+  args: {
+    snapshot: {
+      ...freeSnapshot,
+      participants: SEATS.map((entry, index) => ({
+        ...entry,
+        displayName:
+          index === 3
+            ? 'Alexanderthegreatwithoutspaces'
+            : index === 2
+              ? 'Marie-Christine Dupont'
+              : entry.displayName,
+      })),
+    },
+    participantId: 'seat-3',
+  },
+};
+
 /** Nothing owed: the check is the filled button, and there is no call. */
 export const YourTurnUnopened: Story = {
   args: {
@@ -269,6 +398,7 @@ export const YourTurnUnopened: Story = {
       currentHand: liveHand('seat-3', {
         betting: {
           activeParticipant: 'seat-3',
+          nextParticipant: 'seat-4',
           currentBet: 0,
           minRaiseTo: 10,
           committed: {},

@@ -1,6 +1,6 @@
 'use client';
 
-import { EventFeed, ThinkingPulse } from '@components/game/table/hub/hub-feed';
+import { EventFeed } from '@components/game/table/hub/hub-feed';
 import { HubShell } from '@components/game/table/hub/hub-shell';
 import type { PokerTableView } from '@components/game/table/use-table-view';
 import { formatAmount } from '@lib/amount';
@@ -24,25 +24,10 @@ export interface HubWatchProps {
 }
 
 export const HubWatch: React.FC<HubWatchProps> = ({ view }) => {
-  const { activeSeat, pot, recentEvents, mySeat, streetLabel } = view;
-
-  // The seat's name comes off the snapshot either way; what an unclaimed one
-  // adds is who is actually pushing its chips.
-  const waitingOn = !activeSeat
-    ? 'the table'
-    : activeSeat.claimed
-      ? activeSeat.displayName
-      : `${activeSeat.displayName} · the host`;
+  const { pot, recentEvents, mySeat } = view;
 
   return (
     <HubShell
-      eyebrow={streetLabel ?? 'In progress'}
-      title={`${waitingOn} to act`}
-      description={
-        activeSeat && !activeSeat.claimed
-          ? 'Nobody claimed that chair, so the host is playing it.'
-          : undefined
-      }
       facts={[
         { label: 'Pot', value: formatAmount(pot) },
         {
@@ -50,14 +35,8 @@ export const HubWatch: React.FC<HubWatchProps> = ({ view }) => {
           value: formatAmount(mySeat?.balance ?? 0),
         },
       ]}
-      footnote="You will be prompted here when it is your turn."
     >
-      <ThinkingPulse name={waitingOn} />
-
-      <EventFeed
-        events={recentEvents}
-        emptyLabel="The hand has just been dealt. No moves yet."
-      />
+      <EventFeed events={recentEvents} emptyLabel="No moves yet." />
     </HubShell>
   );
 };

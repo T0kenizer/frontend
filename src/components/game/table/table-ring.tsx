@@ -50,11 +50,11 @@ export const TableRing: React.FC<TableRingProps> = ({
 }) => (
   <div
     data-slot="table-ring"
-    className={cn('flex min-h-0 flex-1 flex-col', className)}
+    className={cn('flex min-h-0 flex-1 flex-col overflow-y-auto', className)}
   >
     <SeatRail seats={seats} chipModel={chipModel} />
 
-    <div className="relative min-h-0 flex-1 px-4 pb-6 md:px-0">
+    <div className="relative flex-1 shrink-0 px-4 pb-6 md:min-h-0 md:px-0">
       {/* The felt oval. Hidden on narrow screens, where the rail replaces it
           and the panel is the whole screen. */}
       <div
@@ -134,15 +134,11 @@ const SeatRail: React.FC<{ seats: SeatView[]; chipModel: ChipModel }> = ({
 
   return (
     <div data-slot="seat-rail" className="shrink-0 md:hidden">
-      <p className="text-on-media-muted-foreground flex items-baseline gap-2 px-4 pb-2 text-[0.65rem] font-bold tracking-[0.1em] uppercase">
-        Players
-        <span className="text-on-media-foreground ml-auto text-[0.7rem] font-semibold tracking-normal normal-case">
-          {seated} of {seats.length} seated
-        </span>
-      </p>
-
       <ScrollFade asChild>
-        <div className="flex scrollbar-none gap-2.5 px-4 pb-4 [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          aria-label={`Players, ${seated} of ${seats.length} seated`}
+          className="flex scrollbar-none gap-2.5 px-4 pb-4 [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        >
           {seats.map((view, index) => (
             <SeatPuck
               key={view.seat.id}
