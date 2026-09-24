@@ -1,5 +1,6 @@
 'use client';
 
+import { FeltPanel } from '@components/game/felt/felt-stage';
 import { HubFreeIntermission } from '@components/game/table/hub/free/hub-free-intermission';
 import { HubFreeTurn } from '@components/game/table/hub/free/hub-free-turn';
 import { HubFreeWatch } from '@components/game/table/hub/free/hub-free-watch';
@@ -112,14 +113,17 @@ export const TableHub: React.FC<TableHubProps> = ({
     }
   }, [view, actions, tableName, form]);
 
+  // One frame for every state, so the panel never jumps a few pixels when the
+  // state of play changes. The progress header stays mounted inside it, which
+  // is what lets the next player slide into the current slot.
   return (
-    <div>
-      <HubProgress view={view} />
+    <FeltPanel size="sm" className="rounded-3xl px-5 py-5">
+      {!form && <HubProgress view={view} />}
       <AnimatePresence mode="wait" initial={false}>
         <HubTransition key={key} transitionKey={key}>
           {panel}
         </HubTransition>
       </AnimatePresence>
-    </div>
+    </FeltPanel>
   );
 };

@@ -8,7 +8,7 @@ import {
 import { cn } from '@lib/utils';
 import { motion, useReducedMotion } from 'motion/react';
 
-/** Shared spacing for game actions and summaries, directly on the felt. */
+/** The content of a centre panel; {@link TableHub} draws the frame around it. */
 
 export interface HubFact {
   label: React.ReactNode;
@@ -35,11 +35,11 @@ export const HubShell: React.FC<HubShellProps> = ({
   footnote,
   className,
 }) => (
-  <section className={cn('py-3 text-left', className)}>
+  <section className={cn('text-center', className)}>
     {eyebrow && <FeltEyebrow size="xs">{eyebrow}</FeltEyebrow>}
 
     {title && (
-      <h2 className="font-heading mt-1.5 text-xl leading-tight font-extrabold tracking-[-0.03em] text-balance">
+      <h2 className="font-heading mt-1.5 text-lg leading-tight font-extrabold tracking-[-0.03em] text-balance">
         {title}
       </h2>
     )}

@@ -16,7 +16,7 @@ export const HubProgress: React.FC<{ view: TableView }> = ({ view }) => {
   const active = view.activeSeat;
 
   return (
-    <header className="pb-1" aria-live="polite" aria-atomic="true">
+    <header className="pb-4 text-left" aria-live="polite" aria-atomic="true">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <h1
           className={cn(feltTitleVariants({ size: 'default' }), 'tabular-nums')}
