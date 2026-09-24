@@ -47,7 +47,7 @@ const seat = (
   id: `seat-${index}`,
   role: index === 0 ? ParticipantRole.Host : ParticipantRole.Player,
   displayName: `Seat ${index + 1}`,
-  photoUrl: null,
+  avatarUrl: null,
   balance: 500,
   seatIndex: index,
   status: ParticipantStatus.Active,

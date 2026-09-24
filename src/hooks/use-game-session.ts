@@ -139,9 +139,11 @@ export function useGameSession(params: UseGameSessionParams) {
         (response) => {
           if (response && typeof response === 'object' && 'error' in response) {
             setSocketError(response.error);
-            clearPlayerToken(gameId);
-            setParticipantId(null);
-            setTokenVersion((version) => version + 1);
+            if (response.status === 401) {
+              clearPlayerToken(gameId);
+              setParticipantId(null);
+              setTokenVersion((version) => version + 1);
+            }
             return;
           }
           setSnapshot(response.snapshot);
@@ -187,6 +189,11 @@ export function useGameSession(params: UseGameSessionParams) {
     return () => clearTimeout(timer);
   }, [isOver]);
 
+  const reattach = useCallback(() => {
+    setSocketError(null);
+    setTokenVersion((version) => version + 1);
+  }, []);
+
   const liveSocket = useCallback(() => {
     const socket = socketRef.current;
     if (!socket?.connected) {
@@ -224,6 +231,21 @@ export function useGameSession(params: UseGameSessionParams) {
       return unwrapAck(response);
     },
     [liveSocket],
+  );
+
+  const setSeatAvatar = useCallback(
+    async (avatar: Nullable<File>): Promise<GameSnapshot> => {
+      if (!gameId) throw new Error('Missing game id');
+      const token = readPlayerToken(gameId);
+      if (!token) throw new Error('You are not seated at this table');
+
+      const snapshot = avatar
+        ? await API.setSeatAvatar(gameId, token, avatar)
+        : await API.removeSeatAvatar(gameId, token);
+      setSnapshot(snapshot);
+      return snapshot;
+    },
+    [gameId, setSnapshot],
   );
 
   const startHand = useCallback(async (): Promise<GameActionResult> => {
@@ -318,6 +340,7 @@ export function useGameSession(params: UseGameSessionParams) {
     isOver,
     isAttached,
     socketError: isOver ? null : socketError,
+    reattach,
 
     participantId,
     mySeat,
@@ -326,6 +349,7 @@ export function useGameSession(params: UseGameSessionParams) {
 
     join,
     updateSeat,
+    setSeatAvatar,
 
     startHand,
     startRound,

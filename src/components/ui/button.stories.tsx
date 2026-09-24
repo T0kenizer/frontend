@@ -24,8 +24,8 @@ const meta = {
       description: {
         component:
           'The primary action of the Tokenizer design system. A variant ' +
-          'conveys importance and context: `felt` is reserved for the table ' +
-          'view, and `line` for colored backgrounds.',
+          'conveys importance and context: `felt` and `gold` are reserved for ' +
+          'the table view, and `line` for colored backgrounds.',
       },
     },
   },
@@ -48,6 +48,7 @@ const meta = {
         'link',
         'felt',
         'felt-inverse',
+        'gold',
         'line',
       ],
     },
@@ -200,6 +201,28 @@ export const FeltInverse: Story = {
   ],
 };
 
+/**
+ * The table's headline action (start the game, open the round): gold on felt,
+ * so it outranks every other button there. One per view.
+ */
+export const Gold: Story = {
+  args: { variant: 'gold', children: 'Start the game' },
+  render: withAndWithoutIcon(
+    <PlayIcon data-icon="inline-start" />,
+    'Start the game',
+  ),
+  parameters: {
+    backgrounds: { default: 'felt' },
+  },
+  decorators: [
+    (Story) => (
+      <div className="rounded-xl bg-radial-[ellipse_at_50%_20%] from-teal-600 to-teal-800 p-8">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
 /** For colored backgrounds (hero): translucent white + light border. */
 export const Line: Story = {
   args: { variant: 'line', children: 'Join with a code' },
@@ -219,8 +242,8 @@ export const Line: Story = {
 /**
  * Every variant, text-only in the first column and with its icon in the second,
  * in the active theme. The contextual ones are shown on the background they are
- * meant for: `felt` and `felt-inverse` on the table, `line` and `inverse` on a
- * hero gradient.
+ * meant for: `felt`, `felt-inverse` and `gold` on the table, `line` and
+ * `inverse` on a hero gradient.
  */
 export const AllVariants: Story = {
   parameters: { controls: { disable: true } },
@@ -277,6 +300,11 @@ export const AllVariants: Story = {
         <Button variant="felt-inverse">
           <CoinsIcon data-icon="inline-start" />
           Felt inverse
+        </Button>
+        <Button variant="gold">Gold</Button>
+        <Button variant="gold">
+          <PlayIcon data-icon="inline-start" />
+          Gold
         </Button>
       </div>
       <div className="from-coral-500 via-coral-deep to-plum-600 grid grid-cols-[auto_auto] justify-start gap-3 rounded-xl bg-linear-120 p-6">

@@ -36,8 +36,6 @@ export const HubLobby: React.FC<HubLobbyProps> = ({
   const { claimedCount, seatCount, isHost, inPlay } = view;
   const emptySeats = seatCount - claimedCount;
 
-  // The lobby is the same screen at both tables; only the word for a deal, and
-  // the call that opens one, belong to the game.
   const isPoker = view.mode === GameMode.Poker;
   const dealLabel = isPoker ? 'Deal the first hand' : 'Open the first round';
   const startDeal = isPoker ? actions.startHand : actions.startRound;
@@ -70,14 +68,8 @@ export const HubLobby: React.FC<HubLobbyProps> = ({
         )}
 
         <HubStack>
-          {/* Never gated on how many chairs are taken. Every declared seat is
-              dealt in whether or not anybody claimed it, so a host sitting
-              alone at a table of six is dealing a six-handed hand — they
-              simply play five of them. Waiting for a quorum that the rules do
-              not have was the button telling the host their own table was not
-              ready. */}
           <Button
-            variant="felt-inverse"
+            variant="gold"
             size="xl"
             className="w-full"
             loading={actions.pending === 'start'}
@@ -126,7 +118,7 @@ export const HubLobby: React.FC<HubLobbyProps> = ({
             className="w-full"
             onClick={actions.renameSeat}
           >
-            Change your name
+            Change your name or avatar
           </Button>
         </HubStack>
       )}

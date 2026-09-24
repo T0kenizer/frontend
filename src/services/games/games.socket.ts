@@ -18,6 +18,7 @@ import { io, type Socket } from 'socket.io-client';
 
 export interface GameSocketFailure {
   error: string;
+  status: number;
 }
 
 export type GameAck<T> = T | GameSocketFailure;

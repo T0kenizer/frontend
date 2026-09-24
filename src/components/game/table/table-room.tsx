@@ -63,10 +63,6 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
     }
   };
 
-  // Left for the React Compiler to memoize. Spelling the dependencies out by
-  // hand here was a losing game: the compiler infers `game.snapshot` where the
-  // list said `game.snapshot?.name`, disagrees, and bails out of optimizing
-  // the whole component rather than the one value.
   const actions: TableActions = {
     startHand: () => void run('start', game.startHand),
     startRound: () => void run('start', game.startRound),
@@ -74,8 +70,6 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
       void run(action, () =>
         game.submitAction(action, amount, targetParticipantId),
       ),
-    // Keyed by the catalog id the host wrote, exactly as the poker call is
-    // keyed by its action: it is what the panel spins the pressed button on.
     submitCatalogAction: (definitionId, amount, targetParticipantId) =>
       void run(definitionId, () =>
         game.submitCatalogAction(definitionId, amount, targetParticipantId),
@@ -93,17 +87,16 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
 
   if (!view) return null;
 
-  // Renaming is the only form the table has. Claiming a chair belongs to the
-  // join flow — see `game-room.tsx` — so there is nothing here that seats
-  // anybody.
   const form =
     isRenaming && view.mySeat ? (
       <SeatNameForm
         mode="rename"
         defaultDisplayName={view.mySeat.displayName}
+        currentAvatarUrl={view.mySeat.avatarUrl}
         onCancel={() => setIsRenaming(false)}
-        onSubmit={async (data) => {
-          await game.updateSeat(data);
+        onSubmit={async ({ avatar, ...data }) => {
+          if (data.displayName !== undefined) await game.updateSeat(data);
+          if (avatar !== undefined) await game.setSeatAvatar(avatar);
           setIsRenaming(false);
         }}
       />

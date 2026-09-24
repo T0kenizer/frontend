@@ -7,16 +7,6 @@ import {
 } from '@tokenizer/shared/types';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-/**
- * One chair, wherever it is shown.
- *
- * The seat picker and the live table render the same participant out of the
- * same snapshot, and used to render it twice over in two unrelated hands — so a
- * player picking seat 3 and then sitting in it saw two different rows for the
- * chair they had just chosen. This is that row, once. What differs between the
- * two screens is what the row _does_, which is what the props are for.
- */
-
 export const seatRowVariants = cva(
   'flex w-full items-center gap-3 rounded-xl border px-3 py-2 text-left transition-colors',
   {
@@ -58,18 +48,12 @@ export const describeSeat = (seat: ParticipantSnapshot): string => {
 
 export interface SeatRowProps {
   seat: ParticipantSnapshot;
-  /** Overrides {@link describeSeat} for the line under the name. */
   caption?: React.ReactNode;
   state?: SeatRowState;
-  /** Marks the seat whose turn it is. */
   isActive?: boolean;
-  /** Turns the whole row into the control that picks this seat. */
   onSelect?: () => void;
-  /** True when {@link onSelect} is set but the seat cannot be taken. */
   disabled?: boolean;
-  /** Pressed state, for a row that is one of a set being chosen from. */
   pressed?: boolean;
-  /** Trailing controls. Dropped when the row is itself a button. */
   children?: React.ReactNode;
   className?: string;
 }
@@ -94,13 +78,11 @@ export const SeatRow: React.FC<SeatRowProps> = ({
       </span>
 
       <Avatar size="sm">
-        {seat.photoUrl && <AvatarImage src={seat.photoUrl} alt="" />}
+        {seat.avatarUrl && <AvatarImage src={seat.avatarUrl} alt="" />}
         <AvatarFallback />
       </Avatar>
 
       <span className="min-w-0 flex-1">
-        {/* The snapshot names every seat, free ones included — the line
-            under it is where "nobody yet" is said. */}
         <span className="block truncate text-sm font-semibold">
           {seat.displayName}
         </span>
