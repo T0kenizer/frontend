@@ -45,6 +45,15 @@ export const GameRoom: React.FC<GameRoomProps> = ({ gameId }) => {
   }
 
   if (!game.participantId) {
+    if (game.socketError) {
+      return (
+        <RoomUnavailable message={game.socketError}>
+          <Button variant="line" onClick={game.reattach}>
+            Try again
+          </Button>
+        </RoomUnavailable>
+      );
+    }
     return <RoomLoading>Finding your seat…</RoomLoading>;
   }
 
