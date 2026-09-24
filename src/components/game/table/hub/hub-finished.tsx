@@ -20,10 +20,7 @@ export interface HubFinishedProps {
   view: TableView;
 }
 
-export const ENDING_COPY: Record<
-  TableEnding,
-  { eyebrow: string; line: string }
-> = {
+const ENDING_COPY: Record<TableEnding, { eyebrow: string; line: string }> = {
   'ended-by-host': {
     eyebrow: 'Game over',
     line: 'The host called time on the table.',
@@ -34,7 +31,7 @@ export const ENDING_COPY: Record<
   },
 };
 
-export const standingsOf = (seats: SeatView[]): SeatView[] =>
+const standingsOf = (seats: SeatView[]): SeatView[] =>
   seats
     .filter((entry) => entry.seat.claimed)
     .sort((a, b) => b.seat.balance - a.seat.balance);
@@ -118,14 +115,16 @@ export const HubFinished: React.FC<HubFinishedProps> = ({ view }) => {
     >
       <Standings standings={standings} />
 
-      <HubStack className="mt-4">
-        <Button variant="felt-inverse" size="xl" className="w-full" asChild>
-          <Link href={ROUTES.game.new()}>Start another table</Link>
-        </Button>
-        <Button variant="line" className="w-full" asChild>
-          <Link href={homeRoute}>Back home</Link>
-        </Button>
-      </HubStack>
+      {view.mySeat && (
+        <HubStack className="mt-4">
+          <Button variant="felt-inverse" size="xl" className="w-full" asChild>
+            <Link href={ROUTES.game.new()}>Start another table</Link>
+          </Button>
+          <Button variant="line" className="w-full" asChild>
+            <Link href={homeRoute}>Back home</Link>
+          </Button>
+        </HubStack>
+      )}
     </HubShell>
   );
 };

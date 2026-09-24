@@ -1,8 +1,8 @@
 'use client';
 
 import { FeltNotice } from '@components/game/felt/felt-stage';
-import { HubFrame } from '@components/game/table/hub/hub-shell';
-import { HubSpectator } from '@components/game/table/hub/hub-spectator';
+import { TableHub } from '@components/game/table/hub/table-hub';
+import type { TableActions } from '@components/game/table/table-actions';
 import { TableRing } from '@components/game/table/table-ring';
 import { EMPTY_SEATS } from '@components/game/table/table-room';
 import { TableTopBar } from '@components/game/table/table-top-bar';
@@ -55,13 +55,32 @@ export const SpectatorTable: React.FC<SpectatorTableProps> = ({
         hubRef={hubRef}
         chipModel={view.chipModel}
       >
-        <HubFrame view={view}>
-          <HubSpectator
-            view={view}
-            tableName={game.snapshot?.name ?? 'Table'}
-          />
-        </HubFrame>
+        <TableHub
+          view={view}
+          actions={SPECTATOR_ACTIONS}
+          tableName={game.snapshot?.name ?? 'Table'}
+        />
       </TableRing>
     </div>
   );
+};
+
+const noop = () => {};
+
+/**
+ * A spectator has no seat, so every panel shows its waiting state; nothing here
+ * is ever called.
+ */
+const SPECTATOR_ACTIONS: TableActions = {
+  startHand: noop,
+  startRound: noop,
+  submitAction: noop,
+  submitCatalogAction: noop,
+  declareWinners: noop,
+  resolveRound: noop,
+  closeGame: noop,
+  renameSeat: noop,
+  shareTable: noop,
+  pending: null,
+  error: null,
 };

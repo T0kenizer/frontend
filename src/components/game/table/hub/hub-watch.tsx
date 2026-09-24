@@ -30,10 +30,9 @@ export const HubWatch: React.FC<HubWatchProps> = ({ view }) => {
     <HubShell
       facts={[
         { label: 'Pot', value: formatAmount(pot) },
-        {
-          label: 'Your stack',
-          value: formatAmount(mySeat?.balance ?? 0),
-        },
+        ...(mySeat
+          ? [{ label: 'Your stack', value: formatAmount(mySeat.balance) }]
+          : []),
       ]}
     >
       <EventFeed events={recentEvents} emptyLabel="No moves yet." />
