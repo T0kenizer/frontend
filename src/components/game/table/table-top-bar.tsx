@@ -35,26 +35,29 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
     <header
       data-slot="table-top-bar"
       className={cn(
-        'flex shrink-0 items-start justify-between gap-3 px-4 py-3.5',
+        'grid shrink-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-3 px-4 py-3.5',
         className,
       )}
     >
-      {/* A fixed-height row, so the spectator's taller code card grows the bar
+      {/* Equal side columns keep the name centred on the page, and the
+          fixed-height row lets the spectator's taller code card grow the bar
           downwards without moving the logo or the name. */}
-      <div className="flex h-13 min-w-0 flex-1 items-center gap-3">
+      <div className="flex h-13 items-center">
         <Logo href={homeRoute} className="shrink-0" />
-
-        <span className="hidden min-w-0 flex-1 md:block">
-          <span className="block truncate text-sm font-bold">{tableName}</span>
-          {!isConnected ? (
-            <FeltBadge tone={isOver ? 'solid' : 'muted'} className="mt-0.5">
-              {isOver ? 'Closed' : 'Connecting…'}
-            </FeltBadge>
-          ) : null}
-        </span>
       </div>
 
-      <div className="flex min-h-13 shrink-0 flex-row items-center gap-3">
+      <span className="hidden h-13 max-w-[40vw] min-w-0 flex-col items-center justify-center text-center md:flex">
+        <span className="block max-w-full truncate text-sm font-bold">
+          {tableName}
+        </span>
+        {!isConnected ? (
+          <FeltBadge tone={isOver ? 'solid' : 'muted'} className="mt-0.5">
+            {isOver ? 'Closed' : 'Connecting…'}
+          </FeltBadge>
+        ) : null}
+      </span>
+
+      <div className="col-start-3 flex min-h-13 flex-row items-center justify-end gap-3">
         {joinCode && (
           <div
             className={cn(
