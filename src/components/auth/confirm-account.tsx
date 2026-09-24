@@ -25,9 +25,6 @@ export const ConfirmAccount: React.FC<ConfirmAccountProps> = ({ token }) => {
   } = useMutation(applyConfirmationOptions());
   const applied = useRef(false);
 
-  // Confirming needs no input from the user, so it happens as soon as the token
-  // proves valid. The ref keeps a re-render — or React's double-invoked effects
-  // in development — from spending the token twice.
   useEffect(() => {
     if (!data || applied.current) return;
 
@@ -35,8 +32,6 @@ export const ConfirmAccount: React.FC<ConfirmAccountProps> = ({ token }) => {
     applyConfirmation({ token });
   }, [data, applyConfirmation, token]);
 
-  // Checked before the validation query: the token is spent once the mutation
-  // succeeds, so re-reading it would now look like an invalid link.
   if (isSuccess) {
     return (
       <div className="flex flex-col gap-4">
@@ -45,7 +40,7 @@ export const ConfirmAccount: React.FC<ConfirmAccountProps> = ({ token }) => {
           {data?.email} is now verified. You can start using your account.
         </p>
         <Button className="self-start" asChild>
-          <Link href={ROUTES.home()}>Go to the app</Link>
+          <Link href={ROUTES.dashboard()}>Go to the app</Link>
         </Button>
       </div>
     );

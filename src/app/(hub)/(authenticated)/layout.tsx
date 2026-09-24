@@ -1,11 +1,11 @@
 import { SessionGuard } from '@components/guards/session-guard';
-import { HubShell } from '@components/layout/hub-shell';
+import { AuthenticatedShell } from '@components/layout/authenticated-shell';
 
 const AuthenticatedLayout: React.FC<React.PropsWithChildren> = async ({
   children,
 }) => (
   <SessionGuard>
-    <HubShell>{children}</HubShell>
+    <AuthenticatedShell>{children}</AuthenticatedShell>
   </SessionGuard>
 );
 

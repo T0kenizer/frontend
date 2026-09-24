@@ -51,7 +51,7 @@ export const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
       asChild
       {...props}
     >
-      <Link href={ROUTES.auth.googleOAuth(redirectUrl)}>
+      <Link href={ROUTES.auth.googleOAuth(redirectUrl ?? ROUTES.dashboard())}>
         <GoogleMark />
         {children}
       </Link>

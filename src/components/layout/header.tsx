@@ -1,14 +1,7 @@
 'use client';
 
 import { cn } from '@lib/utils';
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const getScrollParent = (
   element: Nullable<HTMLElement>,
@@ -25,14 +18,6 @@ const getScrollParent = (
 
   return window;
 };
-
-export type HeaderContext = {
-  scrolled: boolean;
-};
-
-const HeaderContext = createContext<HeaderContext>({ scrolled: false });
-
-export const useHeader = () => useContext(HeaderContext);
 
 export type HeaderProps = React.ComponentProps<'header'>;
 
@@ -62,19 +47,15 @@ export const Header: React.FC<HeaderProps> = ({
     return () => scroller.removeEventListener('scroll', onScroll);
   }, []);
 
-  const value = useMemo<HeaderContext>(() => ({ scrolled }), [scrolled]);
-
   return (
-    <HeaderContext.Provider value={value}>
-      <header
-        ref={ref}
-        data-slot="header"
-        data-scrolled={scrolled || undefined}
-        className={cn('sticky top-0 z-10', className)}
-        {...props}
-      >
-        {children}
-      </header>
-    </HeaderContext.Provider>
+    <header
+      ref={ref}
+      data-slot="header"
+      data-scrolled={scrolled || undefined}
+      className={cn('group/header sticky top-0 z-10', className)}
+      {...props}
+    >
+      {children}
+    </header>
   );
 };
