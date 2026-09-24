@@ -35,26 +35,31 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
     <header
       data-slot="table-top-bar"
       className={cn(
-        'flex shrink-0 items-center justify-between gap-3 px-4 py-3.5',
+        'flex shrink-0 items-start justify-between gap-3 px-4 py-3.5',
         className,
       )}
     >
-      <Logo href={homeRoute} className="shrink-0" />
+      {/* A fixed-height row, so the spectator's taller code card grows the bar
+          downwards without moving the logo or the name. */}
+      <div className="flex h-13 min-w-0 flex-1 items-center gap-3">
+        <Logo href={homeRoute} className="shrink-0" />
 
-      <span
-        className={cn(
-          'min-w-0 flex-1',
-          spectatorMode ? 'block' : 'hidden md:block',
-        )}
-      >
-        <span className="block truncate text-sm font-bold">{tableName}</span>
-        {!isConnected ? (
-          <FeltBadge tone={isOver ? 'solid' : 'muted'} className="mt-0.5">
-            {isOver ? 'Closed' : 'Connecting…'}
-          </FeltBadge>
-        ) : null}
-      </span>
-      <div className="flex shrink-0 flex-row items-center gap-3">
+        <span
+          className={cn(
+            'min-w-0 flex-1',
+            spectatorMode ? 'block' : 'hidden md:block',
+          )}
+        >
+          <span className="block truncate text-sm font-bold">{tableName}</span>
+          {!isConnected ? (
+            <FeltBadge tone={isOver ? 'solid' : 'muted'} className="mt-0.5">
+              {isOver ? 'Closed' : 'Connecting…'}
+            </FeltBadge>
+          ) : null}
+        </span>
+      </div>
+
+      <div className="flex min-h-13 shrink-0 flex-row items-center gap-3">
         {joinCode && (
           <div
             className={cn(
