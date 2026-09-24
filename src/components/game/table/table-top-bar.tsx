@@ -44,12 +44,7 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
       <div className="flex h-13 min-w-0 flex-1 items-center gap-3">
         <Logo href={homeRoute} className="shrink-0" />
 
-        <span
-          className={cn(
-            'min-w-0 flex-1',
-            spectatorMode ? 'block' : 'hidden md:block',
-          )}
-        >
+        <span className="hidden min-w-0 flex-1 md:block">
           <span className="block truncate text-sm font-bold">{tableName}</span>
           {!isConnected ? (
             <FeltBadge tone={isOver ? 'solid' : 'muted'} className="mt-0.5">
@@ -64,7 +59,7 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
           <div
             className={cn(
               'border-on-media-hairline flex shrink-0 items-center gap-2.5 rounded-xl bg-black/35 px-3 py-2',
-              spectatorMode && 'flex-col gap-2 py-3',
+              spectatorMode && 'md:flex-col md:gap-2 md:py-3',
             )}
           >
             {spectatorMode && (
@@ -73,11 +68,14 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
                 src={gameQrUrl(gameId)}
                 alt=""
                 aria-hidden
-                className="size-24 rounded-lg bg-white p-1"
+                className="hidden size-24 rounded-lg bg-white p-1 md:block"
               />
             )}
             <span
-              className={cn('flex flex-col', spectatorMode && 'items-center')}
+              className={cn(
+                'flex flex-col',
+                spectatorMode && 'md:items-center',
+              )}
             >
               <span className="text-on-media-muted-foreground text-[0.6rem] font-bold tracking-[0.11em] whitespace-nowrap uppercase">
                 Table code
