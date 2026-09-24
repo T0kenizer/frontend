@@ -1,6 +1,5 @@
 'use client';
 
-import { useHeader } from '@components/layout/header';
 import { Logo } from '@components/layout/logo';
 import { Button } from '@components/ui/button';
 import { useSidebar } from '@components/ui/sidebar';
@@ -22,25 +21,22 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const { data: session } = useQuery(retrieveSessionOptions());
   const { isMobile, toggleSidebar } = useSidebar();
-  const { scrolled: headerScrolled } = useHeader();
   const user = session?.user;
-
-  const isScrolled = scrolled ?? headerScrolled;
 
   return (
     <nav
       data-slot="navbar"
-      data-scrolled={isScrolled || undefined}
+      data-scrolled={scrolled || undefined}
       className={cn(
         'text-sidebar-foreground bg-background relative w-full',
         'after:from-background after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-6 after:bg-linear-to-b after:to-transparent after:opacity-0 after:transition-opacity after:duration-200 after:content-[""]',
-        'data-scrolled:after:opacity-100',
+        'group-data-scrolled/header:after:opacity-100 data-scrolled:after:opacity-100',
         className,
       )}
       {...props}
     >
       <div className="mx-auto flex w-full max-w-7xl justify-between px-2">
-        <Left>{isMobile && <Logo />}</Left>
+        <Left>{isMobile && <Logo href={ROUTES.dashboard()} />}</Left>
         <Right className="flex-1">
           {isMobile ? (
             <Button size="icon-lg" variant="secondary" onClick={toggleSidebar}>
