@@ -55,10 +55,8 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
         {joinCode && (
           <div
             className={cn(
-              'flex shrink-0 items-center',
-              spectatorMode
-                ? 'border-on-media-hairline gap-2.5 rounded-xl bg-black/35 px-3 py-2 md:flex-col md:gap-2 md:px-3 md:py-3'
-                : 'gap-3',
+              'border-on-media-hairline flex shrink-0 items-center gap-2.5 rounded-xl bg-black/35 px-3 py-2',
+              spectatorMode && 'md:flex-col md:gap-2 md:px-3 md:py-3',
             )}
           >
             {spectatorMode && (
