@@ -90,8 +90,8 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
             <Button
               variant="line"
               size="icon"
-              aria-label="Leave the table"
-              title="Leave the table"
+              aria-label="Open the spectator view"
+              title="Open the spectator view"
               className="hidden shrink-0 md:flex"
               asChild
             >
