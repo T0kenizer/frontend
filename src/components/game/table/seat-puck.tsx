@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import { cn } from '@lib/utils';
 import type { ChipModel } from '@tokenizer/shared/types';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 
 /**
  * One chair, as it is drawn around the table.
@@ -19,8 +19,9 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
  * live table showing a scrolling list of rows with a felt painted behind it.
  *
  * It knows nothing about turns or rounds beyond the flags it is handed. What it
- * does own is the reaction: a chair pulses when it is that player's turn,
- * flashes when their stack moves, and lifts when they take the pot.
+ * does own is the reaction: the stack changes when chips move, and the chair
+ * lifts when its player takes the pot. The turn ring fades between players,
+ * while the hub shows the next player moving into the current position.
  */
 
 const discVariants = cva(
@@ -30,9 +31,9 @@ const discVariants = cva(
       tone: {
         free: 'border-on-media-hairline border-2 bg-black/30',
         seated: 'border-on-media-border/90 border-2 bg-black/30',
-        mine: 'border-warning border-2 bg-black/30',
+        mine: 'border-on-media-border/90 border-2 bg-black/30',
         folded: 'border-on-media-hairline border-2 bg-black/40 opacity-55',
-        'all-in': 'border-warning border-2 border-dashed bg-black/30',
+        'all-in': 'border-on-media-border border-2 border-dashed bg-black/30',
         out: 'border-on-media-hairline border-2 border-dotted bg-black/40 opacity-40',
       },
       size: {
@@ -85,30 +86,13 @@ export const SeatPuck: React.FC<SeatPuckProps> = ({
       )}
     >
       <span className="relative">
-        {/* The turn marker: a ring that breathes, under the avatar so it reads
-            as light coming off the chair rather than a border on it. */}
-        <AnimatePresence>
-          {isActive && (
-            <motion.span
-              aria-hidden
-              key="turn"
-              className="bg-warning/35 absolute -inset-1.5 rounded-full"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={
-                reduceMotion
-                  ? { opacity: 0.5, scale: 1 }
-                  : { opacity: [0.25, 0.6, 0.25], scale: [1, 1.12, 1] }
-              }
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={
-                reduceMotion
-                  ? { duration: 0.2 }
-                  : { duration: 1.9, repeat: Infinity, ease: 'easeInOut' }
-              }
-            />
+        <span
+          aria-hidden
+          className={cn(
+            'ring-warning/70 pointer-events-none absolute -inset-1 rounded-full ring-2 transition-opacity duration-300 motion-reduce:transition-none',
+            isActive ? 'opacity-100' : 'opacity-0',
           )}
-        </AnimatePresence>
-
+        />
         <motion.span
           className={cn(discVariants({ tone, size }))}
           animate={
@@ -185,7 +169,7 @@ const SeatMarker: React.FC<{ view: SeatView }> = ({ view }) => {
     : view.tone === 'folded' || view.tone === 'out'
       ? { label: '—', className: 'bg-on-media-film text-on-media-foreground' }
       : view.isActive
-        ? { label: '•', className: 'bg-warning text-felt-inverse-foreground' }
+        ? { label: '•', className: 'bg-warning text-warning-foreground' }
         : { label: '✓', className: 'bg-felt-bright text-white' };
 
   return (

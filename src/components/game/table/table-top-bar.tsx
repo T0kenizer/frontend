@@ -46,15 +46,15 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
       </span>
 
       {joinCode && (
-        <div className="border-on-media-hairline flex shrink-0 items-center gap-2.5 rounded-xl bg-black/35 px-3 py-2 md:flex-col md:gap-2 md:px-3 md:py-3">
+        <div className="flex shrink-0 items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={gameQrUrl(gameId)}
             alt=""
             aria-hidden
-            className="hidden size-24 rounded-lg bg-white p-1 md:block"
+            className="hidden size-14 rounded-lg bg-white p-1 md:block"
           />
-          <span className="flex flex-col md:items-center">
+          <span className="flex flex-col">
             <span className="text-on-media-muted-foreground text-[0.6rem] font-bold tracking-[0.11em] whitespace-nowrap uppercase">
               Table code
             </span>
