@@ -1,5 +1,5 @@
 import { RolesGuard } from '@components/guards/roles-guard';
-import { HubShell } from '@components/layout/hub-shell';
+import { AuthenticatedShell } from '@components/layout/authenticated-shell';
 import { ADMIN_ROLES } from '@tokenizer/shared/constants/users.constants';
 
 export const metadata = {
@@ -11,7 +11,7 @@ export const metadata = {
 
 const AdminLayout: React.FC<React.PropsWithChildren> = async ({ children }) => (
   <RolesGuard roles={ADMIN_ROLES}>
-    <HubShell>{children}</HubShell>
+    <AuthenticatedShell>{children}</AuthenticatedShell>
   </RolesGuard>
 );
 

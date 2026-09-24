@@ -33,7 +33,6 @@ export const GameCTA: React.FC = () => (
         </Button>
       </div>
     </div>
-    {/* Below `lg` the copy needs the full width, so the stack steps aside. */}
     <Image
       src={ChipsCluster4Shadow}
       alt=""

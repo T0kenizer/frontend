@@ -52,7 +52,7 @@ export const AuthRightContainer: React.FC<AuthRightContainerProps> = ({
     <div className="flex shrink-0 items-center justify-between gap-3">
       <Logo className="lg:hidden" />
       <Link
-        href={ROUTES.home()}
+        href={ROUTES.landing()}
         className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
       >
         <ArrowLeft className="size-3.5" />

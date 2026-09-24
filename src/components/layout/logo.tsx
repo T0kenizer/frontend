@@ -10,7 +10,7 @@ export type LogoProps = Omit<React.ComponentProps<typeof Link>, 'href'> & {
 };
 
 export const Logo: React.FC<LogoProps> = ({
-  href = ROUTES.home(),
+  href = ROUTES.landing(),
   collapsible = false,
   className,
   ...props

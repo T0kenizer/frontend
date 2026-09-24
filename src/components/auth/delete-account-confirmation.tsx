@@ -35,7 +35,7 @@ export const DeleteAccountConfirmation: React.FC<
       {
         onSuccess: () => {
           toast.success('Your account has been deleted');
-          router.replace(ROUTES.home());
+          router.replace(ROUTES.landing());
         },
         onError: (error) => toast.error(error.data.message),
       },

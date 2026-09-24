@@ -1,3 +1,4 @@
+import { LandingSection } from '@constants/landing';
 import { NEXT_PUBLIC_API_URL } from '@lib/env';
 import { REDIRECT_URL_PARAM } from '@lib/redirect-url';
 import { buildGameJoinPath } from '@tokenizer/shared/utils/games.utils';
@@ -37,14 +38,30 @@ const ADMIN_ROUTES = () => '/admin';
 const GAME_ROUTES = (uuid: string) => `/game/${uuid}`;
 GAME_ROUTES.new = () => '/game/new';
 
+const PROFILE_ROUTES = (uuid?: string) =>
+  uuid ? `/profile/${uuid}` : '/profile';
+
 const JOIN_ROUTES = (uuid?: string) =>
   uuid ? buildGameJoinPath(uuid) : '/game/join';
 GAME_ROUTES.join = JOIN_ROUTES;
 
+const LANDING_ROUTE = (section?: LandingSection) =>
+  section ? `/#${section}` : '/';
+const DASHBOARD_ROUTE = () => '/dashboard';
+
+const HOME_ROUTE = (isAuthenticated: boolean) =>
+  isAuthenticated ? DASHBOARD_ROUTE() : LANDING_ROUTE();
+
 const ROUTES = {
-  home: () => '/',
+  home: HOME_ROUTE,
+
+  landing: LANDING_ROUTE,
+
+  dashboard: DASHBOARD_ROUTE,
 
   auth: AUTH_ROUTES,
+
+  profile: PROFILE_ROUTES,
 
   settings: SETTINGS_ROUTES,
 
