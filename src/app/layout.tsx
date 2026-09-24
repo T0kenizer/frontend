@@ -38,7 +38,7 @@ const RootLayout: React.FC<React.PropsWithChildren> = ({ children }) => (
     data-scroll-behavior="smooth"
     suppressHydrationWarning
   >
-    <body className="bg-background relative flex h-dvh w-dvw flex-row gap-0 overflow-x-hidden overflow-y-auto antialiased">
+    <body className="relative flex h-dvh w-dvw flex-row gap-0 overflow-x-hidden overflow-y-auto antialiased">
       <ThemeProvider
         attribute="class"
         defaultTheme="system"

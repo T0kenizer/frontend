@@ -41,7 +41,7 @@ export interface HubTurnProps {
 }
 
 export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
-  const { legalActions, proxySeat, mySeat, pot, toCall, streetLabel } = view;
+  const { legalActions, proxySeat, mySeat, pot, toCall } = view;
 
   // The host covering an empty chair spends that chair's stack, not their own.
   const actingSeat = proxySeat ?? mySeat;
@@ -65,30 +65,16 @@ export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
     setPicked(null);
   }
 
-  const eyebrow = proxySeat ? 'Playing an empty chair' : 'Your turn';
-  const title = proxySeat ? `Seat ${proxySeat.seatIndex + 1}` : 'Your move';
-  const description = proxySeat
-    ? 'Nobody claimed this chair, so you play it for the table.'
-    : undefined;
-
   return (
     <HubShell
-      eyebrow={eyebrow}
-      title={title}
-      description={description}
       facts={[
         { label: 'Pot', value: formatAmount(pot) },
         { label: 'To call', value: toCall ? formatAmount(toCall) : '—' },
         {
-          label: proxySeat ? 'Chair' : 'Your stack',
+          label: proxySeat ? 'Seat stack' : 'Your stack',
           value: formatAmount(actingSeat?.balance ?? 0),
         },
       ]}
-      footnote={streetLabel ? `${streetLabel} betting` : undefined}
-      className={cn(
-        // A live turn is worth an outline you can see from across a table.
-        'ring-warning/45 ring-3',
-      )}
     >
       {actions.error && (
         <FeltNotice tone="error" className="mb-3 text-left">
