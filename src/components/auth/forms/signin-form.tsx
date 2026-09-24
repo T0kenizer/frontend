@@ -46,7 +46,6 @@ export const SignInForm: React.FC<SignInFormProps> = ({ ...props }) => {
     createSessionOptions(),
   );
 
-  // Nothing to send until both boxes have something in them.
   const [login, password] = useWatch({
     control: form.control,
     name: ['login', 'password'],
@@ -58,7 +57,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ ...props }) => {
 
     createSession(data, {
       onSuccess: () => {
-        router.replace(redirectUrl ?? ROUTES.home());
+        router.replace(redirectUrl ?? ROUTES.dashboard());
       },
       onError: (error) => applyServerError(form, error),
     });

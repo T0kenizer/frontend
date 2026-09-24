@@ -298,6 +298,12 @@
   --felt-deep: var(--color-teal-800);
   --felt-inverse: var(--color-white);
   --felt-inverse-foreground: var(--color-teal-800);
+  --felt-wash: radial-gradient(
+    ellipse 80% 70% at 30% 20%,
+    var(--felt-bright),
+    var(--felt-deep) 58%,
+    var(--color-night-950)
+  );
 
   /**
    * Controls that sit on imagery or video rather than on a page surface.
@@ -415,25 +421,19 @@
     }
   }
 
-  /**
-   * The table itself: the felt wash the connection hero leads with, lifted out
-   * of that one aside so every screen that is a table rather than a page —
-   * the whole `/game` tree, outside `(hub)` — reads as the same surface.
-   *
-   * Theme-invariant like the `--felt*` tokens it is built from: the backdrop
-   * is baize, not a theme, so it must not flip with light/dark. Anything set
-   * on it therefore belongs to the `on-media` family, never to `--foreground`.
-   */
   .felt-surface {
     position: relative;
     isolation: isolate;
     color: var(--on-media-foreground);
-    background: radial-gradient(
-      ellipse 80% 70% at 30% 20%,
-      var(--color-felt-bright),
-      var(--color-felt-deep) 58%,
-      var(--color-night-950)
-    );
+    background: var(--felt-wash);
+  }
+
+  body:has(main.felt-surface) {
+    background: var(--felt-wash) no-repeat var(--color-night-950);
+  }
+
+  main.felt-surface {
+    background: none;
   }
 
   /**

@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     INTERNAL_API_URL: process.env.INTERNAL_API_URL,
   },
+  images: {
+    remotePatterns: [new URL('https://www.placecats.com/**')],
+  },
   redirects: async () => [
     {
       source: '/settings',

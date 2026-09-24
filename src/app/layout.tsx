@@ -4,6 +4,7 @@ import { ThemeProvider } from '@components/providers/theme-provider';
 import { Toaster } from '@components/ui/sonner';
 import { TooltipProvider } from '@components/ui/tooltip';
 import { APP_NAME } from '@constants/index';
+import { cn } from '@lib/utils';
 import '@styles/globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
@@ -31,8 +32,13 @@ export const metadata: Metadata = {
 };
 
 const RootLayout: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <html lang="en" className={inter.variable} suppressHydrationWarning>
-    <body className="bg-background relative flex h-dvh w-dvw flex-row gap-0 overflow-x-hidden overflow-y-auto antialiased">
+  <html
+    lang="en"
+    className={cn(inter.variable, 'motion-safe:scroll-smooth')}
+    data-scroll-behavior="smooth"
+    suppressHydrationWarning
+  >
+    <body className="relative flex h-dvh w-dvw flex-row gap-0 overflow-x-hidden overflow-y-auto antialiased">
       <ThemeProvider
         attribute="class"
         defaultTheme="system"
