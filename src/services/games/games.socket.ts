@@ -8,6 +8,8 @@ import type {
   HandResolution,
   ResolveRoundData,
   RoundResolution,
+  SpectateSocketData,
+  SpectateSocketResponse,
   SubmitActionData,
   UpdateSeatData,
 } from '@tokenizer/shared/types';
@@ -58,6 +60,10 @@ interface ClientToServerEvents {
   [GameClientMessage.Attach]: (
     payload: AttachSocketData,
     ack: (response: GameAck<AttachSocketResponse>) => void,
+  ) => void;
+  [GameClientMessage.Spectate]: (
+    payload: SpectateSocketData,
+    ack: (response: GameAck<SpectateSocketResponse>) => void,
   ) => void;
   [GameClientMessage.UpdateSeat]: (
     payload: UpdateSeatData,

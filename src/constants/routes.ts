@@ -37,6 +37,7 @@ const ADMIN_ROUTES = () => '/admin';
 
 const GAME_ROUTES = (uuid: string) => `/game/${uuid}`;
 GAME_ROUTES.new = () => '/game/new';
+GAME_ROUTES.spectator = (uuid: string) => `/game/${uuid}/spectator`;
 
 const PROFILE_ROUTES = (uuid?: string) =>
   uuid ? `/profile/${uuid}` : '/profile';

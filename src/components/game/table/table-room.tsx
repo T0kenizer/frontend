@@ -16,19 +16,6 @@ import ROUTES from '@constants/routes';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-/**
- * The live table, assembled.
- *
- * Two halves and nothing else: {@link TableRing} draws the chairs and the people
- * in them, {@link TableHub} draws whatever the game is asking for. This
- * component is the only place that knows about both, and all it does is hold
- * the state neither of them should own — what is in flight, what the server
- * last refused, which form is open — and hand each half what it needs.
- *
- * Nothing here decides what a state of the game _means_; that is
- * {@link useTableView}, once, off the snapshot.
- */
-
 export interface TableRoomProps {
   gameId: string;
   game: GameSession;
@@ -45,11 +32,6 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
   const flights = useChipFlights(seats);
   const { ringRef, hubRef, geometry } = useRingGeometry(seats.length);
 
-  /**
-   * One wrapper around every call that can fail, because they all fail the same
-   * way: the socket acks with a message, and the player needs to see it on the
-   * panel they pressed rather than in a toast that has already gone.
-   */
   const run = async (id: string, call: () => Promise<unknown>) => {
     setPending(id);
     setError(null);
@@ -71,8 +53,6 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
     ).toString();
     const code = game.snapshot?.joinCode;
 
-    // `navigator.share` is the one that actually gets the link to someone in
-    // the room; the clipboard is the fallback for a laptop with no share sheet.
     if (navigator.share) {
       try {
         await navigator.share({
@@ -81,10 +61,7 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
           url,
         });
         return;
-      } catch {
-        // Dismissing the share sheet throws. That is not a failure worth
-        // reporting, so fall through to the clipboard.
-      }
+      } catch {}
     }
 
     try {
@@ -179,4 +156,5 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
 };
 
 /** Stable empty array: a fresh `[]` each render would restart the chip diff. */
-const EMPTY_SEATS: NonNullable<GameSession['snapshot']>['participants'] = [];
+export const EMPTY_SEATS: NonNullable<GameSession['snapshot']>['participants'] =
+  [];

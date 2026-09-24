@@ -39,6 +39,7 @@ type ClosedSessionStub = Pick<GameSnapshot, 'id' | 'status'>;
 export interface UseGameSessionParams {
   gameId: Optional<string>;
   enabled?: boolean;
+  spectate?: boolean;
 }
 
 export interface JoinSeatParams {
@@ -55,7 +56,7 @@ function unwrapAck<T>(response: GameAck<T>): T {
 }
 
 export function useGameSession(params: UseGameSessionParams) {
-  const { gameId, enabled = true } = params;
+  const { gameId, enabled = true, spectate = false } = params;
 
   const queryClient = useQueryClient();
   const socketRef = useRef<Nullable<GameSocket>>(null);
@@ -94,8 +95,8 @@ export function useGameSession(params: UseGameSessionParams) {
   useEffect(() => {
     if (!enabled || !gameId) return;
 
-    const token = readPlayerToken(gameId);
-    if (!token) return;
+    const token = spectate ? null : readPlayerToken(gameId);
+    if (!spectate && !token) return;
 
     const socket = createGameSocket();
     socketRef.current = socket;
@@ -111,6 +112,26 @@ export function useGameSession(params: UseGameSessionParams) {
     socket.on('connect', () => {
       setIsConnected(true);
       setSocketError(null);
+
+      if (!token) {
+        socket.emit(
+          GameClientMessage.Spectate,
+          { gameUuid: gameId },
+          (response) => {
+            if (
+              response &&
+              typeof response === 'object' &&
+              'error' in response
+            ) {
+              setSocketError(response.error);
+              return;
+            }
+            setSnapshot(response.snapshot);
+            setIsAttached(true);
+          },
+        );
+        return;
+      }
 
       socket.emit(
         GameClientMessage.Attach,
@@ -151,7 +172,7 @@ export function useGameSession(params: UseGameSessionParams) {
       setIsConnected(false);
       setIsAttached(false);
     };
-  }, [enabled, gameId, tokenVersion, setSnapshot, closeSnapshot]);
+  }, [enabled, gameId, spectate, tokenVersion, setSnapshot, closeSnapshot]);
 
   const isOver = query.data ? isGameOver(query.data.status) : false;
 
