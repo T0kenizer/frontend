@@ -89,7 +89,7 @@ export const SeatPuck: React.FC<SeatPuckProps> = ({
         <span
           aria-hidden
           className={cn(
-            'ring-success/70 pointer-events-none absolute -inset-1 rounded-full ring-2 transition-opacity duration-300 motion-reduce:transition-none',
+            'ring-warning/70 pointer-events-none absolute -inset-1 rounded-full ring-2 transition-opacity duration-300 motion-reduce:transition-none',
             isActive ? 'opacity-100' : 'opacity-0',
           )}
         />
@@ -169,7 +169,7 @@ const SeatMarker: React.FC<{ view: SeatView }> = ({ view }) => {
     : view.tone === 'folded' || view.tone === 'out'
       ? { label: '—', className: 'bg-on-media-film text-on-media-foreground' }
       : view.isActive
-        ? { label: '•', className: 'bg-success text-success-foreground' }
+        ? { label: '•', className: 'bg-warning text-warning-foreground' }
         : { label: '✓', className: 'bg-felt-bright text-white' };
 
   return (

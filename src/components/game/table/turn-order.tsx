@@ -62,7 +62,7 @@ export const TurnOrder: React.FC<TurnOrderProps> = ({
                 className={cn(
                   'row-start-1 min-w-0 transition-colors duration-300 motion-reduce:transition-none',
                   isCurrent
-                    ? 'text-success col-start-1'
+                    ? 'text-warning col-start-1'
                     : 'text-on-media-muted-foreground col-start-2',
                 )}
               >
