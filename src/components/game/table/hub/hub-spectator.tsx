@@ -69,11 +69,6 @@ export const HubSpectator: React.FC<HubSpectatorProps> = ({
 
       return (
         <HubShell
-          eyebrow={
-            (isPoker ? view.streetLabel : null) ??
-            (isPoker ? 'In progress' : 'Round in progress')
-          }
-          title={`${waitingOn} to act`}
           facts={[{ label: 'Pot', value: formatAmount(pot) }, seated, deals]}
         >
           <ThinkingPulse name={waitingOn} />

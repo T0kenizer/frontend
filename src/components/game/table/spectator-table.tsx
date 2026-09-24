@@ -1,6 +1,7 @@
 'use client';
 
 import { FeltNotice } from '@components/game/felt/felt-stage';
+import { HubFrame } from '@components/game/table/hub/hub-shell';
 import { HubSpectator } from '@components/game/table/hub/hub-spectator';
 import { TableRing } from '@components/game/table/table-ring';
 import { EMPTY_SEATS } from '@components/game/table/table-room';
@@ -54,7 +55,12 @@ export const SpectatorTable: React.FC<SpectatorTableProps> = ({
         hubRef={hubRef}
         chipModel={view.chipModel}
       >
-        <HubSpectator view={view} tableName={game.snapshot?.name ?? 'Table'} />
+        <HubFrame view={view}>
+          <HubSpectator
+            view={view}
+            tableName={game.snapshot?.name ?? 'Table'}
+          />
+        </HubFrame>
       </TableRing>
     </div>
   );
