@@ -18,6 +18,7 @@ import {
   StartRoundResponse,
   SubmitActionData,
   SubmitActionResponse,
+  UpdateSeatResponse,
 } from '@tokenizer/shared/types';
 import { buildGameQrUrl } from '@tokenizer/shared/utils/games.utils';
 
@@ -61,6 +62,27 @@ export const updateSeat = async (
   requester().patch(
     `${BASE_URL}/${uuid}/participants/current`,
     data,
+    asPlayer(token),
+  );
+
+export const setSeatAvatar = async (
+  uuid: string,
+  token: string,
+  file: File,
+) => {
+  const data = new FormData();
+  data.append('file', file);
+
+  return requester().put<UpdateSeatResponse>(
+    `${BASE_URL}/${uuid}/participants/current/avatar`,
+    data,
+    { headers: { ...asPlayer(token).headers, 'Content-Type': undefined } },
+  );
+};
+
+export const removeSeatAvatar = async (uuid: string, token: string) =>
+  requester().delete<UpdateSeatResponse>(
+    `${BASE_URL}/${uuid}/participants/current/avatar`,
     asPlayer(token),
   );
 

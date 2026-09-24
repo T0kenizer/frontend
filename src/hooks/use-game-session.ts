@@ -233,6 +233,21 @@ export function useGameSession(params: UseGameSessionParams) {
     [liveSocket],
   );
 
+  const setSeatAvatar = useCallback(
+    async (avatar: Nullable<File>): Promise<GameSnapshot> => {
+      if (!gameId) throw new Error('Missing game id');
+      const token = readPlayerToken(gameId);
+      if (!token) throw new Error('You are not seated at this table');
+
+      const snapshot = avatar
+        ? await API.setSeatAvatar(gameId, token, avatar)
+        : await API.removeSeatAvatar(gameId, token);
+      setSnapshot(snapshot);
+      return snapshot;
+    },
+    [gameId, setSnapshot],
+  );
+
   const startHand = useCallback(async (): Promise<GameActionResult> => {
     const response = await liveSocket().emitWithAck(
       GameClientMessage.StartHand,
@@ -334,6 +349,7 @@ export function useGameSession(params: UseGameSessionParams) {
 
     join,
     updateSeat,
+    setSeatAvatar,
 
     startHand,
     startRound,

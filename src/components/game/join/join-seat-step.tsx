@@ -14,14 +14,6 @@ import { GameMode, type GameSnapshot } from '@tokenizer/shared/types';
 import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-/**
- * Which chair the visitor has picked: one that is already round the table, or
- * one they are about to pull up.
- *
- * A seat that does not exist yet cannot be named by index — there is no row to
- * point at — so the two are told apart here rather than by a sentinel index
- * that every later step would have to remember the meaning of.
- */
 export type PickedSeat =
   | { kind: 'existing'; seatIndex: number }
   | { kind: 'new'; seatIndex: number };
@@ -46,15 +38,9 @@ export const JoinSeatStep: React.FC<JoinSeatStepProps> = ({
   const taken = seats.filter((seat) => seat.claimed).length;
   const isFull = taken === seats.length;
 
-  // A chair can only be pulled up at a table that has room for one, and the
-  // server is the only thing that knows whether it has: the seating config, the
-  // owner's plan and whether a deal is under way all feed into `canAddSeat`.
   const canPullUpAChair = isFull && snapshot.canAddSeat;
   const newSeatIndex = seats.length;
 
-  // The one reason a full table refuses a chair that fixes itself on its own.
-  // Worth separating, because "wait a minute" and "not at this table" are
-  // different answers to somebody standing there holding a phone.
   const isMidDeal =
     snapshot.mode === GameMode.Poker
       ? snapshot.currentHand !== null
@@ -114,10 +100,6 @@ export const JoinSeatStep: React.FC<JoinSeatStepProps> = ({
           );
         })}
 
-        {/* The chair you bring with you. It sits at the end of the row because
-            that is where it will actually be dealt in, and it is offered to
-            whoever turns up rather than requested from the host: the person who
-            wants the seat is the one standing there. */}
         {canPullUpAChair && (
           <li>
             <button
@@ -158,14 +140,14 @@ export const JoinSeatStep: React.FC<JoinSeatStepProps> = ({
       )}
 
       <Button
-        variant="felt-inverse"
+        variant="gold"
         size="xl"
         disabled={picked === null}
         onClick={() => picked && onPickSeat(picked)}
         className="w-full"
       >
         {picked === null
-          ? 'Pick a place'
+          ? 'Pick a seat'
           : picked.kind === 'new'
             ? `Pull up seat ${picked.seatIndex + 1}`
             : `Take seat ${picked.seatIndex + 1}`}

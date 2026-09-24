@@ -6,6 +6,10 @@ import {
   FeltPanel,
   FeltStat,
 } from '@components/game/felt/felt-stage';
+import {
+  SeatAvatarPicker,
+  type SeatAvatarChange,
+} from '@components/game/seat-avatar-picker';
 import { Button } from '@components/ui/button';
 import { Field, FieldLabel } from '@components/ui/field';
 import { Input } from '@components/ui/input';
@@ -20,7 +24,8 @@ export interface JoinIdentityStepProps {
   seatIndex: number;
   isNewSeat?: boolean;
   defaultDisplayName?: string;
-  onSit: (data: { displayName?: string }) => Promise<void>;
+  defaultAvatarUrl?: Nullable<string>;
+  onSit: (data: { displayName?: string; avatar?: File }) => Promise<void>;
   onBack: () => void;
 }
 
@@ -29,6 +34,7 @@ export const JoinIdentityStep: React.FC<JoinIdentityStepProps> = ({
   seatIndex,
   isNewSeat = false,
   defaultDisplayName,
+  defaultAvatarUrl = null,
   onSit,
   onBack,
 }) => {
@@ -40,6 +46,7 @@ export const JoinIdentityStep: React.FC<JoinIdentityStepProps> = ({
 
   const initialName = defaultDisplayName ?? seat?.displayName ?? '';
   const [displayName, setDisplayName] = useState(initialName);
+  const [avatar, setAvatar] = useState<SeatAvatarChange>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -49,7 +56,10 @@ export const JoinIdentityStep: React.FC<JoinIdentityStepProps> = ({
 
     setIsSubmitting(true);
     try {
-      await onSit({ displayName: name === initialName ? undefined : name });
+      await onSit({
+        displayName: name === initialName ? undefined : name,
+        avatar: avatar ?? undefined,
+      });
     } catch (cause) {
       toast.error(
         (cause instanceof Error && cause.message) || 'Could not take the seat',
@@ -91,6 +101,12 @@ export const JoinIdentityStep: React.FC<JoinIdentityStepProps> = ({
           />
         </Field>
 
+        <SeatAvatarPicker
+          currentUrl={defaultAvatarUrl}
+          disabled={isSubmitting}
+          onChange={setAvatar}
+        />
+
         {seat && (
           <dl className="border-on-media-hairline bg-on-media-scrim flex items-center gap-3 rounded-xl border px-4 py-3">
             <FeltStat
@@ -108,7 +124,7 @@ export const JoinIdentityStep: React.FC<JoinIdentityStepProps> = ({
 
         <Button
           type="submit"
-          variant="felt-inverse"
+          variant="gold"
           size="xl"
           loading={isSubmitting}
           disabled={!displayName.trim()}
@@ -117,7 +133,7 @@ export const JoinIdentityStep: React.FC<JoinIdentityStepProps> = ({
           {isSubmitting
             ? 'Sitting down…'
             : isNewSeat
-              ? 'Pull up a chair'
+              ? 'Pull up a seat'
               : 'Sit at the table'}
         </Button>
       </form>

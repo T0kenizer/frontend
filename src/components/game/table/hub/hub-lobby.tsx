@@ -118,7 +118,7 @@ export const HubLobby: React.FC<HubLobbyProps> = ({
             className="w-full"
             onClick={actions.renameSeat}
           >
-            Change your name
+            Change your name or avatar
           </Button>
         </HubStack>
       )}
