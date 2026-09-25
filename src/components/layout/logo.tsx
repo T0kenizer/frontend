@@ -1,4 +1,3 @@
-import TokenizerMark from '@assets/images/logo/tokenizer-mark.svg';
 import { APP_NAME } from '@constants/index';
 import ROUTES from '@constants/routes';
 import { cn } from '@lib/utils';
@@ -22,10 +21,10 @@ export const Logo: React.FC<LogoProps> = ({
     {...props}
   >
     <Image
-      src={TokenizerMark}
+      src="/logo/tokenizer-mark.svg"
       alt={`${APP_NAME} Logo`}
+      width={32}
       height={32}
-      sizes="100%"
       className={cn(
         'h-8 w-auto shrink-0',
         collapsible &&
