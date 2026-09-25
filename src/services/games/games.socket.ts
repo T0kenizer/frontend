@@ -99,7 +99,9 @@ interface ClientToServerEvents {
 export type GameSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
 export function createGameSocket(): GameSocket {
-  return io(NEXT_PUBLIC_API_URL, {
+  const { origin, pathname } = new URL(NEXT_PUBLIC_API_URL);
+  return io(origin, {
+    path: `${pathname.replace(/\/+$/, '')}/socket.io`,
     withCredentials: true,
     transports: ['websocket'],
   });
