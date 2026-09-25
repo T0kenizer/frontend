@@ -8,6 +8,7 @@ import { cn } from '@lib/utils';
 import { joinByCodeOptions } from '@services/games/games.options';
 import { useMutation } from '@tanstack/react-query';
 import { JOIN_CODE_LENGTH } from '@tokenizer/shared/constants/games.constants';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
 
@@ -19,10 +20,11 @@ export type LandingJoinCodeProps = Omit<
 };
 
 export const LandingJoinCode: React.FC<LandingJoinCodeProps> = ({
-  label = 'Got a table code?',
+  label,
   className,
   ...props
 }) => {
+  const t = useTranslations('JoinCode');
   const id = useId();
   const router = useRouter();
   const [code, setCode] = useState('');
@@ -38,9 +40,7 @@ export const LandingJoinCode: React.FC<LandingJoinCodeProps> = ({
       const { gameUuid } = await joinByCode(code);
       router.push(ROUTES.game.join(gameUuid));
     } catch (cause) {
-      setError(
-        (cause instanceof Error && cause.message) || 'No table with that code.',
-      );
+      setError((cause instanceof Error && cause.message) || t('error'));
     }
   };
 
@@ -55,7 +55,7 @@ export const LandingJoinCode: React.FC<LandingJoinCodeProps> = ({
           htmlFor={id}
           className="text-on-media-muted-foreground text-xs font-semibold whitespace-nowrap"
         >
-          {label}
+          {label ?? t('label')}
         </label>
         <Input
           id={id}
@@ -79,7 +79,7 @@ export const LandingJoinCode: React.FC<LandingJoinCodeProps> = ({
           size="lg"
           disabled={code.length < JOIN_CODE_LENGTH || isPending}
         >
-          Join
+          {t('action')}
         </Button>
       </form>
       {error && (

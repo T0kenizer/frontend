@@ -1,3 +1,4 @@
+import { APP_NAME } from '@constants/index';
 import {
   AmountForm,
   BettingStructure,
@@ -58,7 +59,7 @@ export const HAND_EVENT_LABELS: Record<HandEventType, string> = {
 
 export const EXPERIMENTAL_MODE_NOTE: Partial<Record<GameMode, string>> = {
   [GameMode.Free]:
-    'You write the rules and Tokenizer only counts the chips — it will not ' +
+    `You write the rules and ${APP_NAME} only counts the chips — it will not ` +
     'stop a game that does not work. Expect it to change.',
 };
 

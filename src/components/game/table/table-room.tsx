@@ -7,6 +7,7 @@ import {
   useTableView,
   type GameSession,
 } from '@components/game/table/use-table-view';
+import { APP_NAME } from '@constants/index';
 import ROUTES from '@constants/routes';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -47,7 +48,7 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: game.snapshot?.name ?? 'Tokenizer',
+          title: game.snapshot?.name ?? APP_NAME,
           text: code ? `Join my table — code ${code}` : 'Join my table',
           url,
         });

@@ -1,9 +1,5 @@
 import { CreateGame } from '@components/game/create/create-game';
 
-export const metadata = {
-  title: 'New game',
-};
-
-const NewGamePage = () => <CreateGame />;
+const NewGamePage: React.FC = () => <CreateGame />;
 
 export default NewGamePage;

@@ -2,6 +2,7 @@
 
 import { Button } from '@components/ui/button';
 import { Separator } from '@components/ui/separator';
+import { APP_NAME } from '@constants/index';
 import ROUTES from '@constants/routes';
 import { AuthMode, useAuthMode } from '@hooks/use-auth-mode';
 import { REDIRECT_URL_PARAM, sanitizeRedirectUrl } from '@lib/redirect-url';
@@ -70,7 +71,7 @@ export const AuthFooter: React.FC<AuthFooterProps> = ({
       </div>
 
       <p className="text-muted-foreground/80 text-center text-[0.6875rem] leading-relaxed">
-        Secured by Tokenizer. No payment details are ever required to play.
+        Secured by {APP_NAME}. No payment details are ever required to play.
       </p>
     </div>
   );
