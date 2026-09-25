@@ -5,6 +5,7 @@ import {
   FeltHeader,
   FeltPanel,
 } from '@components/game/felt/felt-stage';
+import { APP_NAME } from '@constants/index';
 import { useQrScanner } from '@hooks/use-qr-scanner';
 import { useCallback, useState } from 'react';
 
@@ -30,7 +31,7 @@ export const JoinScannerStep: React.FC<JoinScannerStepProps> = ({
     (value: string) => {
       const gameUuid = extractGameUuid(value);
       if (!gameUuid) {
-        setError('That code is not a Tokenizer table.');
+        setError(`That code is not a ${APP_NAME} table.`);
         return;
       }
       onScanned(gameUuid);
