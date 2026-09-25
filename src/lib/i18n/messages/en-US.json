@@ -1,0 +1,115 @@
+{
+  "Landing": {
+    "hero": {
+      "eyebrow": "Your game night's bank",
+      "title": "You play. We <em>count</em> the chips.",
+      "description": "Buy-ins, rebuys, blinds and pots: {appName} keeps the bank on the living-room TV, and everyone bets from their phone.",
+      "signUp": "Open my first table",
+      "howItWorks": "See how it works",
+      "photoAlt": "Friends around a poker table, the game showing on the TV"
+    },
+    "howItWorks": {
+      "eyebrow": "How it works",
+      "title": "Three minutes from the couch to the first deal.",
+      "steps": {
+        "setup": {
+          "title": "Set up your table",
+          "description": "Name the seats, set the buy-in and the blinds. Your settings are remembered for next time.",
+          "shotAlt": "The new game screen"
+        },
+        "scan": {
+          "title": "Your friends scan in",
+          "description": "A QR code on the TV, a seat to pick, and everyone gets their buy-in. No account needed to play.",
+          "shotAlt": "Picking a seat on a phone"
+        },
+        "play": {
+          "title": "Just play",
+          "description": "Bets are recorded, the pot adds itself up, the blinds go up on time. At the end of the night, the tally is ready.",
+          "shotAlt": "A table in progress"
+        }
+      }
+    },
+    "tv": {
+      "eyebrow": "On the TV",
+      "title": "The whole table, on the big screen.",
+      "description": "Cast the game to the living-room screen: the pot, the stacks and the next blind level are readable from the couch.",
+      "roomAlt": "A living room with the table showing on the wall-mounted TV",
+      "screenAlt": "The full-screen TV view of a table",
+      "points": {
+        "blinds": {
+          "title": "Timed blinds",
+          "description": "The next level shows up with its countdown."
+        },
+        "pot": {
+          "title": "The pot, live",
+          "description": "Every bet lands on the table the moment it is made."
+        },
+        "qr": {
+          "title": "The QR code, always on screen",
+          "description": "Latecomers join the table without stopping the hand."
+        }
+      }
+    },
+    "phone": {
+      "eyebrow": "On your phone",
+      "title": "Your stack, in your pocket.",
+      "description": "Every player sees their balance and bets with a tap. No more chips sliding around, no more “wait, how much did you put in?”.",
+      "handAlt": "A hand holding a phone above a pile of chips",
+      "screenAlt": "A player's stack and actions on their phone",
+      "points": {
+        "actions": {
+          "title": "Call, raise, fold",
+          "description": "The game's actions, and only those."
+        },
+        "turn": {
+          "title": "It buzzes when it's your turn",
+          "description": "Put your phone down and talk to the others."
+        },
+        "tally": {
+          "title": "The tally at the end",
+          "description": "Who owes what to whom, worked out before anyone leaves."
+        }
+      }
+    },
+    "gallery": {
+      "eyebrow": "Game nights, not bookkeeping",
+      "title": "Everyone at the table, no one stuck at the bank.",
+      "description": "The host gets to play too. {appName} takes care of the rest.",
+      "photos": {
+        "friends": "Friends laughing around the table",
+        "chips": "A close-up of a stack of chips",
+        "host": "The host in front of the TV",
+        "table": "The table from above, phones lying on the felt"
+      }
+    },
+    "cta": {
+      "title": "Your next game night starts here.",
+      "description": "Your first table is free. Your friends only need their phone.",
+      "action": "Create an account",
+      "codeLabel": "Code"
+    }
+  },
+  "JoinCode": {
+    "label": "Got a table code?",
+    "action": "Join",
+    "error": "No table with that code."
+  },
+  "Footer": {
+    "howItWorks": "How it works",
+    "signIn": "Sign in"
+  },
+  "Navbar": {
+    "howItWorks": "How it works",
+    "tv": "On the TV",
+    "phone": "On your phone",
+    "signIn": "Sign in",
+    "signUp": "Create an account"
+  },
+  "UserMenu": {
+    "avatarAlt": "{name}'s avatar",
+    "guestAvatarAlt": "Guest avatar",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "signOut": "Sign out"
+  }
+}

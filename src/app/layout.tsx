@@ -1,12 +1,15 @@
+import { LangProvider } from '@components/providers/lang-provider';
 import ReactQueryProvider from '@components/providers/react-query-provider';
 import { SessionProvider } from '@components/providers/session-provider';
 import { ThemeProvider } from '@components/providers/theme-provider';
 import { Toaster } from '@components/ui/sonner';
 import { TooltipProvider } from '@components/ui/tooltip';
 import { APP_NAME, SITE_URL } from '@constants/index';
+import { getServerLang } from '@lib/i18n';
 import { cn } from '@lib/utils';
 import '@styles/globals.css';
 import type { Metadata } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
 import { Inter } from 'next/font/google';
 
 const inter = Inter({
@@ -32,31 +35,39 @@ export const metadata: Metadata = {
   },
 };
 
-const RootLayout: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <html
-    lang="en"
-    className={cn(inter.variable, 'motion-safe:scroll-smooth')}
-    data-scroll-behavior="smooth"
-    suppressHydrationWarning
-  >
-    <body className="relative flex h-dvh w-dvw flex-row gap-0 overflow-x-hidden overflow-y-auto antialiased">
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <ReactQueryProvider>
-          <SessionProvider>
-            <TooltipProvider>
-              {children}
-              <Toaster position="bottom-right" richColors />
-            </TooltipProvider>
-          </SessionProvider>
-        </ReactQueryProvider>
-      </ThemeProvider>
-    </body>
-  </html>
-);
+const RootLayout: React.FC<React.PropsWithChildren> = async ({ children }) => {
+  const lang = await getServerLang();
+
+  return (
+    <html
+      lang={lang}
+      className={cn(inter.variable, 'motion-safe:scroll-smooth')}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
+      <body className="relative flex h-dvh w-dvw flex-row gap-0 overflow-x-hidden overflow-y-auto antialiased">
+        <NextIntlClientProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ReactQueryProvider>
+              <LangProvider lang={lang}>
+                <SessionProvider>
+                  <TooltipProvider>
+                    {children}
+                    <Toaster position="bottom-right" richColors />
+                  </TooltipProvider>
+                </SessionProvider>
+              </LangProvider>
+            </ReactQueryProvider>
+          </ThemeProvider>
+        </NextIntlClientProvider>
+      </body>
+    </html>
+  );
+};
 
 export default RootLayout;
