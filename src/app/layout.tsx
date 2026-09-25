@@ -3,7 +3,7 @@ import { SessionProvider } from '@components/providers/session-provider';
 import { ThemeProvider } from '@components/providers/theme-provider';
 import { Toaster } from '@components/ui/sonner';
 import { TooltipProvider } from '@components/ui/tooltip';
-import { APP_NAME } from '@constants/index';
+import { APP_NAME, SITE_URL } from '@constants/index';
 import { cn } from '@lib/utils';
 import '@styles/globals.css';
 import type { Metadata } from 'next';
@@ -16,6 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: APP_NAME,
     template: `%s — ${APP_NAME}`,
