@@ -87,6 +87,7 @@ export interface TableViewBase {
   isHost: boolean;
 
   activeSeat: Nullable<ParticipantSnapshot>;
+  nextSeat: Nullable<ParticipantSnapshot>;
   isMyTurn: boolean;
   proxySeat: Nullable<ParticipantSnapshot>;
   canAct: boolean;
@@ -282,6 +283,10 @@ export function useTableView(game: GameSession): Nullable<TableView> {
 
         activeSeat,
         isMyTurn,
+        nextSeat: isBetting
+          ? (seats.find((seat) => seat.id === hand.betting.nextParticipant) ??
+            null)
+          : null,
         proxySeat,
         canAct: isBetting && (isMyTurn || !!proxySeat),
         legalActions: isBetting ? hand.betting.legalActions : [],
@@ -368,6 +373,9 @@ export function useTableView(game: GameSession): Nullable<TableView> {
 
       activeSeat,
       isMyTurn,
+      nextSeat: isRoundLive
+        ? (seats.find((seat) => seat.id === round.turn.nextParticipant) ?? null)
+        : null,
       proxySeat,
       canAct:
         isRoundLive && (interruptionOpen ? !!mySeat : isMyTurn || !!proxySeat),

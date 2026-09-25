@@ -61,7 +61,7 @@ export const HubFreeIntermission: React.FC<HubFreeIntermissionProps> = ({
       {isHost ? (
         <HubStack>
           <Button
-            variant="felt-inverse"
+            variant="gold"
             size="xl"
             className="w-full"
             loading={actions.pending === 'start'}

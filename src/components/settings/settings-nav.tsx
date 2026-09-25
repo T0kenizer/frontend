@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { cva } from 'class-variance-authority';
 import {
   CreditCard,
+  ExternalLink,
   Lock,
   LogOut,
   Settings2,
@@ -52,6 +53,7 @@ export interface SettingsNavItem {
   renderIcon: () => React.ReactNode;
   href: string;
   isLocked?: boolean;
+  isExternal?: boolean;
 }
 
 const items: SettingsNavItem[] = [
@@ -66,7 +68,6 @@ const items: SettingsNavItem[] = [
     label: 'Preferences',
     renderIcon: () => <Settings2 />,
     href: ROUTES.settings.preferences(),
-    isLocked: true,
   },
   {
     id: 'security',
@@ -80,6 +81,7 @@ const items: SettingsNavItem[] = [
     renderIcon: () => <CreditCard />,
     href: ROUTES.settings.subscription(),
     isLocked: true,
+    isExternal: true,
   },
 ];
 
@@ -122,8 +124,26 @@ export const SettingsNav: React.FC<SettingsNavProps> = ({
               >
                 {item.renderIcon()}
                 {item.label}
+                {item.isExternal && <ExternalLink className="size-3.5!" />}
                 <Lock className="ml-auto size-3.5!" />
               </span>
+            );
+          }
+
+          if (item.isExternal) {
+            return (
+              <a
+                key={item.id}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-slot="settings-nav-item"
+                className={settingsNavItemVariants()}
+              >
+                {item.renderIcon()}
+                {item.label}
+                <ExternalLink className="size-3.5!" />
+              </a>
             );
           }
 

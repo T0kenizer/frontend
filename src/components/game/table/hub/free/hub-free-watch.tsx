@@ -1,6 +1,7 @@
 'use client';
 
-import { EventFeed, ThinkingPulse } from '@components/game/table/hub/hub-feed';
+import { FeltNotice } from '@components/game/felt/felt-stage';
+import { EventFeed } from '@components/game/table/hub/hub-feed';
 import { HubShell, HubStack } from '@components/game/table/hub/hub-shell';
 import type { TableActions } from '@components/game/table/table-actions';
 import type { FreeTableView } from '@components/game/table/use-table-view';
@@ -29,40 +30,24 @@ export const HubFreeWatch: React.FC<HubFreeWatchProps> = ({
   view,
   actions,
 }) => {
-  const { activeSeat, pot, recentEvents, isHost, mySeat } = view;
-
-  // The seat's name comes off the snapshot either way; what an unclaimed one
-  // adds is who is actually pushing its chips.
-  const waitingOn = !activeSeat
-    ? 'the table'
-    : activeSeat.claimed
-      ? activeSeat.displayName
-      : `${activeSeat.displayName} · the host`;
+  const { pot, recentEvents, isHost, mySeat } = view;
 
   return (
     <HubShell
-      eyebrow="In progress"
-      title={`${waitingOn} to act`}
-      description={
-        activeSeat && !activeSeat.claimed
-          ? 'Nobody claimed that chair, so the host is playing it.'
-          : undefined
-      }
       facts={[
         { label: 'Pot', value: formatAmount(pot) },
-        { label: 'Your stack', value: formatAmount(mySeat?.balance ?? 0) },
+        ...(mySeat
+          ? [{ label: 'Your stack', value: formatAmount(mySeat.balance) }]
+          : []),
       ]}
-      footnote="You will be prompted here when it is your turn."
     >
-      <ThinkingPulse name={waitingOn} />
-
-      <EventFeed
-        events={recentEvents}
-        emptyLabel="The round has just opened. No moves yet."
-      />
+      <EventFeed events={recentEvents} emptyLabel="No moves yet." />
 
       {isHost && (
         <HubStack className="mt-3">
+          {actions.error && (
+            <FeltNotice tone="error">{actions.error}</FeltNotice>
+          )}
           <Button
             variant="line"
             size="sm"
@@ -70,7 +55,7 @@ export const HubFreeWatch: React.FC<HubFreeWatchProps> = ({
             loading={actions.pending === 'resolve'}
             onClick={() => actions.resolveRound()}
           >
-            Settle this round
+            Settle round
           </Button>
         </HubStack>
       )}

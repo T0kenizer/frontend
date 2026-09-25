@@ -53,7 +53,7 @@ export const DeleteAccountDialog: React.FC<DeleteAccountDialogProps> = ({
           <AlertDialogDescription>
             This action is irreversible: your account and all associated data
             will be permanently deleted. To confirm, we will send a link to your
-            email address — nothing is deleted until you open it.
+            email address. Nothing is deleted until you open it.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

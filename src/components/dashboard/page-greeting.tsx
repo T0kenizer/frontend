@@ -1,5 +1,6 @@
 'use client';
 
+import { APP_NAME } from '@constants/index';
 import { cn } from '@lib/utils';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useQuery } from '@tanstack/react-query';
@@ -65,7 +66,7 @@ export const PageGreeting: React.FC<PageGreetingProps> = ({
                 {TIME_FORMATTER.format(now)}
               </>
             )
-          : 'Welcome to Tokenizer'}
+          : `Welcome to ${APP_NAME}`}
       </p>
       <h1 className="font-heading text-foreground text-3xl font-extrabold tracking-tight text-balance">
         {user ? (

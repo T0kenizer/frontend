@@ -1,58 +1,80 @@
 'use client';
 
-import { Button } from '@components/ui/button';
+import { ToggleGroup, ToggleGroupItem } from '@components/ui/toggle-group';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@components/ui/tooltip';
+import { DEFAULT_THEME, Theme } from '@constants/themes';
+import { useMounted } from '@hooks/use-mounted';
 import { cn } from '@lib/utils';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { useSyncExternalStore } from 'react';
 
-const THEMES = [
-  { value: 'light', label: 'Light', icon: Sun },
-  { value: 'dark', label: 'Dark', icon: Moon },
-  { value: 'system', label: 'System', icon: Monitor },
-] as const;
+interface ThemeOption {
+  value: Theme;
+  label: string;
+  icon: React.ElementType;
+}
 
-const emptySubscribe = () => () => {};
+const THEME_OPTIONS: ThemeOption[] = [
+  { value: Theme.Light, label: 'Light', icon: Sun },
+  { value: Theme.Dark, label: 'Dark', icon: Moon },
+  { value: Theme.System, label: 'System', icon: Monitor },
+];
 
-/** True once mounted on the client, false during SSR/first render. */
-const useMounted = () =>
-  useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
-
-export type ThemeSwitcherProps = React.ComponentProps<'div'> & {
-  /** Drops the labels to icon-only buttons, for tight bars like the auth top. */
+export type ThemeSwitcherProps = Omit<
+  React.ComponentProps<typeof ToggleGroup>,
+  'type' | 'value' | 'defaultValue' | 'onValueChange' | 'variant' | 'children'
+> & {
   compact?: boolean;
 };
 
 export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
   compact = false,
+  size,
   className,
   ...props
 }) => {
   const { theme, setTheme } = useTheme();
 
-  // Avoid hydration mismatch: the selected theme is only known client-side.
   const mounted = useMounted();
 
   return (
-    <div className={cn('inline-flex gap-1.5', className)} {...props}>
-      {THEMES.map(({ value, label, icon: Icon }) => (
-        <Button
-          key={value}
-          type="button"
-          variant={mounted && theme === value ? 'primary' : 'paper'}
-          size={compact ? 'icon' : 'default'}
-          onClick={() => setTheme(value)}
-          aria-pressed={mounted && theme === value}
-        >
-          <Icon />
-          <span className={cn(compact && 'sr-only')}>{label}</span>
-        </Button>
-      ))}
-    </div>
+    <ToggleGroup
+      type="single"
+      variant="track"
+      size={size}
+      value={mounted ? (theme ?? DEFAULT_THEME) : ''}
+      onValueChange={(value) => value && setTheme(value)}
+      aria-label="Theme"
+      className={cn('w-fit', className)}
+      {...props}
+    >
+      {THEME_OPTIONS.map(({ value, label, icon: Icon }) => {
+        const item = (
+          <ToggleGroupItem
+            key={value}
+            value={value}
+            aria-label={compact ? label : undefined}
+            className={cn('flex-1', compact && 'px-0')}
+          >
+            <Icon />
+            {!compact && label}
+          </ToggleGroupItem>
+        );
+
+        return compact ? (
+          <Tooltip key={value}>
+            <TooltipTrigger asChild>{item}</TooltipTrigger>
+            <TooltipContent>{label}</TooltipContent>
+          </Tooltip>
+        ) : (
+          item
+        );
+      })}
+    </ToggleGroup>
   );
 };
 

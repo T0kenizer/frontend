@@ -18,9 +18,8 @@ import { motion, useReducedMotion } from 'motion/react';
  * shared facts — seats taken, chips on the table — stated once and
  * identically.
  *
- * Nobody is looking at it without a seat. Arriving at the table is something
- * the join flow does; this screen is only ever read by people already in the
- * game.
+ * A spectator reads the seated player's panel without its button: they have no
+ * seat to rename.
  */
 
 export interface HubLobbyProps {
@@ -37,8 +36,6 @@ export const HubLobby: React.FC<HubLobbyProps> = ({
   const { claimedCount, seatCount, isHost, inPlay } = view;
   const emptySeats = seatCount - claimedCount;
 
-  // The lobby is the same screen at both tables; only the word for a deal, and
-  // the call that opens one, belong to the game.
   const isPoker = view.mode === GameMode.Poker;
   const dealLabel = isPoker ? 'Deal the first hand' : 'Open the first round';
   const startDeal = isPoker ? actions.startHand : actions.startRound;
@@ -71,14 +68,8 @@ export const HubLobby: React.FC<HubLobbyProps> = ({
         )}
 
         <HubStack>
-          {/* Never gated on how many chairs are taken. Every declared seat is
-              dealt in whether or not anybody claimed it, so a host sitting
-              alone at a table of six is dealing a six-handed hand — they
-              simply play five of them. Waiting for a quorum that the rules do
-              not have was the button telling the host their own table was not
-              ready. */}
           <Button
-            variant="felt-inverse"
+            variant="gold"
             size="xl"
             className="w-full"
             loading={actions.pending === 'start'}
@@ -98,24 +89,39 @@ export const HubLobby: React.FC<HubLobbyProps> = ({
     );
   }
 
+  const hostLine = isPoker
+    ? 'The host deals the first hand.'
+    : 'The host opens the first round.';
+
   return (
     <HubShell
       eyebrow="Lobby · not started"
-      title="You're seated"
-      description={`Seat ${(view.mySeat?.seatIndex ?? 0) + 1} is yours. ${
-        isPoker
-          ? 'The host deals the first hand.'
-          : 'The host opens the first round.'
-      }`}
+      title={view.mySeat ? "You're seated" : tableName}
+      description={
+        view.mySeat
+          ? `Seat ${view.mySeat.seatIndex + 1} is yours. ${hostLine}`
+          : hostLine
+      }
       facts={facts}
+      footnote={
+        !view.mySeat && emptySeats > 0
+          ? `${emptySeats} ${emptySeats > 1 ? 'chairs are' : 'chair is'} still free. Scan the code to take one.`
+          : undefined
+      }
     >
       <WaitingDial label="Waiting for the host" />
 
-      <HubStack className="mt-4">
-        <Button variant="line" className="w-full" onClick={actions.renameSeat}>
-          Change your name
-        </Button>
-      </HubStack>
+      {view.mySeat && (
+        <HubStack className="mt-4">
+          <Button
+            variant="line"
+            className="w-full"
+            onClick={actions.renameSeat}
+          >
+            Change your name or avatar
+          </Button>
+        </HubStack>
+      )}
     </HubShell>
   );
 };

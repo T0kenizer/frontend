@@ -45,7 +45,6 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
   const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
-    // Let the same file be picked again after a failed attempt.
     event.target.value = '';
 
     if (!file || !user || isPending) return;

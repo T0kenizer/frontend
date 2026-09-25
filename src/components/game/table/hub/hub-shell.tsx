@@ -6,19 +6,28 @@ import {
   FeltStat,
   FeltStatGroup,
 } from '@components/game/felt/felt-stage';
+import { HubProgress } from '@components/game/table/hub/hub-progress';
+import type { TableView } from '@components/game/table/use-table-view';
 import { cn } from '@lib/utils';
 import { motion, useReducedMotion } from 'motion/react';
 
 /**
- * The frame every centre panel is poured into.
- *
- * The middle of the table is the only place the game is ever _played_ from —
- * lobby, turn, wait, payout, the lot — and each of those is a different panel.
- * The frame they share is here so they differ only in what they ask of the
- * player, not in how wide they are or where their title sits. Without it the
- * panel visibly jumped a few pixels every time the state of play changed, which
- * on a table in the middle of a room reads as a glitch.
+ * One frame for every state, so the panel never jumps a few pixels when the
+ * state of play changes. The progress header stays mounted inside it, which is
+ * what lets the next player slide into the current slot.
  */
+export const HubFrame: React.FC<{
+  view: TableView;
+  showProgress?: boolean;
+  children: React.ReactNode;
+}> = ({ view, showProgress = true, children }) => (
+  <FeltPanel size="sm" className="rounded-3xl px-5 py-5">
+    {showProgress && <HubProgress view={view} />}
+    {children}
+  </FeltPanel>
+);
+
+/** The content of a centre panel; {@link HubFrame} draws the frame around it. */
 
 export interface HubFact {
   label: React.ReactNode;
@@ -26,8 +35,8 @@ export interface HubFact {
 }
 
 export interface HubShellProps {
-  eyebrow: React.ReactNode;
-  title: React.ReactNode;
+  eyebrow?: React.ReactNode;
+  title?: React.ReactNode;
   description?: React.ReactNode;
   facts?: HubFact[];
   children?: React.ReactNode;
@@ -45,15 +54,14 @@ export const HubShell: React.FC<HubShellProps> = ({
   footnote,
   className,
 }) => (
-  <FeltPanel
-    size="sm"
-    className={cn('rounded-3xl px-5 py-5 text-center', className)}
-  >
-    <FeltEyebrow size="xs">{eyebrow}</FeltEyebrow>
+  <section className={cn('text-center', className)}>
+    {eyebrow && <FeltEyebrow size="xs">{eyebrow}</FeltEyebrow>}
 
-    <h2 className="font-heading mt-1.5 text-lg leading-tight font-extrabold tracking-[-0.03em] text-balance">
-      {title}
-    </h2>
+    {title && (
+      <h2 className="font-heading mt-1.5 text-lg leading-tight font-extrabold tracking-[-0.03em] text-balance">
+        {title}
+      </h2>
+    )}
 
     {description && (
       <p className="text-on-media-muted-foreground mt-1 text-xs leading-relaxed">
@@ -62,7 +70,12 @@ export const HubShell: React.FC<HubShellProps> = ({
     )}
 
     {!!facts?.length && (
-      <FeltStatGroup className="border-on-media-hairline my-4 border-y py-3 text-center">
+      <FeltStatGroup
+        className={cn(
+          'border-on-media-hairline mb-4 border-y py-3 text-center',
+          (title || description || eyebrow) && 'mt-4',
+        )}
+      >
         {facts.map((fact, index) => (
           <FeltStat key={index} label={fact.label} value={fact.value} />
         ))}
@@ -78,7 +91,7 @@ export const HubShell: React.FC<HubShellProps> = ({
         {footnote}
       </p>
     )}
-  </FeltPanel>
+  </section>
 );
 
 /**

@@ -39,6 +39,7 @@ type ClosedSessionStub = Pick<GameSnapshot, 'id' | 'status'>;
 export interface UseGameSessionParams {
   gameId: Optional<string>;
   enabled?: boolean;
+  spectate?: boolean;
 }
 
 export interface JoinSeatParams {
@@ -55,7 +56,7 @@ function unwrapAck<T>(response: GameAck<T>): T {
 }
 
 export function useGameSession(params: UseGameSessionParams) {
-  const { gameId, enabled = true } = params;
+  const { gameId, enabled = true, spectate = false } = params;
 
   const queryClient = useQueryClient();
   const socketRef = useRef<Nullable<GameSocket>>(null);
@@ -94,8 +95,8 @@ export function useGameSession(params: UseGameSessionParams) {
   useEffect(() => {
     if (!enabled || !gameId) return;
 
-    const token = readPlayerToken(gameId);
-    if (!token) return;
+    const token = spectate ? null : readPlayerToken(gameId);
+    if (!spectate && !token) return;
 
     const socket = createGameSocket();
     socketRef.current = socket;
@@ -112,15 +113,37 @@ export function useGameSession(params: UseGameSessionParams) {
       setIsConnected(true);
       setSocketError(null);
 
+      if (!token) {
+        socket.emit(
+          GameClientMessage.Spectate,
+          { gameUuid: gameId },
+          (response) => {
+            if (
+              response &&
+              typeof response === 'object' &&
+              'error' in response
+            ) {
+              setSocketError(response.error);
+              return;
+            }
+            setSnapshot(response.snapshot);
+            setIsAttached(true);
+          },
+        );
+        return;
+      }
+
       socket.emit(
         GameClientMessage.Attach,
         { gameUuid: gameId, token },
         (response) => {
           if (response && typeof response === 'object' && 'error' in response) {
             setSocketError(response.error);
-            clearPlayerToken(gameId);
-            setParticipantId(null);
-            setTokenVersion((version) => version + 1);
+            if (response.status === 401) {
+              clearPlayerToken(gameId);
+              setParticipantId(null);
+              setTokenVersion((version) => version + 1);
+            }
             return;
           }
           setSnapshot(response.snapshot);
@@ -151,7 +174,7 @@ export function useGameSession(params: UseGameSessionParams) {
       setIsConnected(false);
       setIsAttached(false);
     };
-  }, [enabled, gameId, tokenVersion, setSnapshot, closeSnapshot]);
+  }, [enabled, gameId, spectate, tokenVersion, setSnapshot, closeSnapshot]);
 
   const isOver = query.data ? isGameOver(query.data.status) : false;
 
@@ -165,6 +188,11 @@ export function useGameSession(params: UseGameSessionParams) {
 
     return () => clearTimeout(timer);
   }, [isOver]);
+
+  const reattach = useCallback(() => {
+    setSocketError(null);
+    setTokenVersion((version) => version + 1);
+  }, []);
 
   const liveSocket = useCallback(() => {
     const socket = socketRef.current;
@@ -203,6 +231,21 @@ export function useGameSession(params: UseGameSessionParams) {
       return unwrapAck(response);
     },
     [liveSocket],
+  );
+
+  const setSeatAvatar = useCallback(
+    async (avatar: Nullable<File>): Promise<GameSnapshot> => {
+      if (!gameId) throw new Error('Missing game id');
+      const token = readPlayerToken(gameId);
+      if (!token) throw new Error('You are not seated at this table');
+
+      const snapshot = avatar
+        ? await API.setSeatAvatar(gameId, token, avatar)
+        : await API.removeSeatAvatar(gameId, token);
+      setSnapshot(snapshot);
+      return snapshot;
+    },
+    [gameId, setSnapshot],
   );
 
   const startHand = useCallback(async (): Promise<GameActionResult> => {
@@ -297,6 +340,7 @@ export function useGameSession(params: UseGameSessionParams) {
     isOver,
     isAttached,
     socketError: isOver ? null : socketError,
+    reattach,
 
     participantId,
     mySeat,
@@ -305,6 +349,7 @@ export function useGameSession(params: UseGameSessionParams) {
 
     join,
     updateSeat,
+    setSeatAvatar,
 
     startHand,
     startRound,

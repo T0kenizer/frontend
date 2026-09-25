@@ -109,8 +109,13 @@
   --color-felt: var(--felt);
   --color-felt-bright: var(--felt-bright);
   --color-felt-deep: var(--felt-deep);
+  --color-felt-edge: var(--felt-edge);
   --color-felt-inverse: var(--felt-inverse);
   --color-felt-inverse-foreground: var(--felt-inverse-foreground);
+
+  --color-gold: var(--gold);
+  --color-gold-deep: var(--gold-deep);
+  --color-gold-foreground: var(--gold-foreground);
 
   --color-ivory-200: var(--color-ivory-200);
   --color-ivory-400: var(--color-ivory-400);
@@ -294,22 +299,23 @@
   --color-teal-800: oklch(0.3 0.07 175);
 
   --felt: var(--color-teal-700);
-  --felt-bright: var(--color-teal-600);
-  --felt-deep: var(--color-teal-800);
+  --felt-bright: oklch(0.42 0.1 172);
+  --felt-deep: oklch(0.3 0.075 176);
+  --felt-edge: oklch(0.21 0.05 250);
+  --felt-ring: transparent;
   --felt-inverse: var(--color-white);
   --felt-inverse-foreground: var(--color-teal-800);
+  --gold: var(--color-amber-500);
+  --gold-deep: oklch(0.62 0.14 70);
+  --gold-foreground: oklch(0.24 0.04 60);
+  --gold-glow: oklch(from var(--gold) l c h / 0.55);
   --felt-wash: radial-gradient(
     ellipse 80% 70% at 30% 20%,
     var(--felt-bright),
     var(--felt-deep) 58%,
-    var(--color-night-950)
+    var(--felt-edge)
   );
 
-  /**
-   * Controls that sit on imagery or video rather than on a page surface.
-   * Theme-invariant on purpose — like `--felt*`, the backdrop is the photo,
-   * not the theme, so these must not flip with light/dark.
-   */
   --on-media: oklch(1 0 0 / 0.14);
   --on-media-hover: oklch(1 0 0 / 0.24);
   --on-media-border: oklch(1 0 0 / 0.3);
@@ -325,7 +331,7 @@
   /* --color-green-500: oklch(0.66 0.17 155); */
   --color-green-600: oklch(0.62 0.16 155);
 
-  /* --color-amber-500: oklch(0.80 0.16 80); */
+  --color-amber-500: oklch(0.8 0.16 80);
   --color-amber-600: oklch(0.78 0.16 75);
 
   /* --color-red-500:    oklch(0.62 0.22 25);
@@ -398,6 +404,11 @@
   --warning-soft: oklch(from var(--color-amber-600) l c h / 0.22);
   --warning-soft-foreground: var(--color-amber-600);
 
+  --felt-bright: oklch(0.48 0.11 170);
+  --felt-deep: oklch(0.36 0.085 172);
+  --felt-edge: oklch(0.27 0.065 176);
+  --felt-ring: oklch(0.62 0.1 172 / 0.35);
+
   --elevation-sm: 0 1px 2px oklch(0 0 0 / 0.4);
   --elevation-md:
     0 6px 16px -4px oklch(0 0 0 / 0.55), 0 1px 2px oklch(0 0 0 / 0.4);
@@ -426,21 +437,19 @@
     isolation: isolate;
     color: var(--on-media-foreground);
     background: var(--felt-wash);
+    box-shadow: inset 0 0 0 1px var(--felt-ring);
   }
 
   body:has(main.felt-surface) {
-    background: var(--felt-wash) no-repeat var(--color-night-950);
+    background: var(--felt-wash) no-repeat var(--felt-edge);
   }
 
+  /* The full-page felt paints through <body>, so it carries neither itself. */
   main.felt-surface {
     background: none;
+    box-shadow: none;
   }
 
-  /**
-   * The weave over the wash. A pair of opposed hairline gratings reads as
-   * cloth at a glance and costs nothing to paint; `-z-10` keeps it under the
-   * content of the element it belongs to rather than over it.
-   */
   .felt-surface::before {
     content: '';
     position: absolute;
@@ -461,11 +470,6 @@
       );
   }
 
-  /**
-   * A panel floated on the felt. Glass rather than a card, because a card's
-   * surface token would punch a themed rectangle into a backdrop that has no
-   * theme.
-   */
   .felt-panel {
     background: oklch(0.18 0.03 176 / 0.52);
     border: 1px solid var(--on-media-hairline);
@@ -473,11 +477,6 @@
     box-shadow: 0 28px 60px -26px oklch(0 0 0 / 0.7);
   }
 
-  /**
-   * Poker-chip rim: a solid colored border with evenly spaced notches painted
-   * over it, one strip per edge so the spacing holds at any aspect ratio.
-   * Drives off `--chip-rim` (color) and `--chip-rim-stripe` (notch color).
-   */
   .chip-rim {
     --chip-rim: var(--primary);
     --chip-rim-stripe: var(--color-chalk);

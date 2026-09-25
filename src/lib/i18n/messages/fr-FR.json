@@ -1,0 +1,115 @@
+{
+  "Landing": {
+    "hero": {
+      "eyebrow": "La banque de vos soirées jeux",
+      "title": "Vous jouez. On <em>compte</em> les jetons.",
+      "description": "Caves, recaves, blindes et pots : {appName} tient la banque sur la télé du salon, et chacun mise depuis son téléphone.",
+      "signUp": "Ouvrir ma première table",
+      "howItWorks": "Voir comment ça marche",
+      "photoAlt": "Des amis autour d'une table de poker, la partie affichée sur la télé"
+    },
+    "howItWorks": {
+      "eyebrow": "Comment ça marche",
+      "title": "Trois minutes entre le canapé et la première donne.",
+      "steps": {
+        "setup": {
+          "title": "Installez votre table",
+          "description": "Nommez les sièges, fixez la cave et les blindes. Vos réglages sont gardés pour la prochaine fois.",
+          "shotAlt": "L'écran de création de partie"
+        },
+        "scan": {
+          "title": "Vos amis scannent",
+          "description": "Un QR code sur la télé, un siège à choisir, et chacun reçoit sa cave. Aucun compte n'est nécessaire pour jouer.",
+          "shotAlt": "Le choix d'un siège sur un téléphone"
+        },
+        "play": {
+          "title": "Jouez, simplement",
+          "description": "Les mises sont enregistrées, le pot s'additionne tout seul, les blindes montent à l'heure. En fin de soirée, les comptes sont prêts.",
+          "shotAlt": "Une table en cours"
+        }
+      }
+    },
+    "tv": {
+      "eyebrow": "Sur la télé",
+      "title": "Toute la table, sur grand écran.",
+      "description": "Diffusez la partie sur l'écran du salon : le pot, les tapis et le prochain niveau de blindes se lisent depuis le canapé.",
+      "roomAlt": "Un salon avec la table affichée sur la télé murale",
+      "screenAlt": "La vue télé plein écran d'une table",
+      "points": {
+        "blinds": {
+          "title": "Blindes chronométrées",
+          "description": "Le niveau suivant s'affiche avec son compte à rebours."
+        },
+        "pot": {
+          "title": "Le pot, en direct",
+          "description": "Chaque mise arrive sur la table à l'instant où elle est faite."
+        },
+        "qr": {
+          "title": "Le QR code, toujours à l'écran",
+          "description": "Les retardataires rejoignent la table sans interrompre le coup."
+        }
+      }
+    },
+    "phone": {
+      "eyebrow": "Sur votre téléphone",
+      "title": "Votre tapis, dans votre poche.",
+      "description": "Chaque joueur voit son solde et mise d'un geste. Fini les jetons qui glissent, fini les « attends, tu as mis combien ? ».",
+      "handAlt": "Une main tenant un téléphone au-dessus d'un tas de jetons",
+      "screenAlt": "Le tapis et les actions d'un joueur sur son téléphone",
+      "points": {
+        "actions": {
+          "title": "Suivre, relancer, se coucher",
+          "description": "Les actions du jeu, et rien d'autre."
+        },
+        "turn": {
+          "title": "Il vibre quand c'est à vous",
+          "description": "Posez votre téléphone et parlez aux autres."
+        },
+        "tally": {
+          "title": "Les comptes à la fin",
+          "description": "Qui doit quoi à qui, calculé avant que quiconque parte."
+        }
+      }
+    },
+    "gallery": {
+      "eyebrow": "Des soirées jeux, pas de la comptabilité",
+      "title": "Tout le monde à table, personne coincé à la banque.",
+      "description": "L'hôte joue aussi. {appName} s'occupe du reste.",
+      "photos": {
+        "friends": "Des amis qui rient autour de la table",
+        "chips": "Gros plan sur une pile de jetons",
+        "host": "L'hôte devant la télé",
+        "table": "La table vue de haut, les téléphones posés sur le tapis"
+      }
+    },
+    "cta": {
+      "title": "Votre prochaine soirée commence ici.",
+      "description": "Votre première table est gratuite. Vos amis n'ont besoin que de leur téléphone.",
+      "action": "Créer un compte",
+      "codeLabel": "Code"
+    }
+  },
+  "JoinCode": {
+    "label": "Vous avez un code de table ?",
+    "action": "Rejoindre",
+    "error": "Aucune table avec ce code."
+  },
+  "Footer": {
+    "howItWorks": "Comment ça marche",
+    "signIn": "Se connecter"
+  },
+  "Navbar": {
+    "howItWorks": "Comment ça marche",
+    "tv": "Sur la télé",
+    "phone": "Sur votre téléphone",
+    "signIn": "Se connecter",
+    "signUp": "Créer un compte"
+  },
+  "UserMenu": {
+    "avatarAlt": "Avatar de {name}",
+    "guestAvatarAlt": "Avatar invité",
+    "dashboard": "Tableau de bord",
+    "settings": "Paramètres",
+    "signOut": "Se déconnecter"
+  }
+}

@@ -8,14 +8,6 @@ import type { PokerTableView } from '@components/game/table/use-table-view';
 import { Button } from '@components/ui/button';
 import { formatAmount } from '@lib/amount';
 
-/**
- * Between two hands.
- *
- * Short, and in a good night nobody reads it — but it is the beat where the
- * last pot is announced, and skipping straight from a settled hand to the next
- * deal is how a player ends up richer without ever being told why.
- */
-
 export interface HubIntermissionProps {
   view: PokerTableView;
   actions: TableActions;
@@ -70,7 +62,7 @@ export const HubIntermission: React.FC<HubIntermissionProps> = ({
       {isHost ? (
         <HubStack>
           <Button
-            variant="felt-inverse"
+            variant="gold"
             size="xl"
             className="w-full"
             loading={actions.pending === 'start'}

@@ -8,6 +8,8 @@ import type {
   HandResolution,
   ResolveRoundData,
   RoundResolution,
+  SpectateSocketData,
+  SpectateSocketResponse,
   SubmitActionData,
   UpdateSeatData,
 } from '@tokenizer/shared/types';
@@ -16,6 +18,7 @@ import { io, type Socket } from 'socket.io-client';
 
 export interface GameSocketFailure {
   error: string;
+  status: number;
 }
 
 export type GameAck<T> = T | GameSocketFailure;
@@ -58,6 +61,10 @@ interface ClientToServerEvents {
   [GameClientMessage.Attach]: (
     payload: AttachSocketData,
     ack: (response: GameAck<AttachSocketResponse>) => void,
+  ) => void;
+  [GameClientMessage.Spectate]: (
+    payload: SpectateSocketData,
+    ack: (response: GameAck<SpectateSocketResponse>) => void,
   ) => void;
   [GameClientMessage.UpdateSeat]: (
     payload: UpdateSeatData,

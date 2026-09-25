@@ -6,7 +6,7 @@ import { HubFreeWatch } from '@components/game/table/hub/free/hub-free-watch';
 import { HubFinished } from '@components/game/table/hub/hub-finished';
 import { HubIntermission } from '@components/game/table/hub/hub-intermission';
 import { HubLobby } from '@components/game/table/hub/hub-lobby';
-import { HubTransition } from '@components/game/table/hub/hub-shell';
+import { HubFrame, HubTransition } from '@components/game/table/hub/hub-shell';
 import { HubShowdown } from '@components/game/table/hub/hub-showdown';
 import { HubTurn } from '@components/game/table/hub/hub-turn';
 import { HubWatch } from '@components/game/table/hub/hub-watch';
@@ -112,12 +112,12 @@ export const TableHub: React.FC<TableHubProps> = ({
   }, [view, actions, tableName, form]);
 
   return (
-    // `wait`, so the outgoing panel is gone before the next arrives: two glass
-    // panels crossfading through each other over a dark felt reads as a smear.
-    <AnimatePresence mode="wait" initial={false}>
-      <HubTransition key={key} transitionKey={key}>
-        {panel}
-      </HubTransition>
-    </AnimatePresence>
+    <HubFrame view={view} showProgress={!form}>
+      <AnimatePresence mode="wait" initial={false}>
+        <HubTransition key={key} transitionKey={key}>
+          {panel}
+        </HubTransition>
+      </AnimatePresence>
+    </HubFrame>
   );
 };

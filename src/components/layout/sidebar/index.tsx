@@ -74,7 +74,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ ...props }) => {
                   label: 'Preferences',
                   href: ROUTES.settings.preferences(),
                   renderIcon: () => <Settings />,
-                  isLocked: true,
+                  isActive: (pathname) =>
+                    pathname.startsWith(ROUTES.settings()),
                 },
               ],
             },

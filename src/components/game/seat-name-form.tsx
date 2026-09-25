@@ -1,5 +1,9 @@
 'use client';
 
+import {
+  SeatAvatarPicker,
+  type SeatAvatarChange,
+} from '@components/game/seat-avatar-picker';
 import { Button } from '@components/ui/button';
 import { Field, FieldError, FieldLabel } from '@components/ui/field';
 import { Input } from '@components/ui/input';
@@ -7,7 +11,6 @@ import { SEAT_DISPLAY_NAME_MAX_LENGTH } from '@constants/games';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-/** What the form is for — which is all that ever differed between the two. */
 export type SeatNameMode = 'claim' | 'rename';
 
 const COPY: Record<
@@ -28,32 +31,20 @@ const COPY: Record<
 
 export interface SeatNameFormProps {
   mode: SeatNameMode;
-  /**
-   * The name to open with — the signed-in account's when there is one, else
-   * whatever the host called the chair.
-   */
   defaultDisplayName?: string;
-  /** Named in the label when the form is claiming a particular chair. */
+  currentAvatarUrl?: Nullable<string>;
   seatIndex?: number;
   onCancel: () => void;
-  /**
-   * `displayName` is omitted when the visitor left the pre-filled value alone,
-   * so the seat keeps falling back to the account (and then the config)
-   * default, resolved server-side.
-   */
-  onSubmit: (data: { displayName?: string }) => Promise<void>;
+  onSubmit: (data: {
+    displayName?: string;
+    avatar: SeatAvatarChange;
+  }) => Promise<void>;
 }
 
-/**
- * The name a seat carries, whether it is being taken or renamed.
- *
- * These were two components that differed only in the words on the button, and
- * they had already drifted: one validated inline and one did not, and neither
- * was painted for the felt they are shown on.
- */
 export const SeatNameForm: React.FC<SeatNameFormProps> = ({
   mode,
   defaultDisplayName = '',
+  currentAvatarUrl = null,
   seatIndex,
   onCancel,
   onSubmit,
@@ -62,6 +53,7 @@ export const SeatNameForm: React.FC<SeatNameFormProps> = ({
   const fieldId = `seat-name-${mode}`;
 
   const [displayName, setDisplayName] = useState(defaultDisplayName);
+  const [avatar, setAvatar] = useState<SeatAvatarChange>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const trimmed = displayName.trim();
@@ -74,6 +66,7 @@ export const SeatNameForm: React.FC<SeatNameFormProps> = ({
     try {
       await onSubmit({
         displayName: trimmed === defaultDisplayName ? undefined : trimmed,
+        avatar,
       });
     } catch (cause) {
       toast.error((cause instanceof Error && cause.message) || copy.failure);
@@ -84,6 +77,13 @@ export const SeatNameForm: React.FC<SeatNameFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <SeatAvatarPicker
+        currentUrl={currentAvatarUrl}
+        canRemove={mode === 'rename'}
+        disabled={isSubmitting}
+        onChange={setAvatar}
+      />
+
       <Field>
         <FieldLabel htmlFor={fieldId} className="text-xs font-semibold">
           {seatIndex === undefined
@@ -110,7 +110,7 @@ export const SeatNameForm: React.FC<SeatNameFormProps> = ({
       <div className="flex gap-2">
         <Button
           type="submit"
-          variant="felt-inverse"
+          variant="gold"
           loading={isSubmitting}
           disabled={!trimmed}
         >

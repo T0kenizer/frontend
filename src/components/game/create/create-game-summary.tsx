@@ -23,14 +23,6 @@ export interface CreateGameSummaryProps {
   isCreating: boolean;
 }
 
-/**
- * The table as it would open right now.
- *
- * It reads from the same draft the form writes to rather than from a separate
- * preview state, so there is no version of the table the host can see but not
- * create — and the one thing standing between the two, the blocker, is shown
- * right above the button it disables.
- */
 export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
   controller,
   onCreate,
@@ -142,7 +134,7 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
       <div className="flex flex-col gap-2.5">
         <Button
           type="button"
-          variant="felt-inverse"
+          variant="gold"
           size="lg"
           className="h-11 w-full"
           loading={isCreating}
@@ -165,13 +157,7 @@ const pokerFacts = (draft: GameDraft): [string, string][] => [
     `${amountFormat.format(draft.smallBlind)} / ${amountFormat.format(draft.bigBlind)}`,
   ],
   ['Ante', draft.ante ? amountFormat.format(draft.ante) : 'none'],
-  [
-    'Showdown',
-    // Worth stating outright: it is the one point where the app has to be told
-    // something it cannot work out, and a host should not meet that for the
-    // first time mid-hand.
-    'Called by the table',
-  ],
+  ['Showdown', 'Called by the table'],
 ];
 
 const freeFacts = (draft: GameDraft): [string, string][] => [
@@ -199,8 +185,6 @@ const freeFacts = (draft: GameDraft): [string, string][] => [
   ],
   [
     'End of a round',
-    // The free runtime evaluates one condition and no more, so "automatic"
-    // means exactly one thing; anything else is the host's call.
     draft.resolution === EndResolution.Automatic
       ? 'When one player is left'
       : 'Called by the host',
