@@ -1,5 +1,6 @@
 import { DeleteAccountDialog } from '@components/settings/dialogs/delete-account-dialog';
 import { ChangePasswordForm } from '@components/settings/forms/change-password-form';
+import { SessionsList } from '@components/settings/sessions-list';
 import { SettingsTabContainer } from '@components/settings/setting-tab-container';
 import { SettingsSection } from '@components/settings/settings-section';
 import { Button } from '@components/ui/button';
@@ -16,6 +17,12 @@ const Page: React.FC = () => (
   <SettingsTabContainer>
     <SettingsSection title="Password">
       <ChangePasswordForm />
+    </SettingsSection>
+    <SettingsSection
+      title="Active sessions"
+      description="The devices currently signed in to your account."
+    >
+      <SessionsList />
     </SettingsSection>
     <SettingsSection
       variant="danger"
