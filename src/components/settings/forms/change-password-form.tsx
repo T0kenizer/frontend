@@ -80,7 +80,7 @@ export const ChangePasswordForm: React.FC = () => {
                 autoComplete="new-password"
                 aria-invalid={fieldState.invalid}
               />
-              <PasswordStrength value={field.value ?? ''} meterOnly />
+              <PasswordStrength value={field.value ?? ''} />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           </SettingsRow>

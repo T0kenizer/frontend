@@ -27,7 +27,12 @@ import { z } from 'zod';
 
 const schema = createUserDataSchema
   .extend({
+    confirmPassword: createUserDataSchema.shape.password,
     acceptTerms: z.boolean(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
   })
   .refine((data) => data.acceptTerms, {
     message: 'You must accept the terms to create an account',
@@ -48,6 +53,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ ...props }) => {
       username: '',
       email: '',
       password: '',
+      confirmPassword: '',
       acceptTerms: false,
     },
   });
@@ -57,11 +63,12 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ ...props }) => {
     createSessionOptions(),
   );
   const isPending = isCreatingUser || isCreatingSession;
-  const [username, email, password, acceptTerms] = useWatch({
+  const [username, email, password, confirmPassword, acceptTerms] = useWatch({
     control: form.control,
-    name: ['username', 'email', 'password', 'acceptTerms'],
+    name: ['username', 'email', 'password', 'confirmPassword', 'acceptTerms'],
   });
-  const isIncomplete = !username || !email || !password || !acceptTerms;
+  const isIncomplete =
+    !username || !email || !password || !confirmPassword || !acceptTerms;
 
   const handleSubmit = (data: FormData) => {
     if (isPending) return;
@@ -133,7 +140,25 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ ...props }) => {
                 autoComplete="new-password"
                 aria-invalid={fieldState.invalid}
               />
-              <PasswordStrength value={password} meterOnly />
+              <PasswordStrength value={password} />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <Controller
+          name="confirmPassword"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="signup-confirm-password">
+                Confirm password
+              </FieldLabel>
+              <PasswordInput
+                {...field}
+                id="signup-confirm-password"
+                autoComplete="new-password"
+                aria-invalid={fieldState.invalid}
+              />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}

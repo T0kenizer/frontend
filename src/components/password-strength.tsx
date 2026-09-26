@@ -67,7 +67,7 @@ export type PasswordStrengthProps = Omit<
 export const PasswordStrength: React.FC<PasswordStrengthProps> = ({
   value,
   rules = PASSWORD_RULES,
-  meterOnly = false,
+  meterOnly = true,
   emptyHint,
   className,
   ...props
