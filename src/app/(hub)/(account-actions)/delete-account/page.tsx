@@ -1,7 +1,15 @@
 import { DeleteAccountConfirmation } from '@components/auth/delete-account-confirmation';
-import { Main } from '@components/layout/main';
+import { SessionGuard } from '@components/guards/session-guard';
 import ROUTES from '@constants/routes';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
+
+export const generateMetadata = async (): Promise<Metadata> => {
+  const t = await getTranslations('Auth.deleteAccount');
+
+  return { title: t('metaTitle') };
+};
 
 interface PageProps {
   searchParams: Promise<{ token?: string }>;
@@ -13,9 +21,9 @@ const Page: React.FC<PageProps> = async ({ searchParams }) => {
   if (!token) redirect(ROUTES.settings.security());
 
   return (
-    <Main>
+    <SessionGuard>
       <DeleteAccountConfirmation token={token} />
-    </Main>
+    </SessionGuard>
   );
 };
 

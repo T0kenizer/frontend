@@ -4,7 +4,6 @@ import { Button } from '@components/ui/button';
 import ROUTES from '@constants/routes';
 import { REDIRECT_URL_PARAM, sanitizeRedirectUrl } from '@lib/redirect-url';
 import { cn } from '@lib/utils';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
 const GoogleMark: React.FC = () => (
@@ -51,10 +50,12 @@ export const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
       asChild
       {...props}
     >
-      <Link href={ROUTES.auth.googleOAuth(redirectUrl ?? ROUTES.dashboard())}>
+      {/* A plain anchor: the target is a route handler that sets a cookie and
+          leaves the app, which a prefetching <Link> must never trigger. */}
+      <a href={ROUTES.auth.googleOAuth(redirectUrl)}>
         <GoogleMark />
         {children}
-      </Link>
+      </a>
     </Button>
   );
 };

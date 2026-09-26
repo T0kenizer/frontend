@@ -14,6 +14,7 @@ import { requestResetOptions } from '@services/password-resets/password-resets.o
 import { useMutation } from '@tanstack/react-query';
 import { requestResetDataSchema } from '@tokenizer/shared/schemas';
 import { RequestResetData } from '@tokenizer/shared/types';
+import { useTranslations } from 'next-intl';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
 export type ForgotPasswordFormProps = Omit<
@@ -30,6 +31,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   onSent,
   ...props
 }) => {
+  const t = useTranslations('Auth.forgotPassword');
   const form = useForm<RequestResetData>({
     resolver: zodResolver(requestResetDataSchema),
     defaultValues: { email: defaultEmail },
@@ -60,7 +62,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="forgot-email">Email</FieldLabel>
+              <FieldLabel htmlFor="forgot-email">{t('emailLabel')}</FieldLabel>
               <EmailInput
                 {...field}
                 id="forgot-email"
@@ -77,7 +79,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           disabled={isPending || isIncomplete}
           className="mt-1 h-11 w-full text-[0.9375rem]"
         >
-          Send reset link
+          {t('submit')}
         </Button>
       </FieldGroup>
     </form>

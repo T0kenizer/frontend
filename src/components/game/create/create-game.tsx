@@ -15,7 +15,7 @@ import {
   FeltHeader,
   FeltStage,
 } from '@components/game/felt/felt-stage';
-import { Logo } from '@components/layout/logo';
+import { Logo } from '@components/layout/logo/smart-logo';
 import { Input } from '@components/ui/input';
 import { GAME_NAME_MAX_LENGTH } from '@constants/games';
 import ROUTES from '@constants/routes';

@@ -3,6 +3,14 @@ import { ChangePasswordForm } from '@components/settings/forms/change-password-f
 import { SettingsTabContainer } from '@components/settings/setting-tab-container';
 import { SettingsSection } from '@components/settings/settings-section';
 import { Button } from '@components/ui/button';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
+
+export const generateMetadata = async (): Promise<Metadata> => {
+  const t = await getTranslations('Settings.security');
+
+  return { title: t('metaTitle') };
+};
 
 const Page: React.FC = () => (
   <SettingsTabContainer>

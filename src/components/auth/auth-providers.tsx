@@ -1,6 +1,7 @@
 'use client';
 
 import { GoogleAuthButton } from '@components/auth/google-auth-button';
+import { OAuthErrorAlert } from '@components/auth/oauth-error-alert';
 import { FieldSeparator } from '@components/ui/field';
 import { AuthMode, useAuthMode } from '@hooks/use-auth-mode';
 import { cn } from '@lib/utils';
@@ -24,6 +25,7 @@ export const AuthProviders: React.FC<AuthProvidersProps> = ({
       className={cn('space-y-5', className)}
       {...props}
     >
+      <OAuthErrorAlert />
       <GoogleAuthButton>{COPY[mode]}</GoogleAuthButton>
 
       <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card my-0">

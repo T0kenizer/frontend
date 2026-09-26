@@ -8,7 +8,7 @@ import type {
 } from '@components/game/table/use-table-view';
 import { Button } from '@components/ui/button';
 import ROUTES from '@constants/routes';
-import { useHomeRoute } from '@hooks/use-home-route';
+import { useHome } from '@hooks/use-home';
 import { formatAmount } from '@lib/amount';
 import { cn } from '@lib/utils';
 import { GameMode } from '@tokenizer/shared/types';
@@ -86,7 +86,7 @@ export const Standings: React.FC<{ standings: SeatView[] }> = ({
 };
 
 export const HubFinished: React.FC<HubFinishedProps> = ({ view }) => {
-  const homeRoute = useHomeRoute();
+  const home = useHome();
 
   const standings = useMemo(() => standingsOf(view.seats), [view.seats]);
 
@@ -121,7 +121,7 @@ export const HubFinished: React.FC<HubFinishedProps> = ({ view }) => {
             <Link href={ROUTES.game.new()}>Start another table</Link>
           </Button>
           <Button variant="line" className="w-full" asChild>
-            <Link href={homeRoute}>Back home</Link>
+            <Link href={home()}>Back home</Link>
           </Button>
         </HubStack>
       )}

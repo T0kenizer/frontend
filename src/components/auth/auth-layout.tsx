@@ -1,8 +1,11 @@
 import { Logo } from '@components/layout/logo';
 import { Main, MainProps } from '@components/layout/main';
+import { Button } from '@components/ui/button';
+import { Skeleton } from '@components/ui/skeleton';
 import ROUTES from '@constants/routes';
 import { cn } from '@lib/utils';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, TriangleAlert } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 export type AuthMainProps = MainProps;
@@ -40,29 +43,33 @@ export const AuthRightContainer: React.FC<AuthRightContainerProps> = ({
   className,
   children,
   ...props
-}) => (
-  <div
-    data-slot="auth-right"
-    className={cn(
-      'bg-card flex min-h-0 flex-col overflow-y-auto px-5 py-6 sm:px-8',
-      className,
-    )}
-    {...props}
-  >
-    <div className="flex shrink-0 items-center justify-between gap-3">
-      <Logo className="lg:hidden" />
-      <Link
-        href={ROUTES.landing()}
-        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
-      >
-        <ArrowLeft className="size-3.5" />
-        Home
-      </Link>
-    </div>
+}) => {
+  const t = useTranslations('Auth');
 
-    <div className="m-auto w-full max-w-94 space-y-7 py-9">{children}</div>
-  </div>
-);
+  return (
+    <div
+      data-slot="auth-right"
+      className={cn(
+        'bg-card flex min-h-0 flex-col overflow-y-auto px-5 py-6 sm:px-8',
+        className,
+      )}
+      {...props}
+    >
+      <div className="flex shrink-0 items-center justify-between gap-3">
+        <Logo className="lg:hidden" />
+        <Link
+          href={ROUTES.landing()}
+          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
+        >
+          <ArrowLeft className="size-3.5" />
+          {t('home')}
+        </Link>
+      </div>
+
+      <div className="m-auto w-full max-w-94 space-y-7 py-9">{children}</div>
+    </div>
+  );
+};
 
 export type AuthHeaderProps = Omit<React.ComponentProps<'header'>, 'title'> & {
   title: React.ReactNode;
@@ -157,7 +164,7 @@ export const AuthSteps: React.FC<AuthStepsProps> = ({
 );
 
 export type AuthSealProps = React.ComponentProps<'div'> & {
-  tone?: 'primary' | 'success';
+  tone?: 'primary' | 'success' | 'danger';
 };
 
 /** The tinted disc that gives a screen with no form something to lead with. */
@@ -171,9 +178,11 @@ export const AuthSeal: React.FC<AuthSealProps> = ({
     aria-hidden
     className={cn(
       "grid size-14 place-items-center rounded-full [&_svg:not([class*='size-'])]:size-6",
-      tone === 'success'
-        ? 'bg-success-soft text-success-soft-foreground'
-        : 'bg-primary-soft text-primary',
+      {
+        primary: 'bg-primary-soft text-primary',
+        success: 'bg-success-soft text-success-soft-foreground',
+        danger: 'bg-destructive/10 text-destructive dark:bg-destructive/20',
+      }[tone],
       className,
     )}
     {...props}
@@ -199,3 +208,76 @@ export const AuthMailbox: React.FC<AuthMailboxProps> = ({
     {...props}
   />
 );
+
+export type AuthLoadingProps = Omit<React.ComponentProps<'div'>, 'children'> & {
+  /** Read out to assistive tech while the placeholder is on screen. */
+  label: string;
+};
+
+/**
+ * Stands in for a seal-led screen while its link is being checked, shaped like
+ * what replaces it so the panel does not jump when the answer lands.
+ */
+export const AuthLoading: React.FC<AuthLoadingProps> = ({
+  label,
+  className,
+  ...props
+}) => (
+  <div
+    data-slot="auth-loading"
+    role="status"
+    aria-busy
+    className={cn('space-y-7', className)}
+    {...props}
+  >
+    <span className="sr-only">{label}</span>
+    <div className="space-y-5">
+      <Skeleton className="size-14 rounded-full" />
+      <div className="space-y-3">
+        <Skeleton className="h-7 w-3/4" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-2/3" />
+      </div>
+    </div>
+    <Skeleton className="h-11 w-full rounded-lg" />
+  </div>
+);
+
+export type AuthLoadErrorProps = {
+  onRetry: () => void;
+  isRetrying?: boolean;
+};
+
+/**
+ * The link could not be checked at all — the server or the network failed,
+ * which says nothing about the link itself, so the way out is to try again
+ * rather than to ask for a new one.
+ */
+export const AuthLoadError: React.FC<AuthLoadErrorProps> = ({
+  onRetry,
+  isRetrying,
+}) => {
+  const t = useTranslations('Auth.loadError');
+
+  return (
+    <>
+      <div className="space-y-5">
+        <AuthSeal tone="danger">
+          <TriangleAlert />
+        </AuthSeal>
+
+        <AuthHeader title={t('title')} description={t('description')} />
+      </div>
+
+      <Button
+        size="lg"
+        className="h-11 w-full text-[0.9375rem]"
+        onClick={onRetry}
+        loading={isRetrying}
+        disabled={isRetrying}
+      >
+        {t('retry')}
+      </Button>
+    </>
+  );
+};

@@ -1,5 +1,4 @@
 import { LandingSection } from '@constants/landing';
-import { NEXT_PUBLIC_API_URL } from '@lib/env';
 import { REDIRECT_URL_PARAM } from '@lib/redirect-url';
 import { buildGameJoinPath } from '@tokenizer/shared/utils/games.utils';
 
@@ -16,15 +15,11 @@ const AUTH_ROUTES = {
   resetPassword: () => '/reset-password',
 
   confirmAccount: () => '/confirm-account',
-  resendConfirmation: () => '/resend-confirmation',
 
   deleteAccount: () => '/delete-account',
 
-  googleOAuth: (redirect?: string) => {
-    const url = new URL(`${NEXT_PUBLIC_API_URL}/sessions/google`);
-    if (redirect) url.searchParams.set('redirect', redirect);
-    return url.toString();
-  },
+  googleOAuth: (redirectUrl?: string) =>
+    withRedirectUrl('/oauth/google', redirectUrl),
 } as const;
 
 const SETTINGS_ROUTES = () => '/settings';
