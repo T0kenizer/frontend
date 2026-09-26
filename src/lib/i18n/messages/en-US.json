@@ -1,5 +1,6 @@
 {
   "Landing": {
+    "metaTitle": "You play. We count the chips.",
     "hero": {
       "eyebrow": "Your game night's bank",
       "title": "You play. We <em>count</em> the chips.",
@@ -133,6 +134,23 @@
   "PasswordInput": {
     "show": "Show password",
     "hide": "Hide password"
+  },
+  "Dashboard": {
+    "metaTitle": "Dashboard"
+  },
+  "Admin": {
+    "metaTitle": "Admin"
+  },
+  "Settings": {
+    "profile": {
+      "metaTitle": "Profile settings"
+    },
+    "preferences": {
+      "metaTitle": "Preferences"
+    },
+    "security": {
+      "metaTitle": "Security settings"
+    }
   },
   "Sidebar": {
     "title": "Sidebar",

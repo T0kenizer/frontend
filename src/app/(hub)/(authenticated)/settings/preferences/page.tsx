@@ -4,6 +4,14 @@ import { SettingsRow } from '@components/settings/settings-row';
 import { SettingsSection } from '@components/settings/settings-section';
 import { ThemeSwitcher } from '@components/theme/theme-switcher';
 import { APP_NAME } from '@constants/index';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
+
+export const generateMetadata = async (): Promise<Metadata> => {
+  const t = await getTranslations('Settings.preferences');
+
+  return { title: t('metaTitle') };
+};
 
 const Page: React.FC = () => (
   <SettingsTabContainer>

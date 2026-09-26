@@ -2,13 +2,18 @@ import { RolesGuard } from '@components/guards/roles-guard';
 import { AuthenticatedShell } from '@components/layout/authenticated-shell';
 import { ADMIN_ROLES } from '@tokenizer/shared/constants/users.constants';
 import { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-  title: {
-    template: `Admin - %s`,
-    default: 'Admin',
-  },
+export const generateMetadata = async (): Promise<Metadata> => {
+  const t = await getTranslations('Admin');
+
+  return {
+    robots: { index: false, follow: false },
+    title: {
+      template: `${t('metaTitle')} - %s`,
+      default: t('metaTitle'),
+    },
+  };
 };
 
 const AdminLayout: React.FC<React.PropsWithChildren> = async ({ children }) => (

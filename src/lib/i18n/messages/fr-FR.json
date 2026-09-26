@@ -1,5 +1,6 @@
 {
   "Landing": {
+    "metaTitle": "Vous jouez. On compte les jetons.",
     "hero": {
       "eyebrow": "La banque de vos soirées jeux",
       "title": "Vous jouez. On <em>compte</em> les jetons.",
@@ -133,6 +134,23 @@
   "PasswordInput": {
     "show": "Afficher le mot de passe",
     "hide": "Masquer le mot de passe"
+  },
+  "Dashboard": {
+    "metaTitle": "Tableau de bord"
+  },
+  "Admin": {
+    "metaTitle": "Administration"
+  },
+  "Settings": {
+    "profile": {
+      "metaTitle": "Paramètres du profil"
+    },
+    "preferences": {
+      "metaTitle": "Préférences"
+    },
+    "security": {
+      "metaTitle": "Paramètres de sécurité"
+    }
   },
   "Sidebar": {
     "title": "Barre latérale",

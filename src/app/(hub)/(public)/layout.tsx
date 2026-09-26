@@ -1,11 +1,14 @@
 import { PublicShell } from '@components/layout/public-shell';
 import { APP_NAME } from '@constants/index';
 import { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: {
-    absolute: `${APP_NAME} — You play. We count the chips.`,
-  },
+export const generateMetadata = async (): Promise<Metadata> => {
+  const t = await getTranslations('Landing');
+
+  return {
+    title: { absolute: `${APP_NAME} — ${t('metaTitle')}` },
+  };
 };
 
 const PublicLayout: React.FC<React.PropsWithChildren> = ({ children }) => (
