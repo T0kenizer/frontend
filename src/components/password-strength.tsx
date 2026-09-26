@@ -7,12 +7,22 @@ import {
 } from '@tokenizer/shared/constants/users.constants';
 import { PasswordRule } from '@tokenizer/shared/types';
 import { Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 
 const MAX_SCORE = PASSWORD_RULES.length;
 const REASSURING_SCORE = MAX_SCORE - 1;
 
-const LABELS = ['Too weak', 'Weak', 'Fair', 'Strong', 'Excellent'];
+const LEVELS = ['tooWeak', 'weak', 'fair', 'strong', 'excellent'] as const;
+
+type TranslatedRule = keyof IntlMessages['PasswordStrength']['rules'];
+
+const isTranslatedRule = (id: string): id is TranslatedRule =>
+  id in
+  ({ length: 1, case: 1, digit: 1, symbol: 1 } satisfies Record<
+    TranslatedRule,
+    1
+  >);
 
 export const scorePassword = (
   value: string,
@@ -22,18 +32,27 @@ export const scorePassword = (
 export const usePasswordStrength = (
   value: string,
   rules: PasswordRule[] = PASSWORD_RULES,
-) =>
-  useMemo(() => {
-    const checks = rules.map((rule) => ({ ...rule, ok: rule.test(value) }));
+) => {
+  const t = useTranslations('PasswordStrength');
+
+  return useMemo(() => {
+    const checks = rules.map((rule) => ({
+      ...rule,
+      label: isTranslatedRule(rule.id)
+        ? t(`rules.${rule.id}`, { count: PASSWORD_MIN_LENGTH })
+        : rule.label,
+      ok: rule.test(value),
+    }));
     const score = checks.filter((check) => check.ok).length;
 
     return {
       score,
-      label: value ? LABELS[score] : '',
+      label: value ? t(`levels.${LEVELS[score]}`) : '',
       checks,
       valid: checks.every((check) => check.ok),
     };
-  }, [value, rules]);
+  }, [value, rules, t]);
+};
 
 export type PasswordStrengthProps = Omit<
   React.ComponentProps<'div'>,
@@ -49,10 +68,11 @@ export const PasswordStrength: React.FC<PasswordStrengthProps> = ({
   value,
   rules = PASSWORD_RULES,
   meterOnly = false,
-  emptyHint = `${PASSWORD_MIN_LENGTH} characters or more`,
+  emptyHint,
   className,
   ...props
 }) => {
+  const t = useTranslations('PasswordStrength');
   const { score, label, checks } = usePasswordStrength(value, rules);
   const isGood = score >= REASSURING_SCORE;
 
@@ -66,7 +86,7 @@ export const PasswordStrength: React.FC<PasswordStrengthProps> = ({
       <div
         className="flex gap-1"
         role="img"
-        aria-label={value ? `Password strength: ${label}` : 'Password strength'}
+        aria-label={value ? t('labelWithLevel', { level: label }) : t('label')}
       >
         {Array.from({ length: MAX_SCORE }, (_, index) => (
           <span
@@ -81,7 +101,9 @@ export const PasswordStrength: React.FC<PasswordStrengthProps> = ({
 
       {meterOnly ? (
         <p className="text-muted-foreground text-xs font-light">
-          {value ? label : emptyHint}
+          {value
+            ? label
+            : (emptyHint ?? t('emptyHint', { count: PASSWORD_MIN_LENGTH }))}
         </p>
       ) : (
         <ul className="grid gap-1.5 pt-1">

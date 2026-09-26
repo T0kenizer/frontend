@@ -111,5 +111,52 @@
     "dashboard": "Dashboard",
     "settings": "Settings",
     "signOut": "Sign out"
+  },
+  "PasswordStrength": {
+    "label": "Password strength",
+    "labelWithLevel": "Password strength: {level}",
+    "levels": {
+      "tooWeak": "Too weak",
+      "weak": "Weak",
+      "fair": "Fair",
+      "strong": "Strong",
+      "excellent": "Excellent"
+    },
+    "emptyHint": "{count} characters or more",
+    "rules": {
+      "length": "{count} characters or more",
+      "case": "Upper and lower case letters",
+      "digit": "A number",
+      "symbol": "A symbol"
+    }
+  },
+  "PasswordInput": {
+    "show": "Show password",
+    "hide": "Hide password"
+  },
+  "Sidebar": {
+    "title": "Sidebar",
+    "description": "Displays the mobile sidebar.",
+    "sections": {
+      "game": "Game",
+      "account": "Account"
+    },
+    "items": {
+      "dashboard": "Dashboard",
+      "games": "Games",
+      "statistics": "Statistics",
+      "profile": "Profile",
+      "preferences": "Preferences"
+    },
+    "newGame": "New game",
+    "join": "Join",
+    "guest": {
+      "name": "Guest",
+      "status": "Not signed in",
+      "title": "Join the table",
+      "description": "Sign up to host your games and invite your friends.",
+      "signUp": "Sign up",
+      "signIn": "Sign in"
+    }
   }
 }

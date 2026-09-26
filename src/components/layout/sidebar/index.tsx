@@ -19,15 +19,25 @@ import {
   Settings,
   User,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
-export type SidebarProps = Omit<UISidebarProps, 'children' | 'collapsible'>;
+export type SidebarProps = Omit<
+  UISidebarProps,
+  'children' | 'collapsible' | 'mobileTitle' | 'mobileDescription'
+>;
 
 export const Sidebar: React.FC<SidebarProps> = ({ ...props }) => {
+  const t = useTranslations('Sidebar');
   const { data: session } = useQuery(retrieveSessionOptions());
   const user = session?.user;
 
   return (
-    <UISidebar {...props} collapsible="icon">
+    <UISidebar
+      {...props}
+      collapsible="icon"
+      mobileTitle={t('title')}
+      mobileDescription={t('description')}
+    >
       <SidebarHeader>
         <Logo href={ROUTES.dashboard()} collapsible />
       </SidebarHeader>
@@ -37,7 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ ...props }) => {
             {
               items: [
                 {
-                  label: 'Dashboard',
+                  label: t('items.dashboard'),
                   href: ROUTES.dashboard(),
                   renderIcon: () => <LayoutDashboard />,
                   isActive: (pathname) => pathname === ROUTES.dashboard(),
@@ -45,16 +55,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ ...props }) => {
               ],
             },
             {
-              label: 'Game',
+              label: t('sections.game'),
               items: [
                 {
-                  label: 'Games',
+                  label: t('items.games'),
                   href: ROUTES.dashboard(),
                   renderIcon: () => <CircleDot />,
                   isLocked: true,
                 },
                 {
-                  label: 'Statistics',
+                  label: t('items.statistics'),
                   href: ROUTES.dashboard(),
                   renderIcon: () => <BarChart2 />,
                   isLocked: true,
@@ -62,16 +72,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ ...props }) => {
               ],
             },
             {
-              label: 'Account',
+              label: t('sections.account'),
               items: [
                 {
-                  label: 'Profile',
+                  label: t('items.profile'),
                   href: ROUTES.profile(),
                   renderIcon: () => <User />,
                   isLocked: true,
                 },
                 {
-                  label: 'Preferences',
+                  label: t('items.preferences'),
                   href: ROUTES.settings.preferences(),
                   renderIcon: () => <Settings />,
                   isActive: (pathname) =>

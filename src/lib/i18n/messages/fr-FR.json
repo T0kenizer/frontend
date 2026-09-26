@@ -111,5 +111,52 @@
     "dashboard": "Tableau de bord",
     "settings": "Paramètres",
     "signOut": "Se déconnecter"
+  },
+  "PasswordStrength": {
+    "label": "Robustesse du mot de passe",
+    "labelWithLevel": "Robustesse du mot de passe : {level}",
+    "levels": {
+      "tooWeak": "Trop faible",
+      "weak": "Faible",
+      "fair": "Moyen",
+      "strong": "Fort",
+      "excellent": "Excellent"
+    },
+    "emptyHint": "{count} caractères ou plus",
+    "rules": {
+      "length": "{count} caractères ou plus",
+      "case": "Majuscules et minuscules",
+      "digit": "Un chiffre",
+      "symbol": "Un symbole"
+    }
+  },
+  "PasswordInput": {
+    "show": "Afficher le mot de passe",
+    "hide": "Masquer le mot de passe"
+  },
+  "Sidebar": {
+    "title": "Barre latérale",
+    "description": "Affiche la barre latérale sur mobile.",
+    "sections": {
+      "game": "Jeu",
+      "account": "Compte"
+    },
+    "items": {
+      "dashboard": "Tableau de bord",
+      "games": "Parties",
+      "statistics": "Statistiques",
+      "profile": "Profil",
+      "preferences": "Préférences"
+    },
+    "newGame": "Nouvelle partie",
+    "join": "Rejoindre",
+    "guest": {
+      "name": "Invité",
+      "status": "Non connecté",
+      "title": "Rejoignez la table",
+      "description": "Inscrivez-vous pour organiser vos parties et inviter vos amis.",
+      "signUp": "S'inscrire",
+      "signIn": "Se connecter"
+    }
   }
 }
