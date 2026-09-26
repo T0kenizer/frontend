@@ -3,7 +3,7 @@ import {
   FeltStage,
   FeltSteps,
 } from '@components/game/felt/felt-stage';
-import { Logo } from '@components/layout/logo';
+import { Logo } from '@components/layout/logo/smart-logo';
 import { cn } from '@lib/utils';
 
 export const JOIN_STEPS = ['identify', 'seat', 'identity'] as const;
@@ -11,7 +11,6 @@ export const JOIN_STEPS = ['identify', 'seat', 'identity'] as const;
 export type JoinStep = (typeof JOIN_STEPS)[number];
 
 export type JoinStageProps = React.ComponentProps<'div'> & {
-  /** Which of {@link JOIN_STEPS} the visitor is on. */
   step: JoinStep;
 };
 

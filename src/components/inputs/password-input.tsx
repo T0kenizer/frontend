@@ -9,6 +9,7 @@ import {
 } from '@components/ui/input-group';
 import { cn } from '@lib/utils';
 import { Eye, EyeClosed, Lock } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 export type PasswordInputProps = Omit<InputProps, 'type'> & {
@@ -20,6 +21,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
   className,
   ...props
 }) => {
+  const t = useTranslations('PasswordInput');
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const handleTogglePassword = () => {
@@ -40,7 +42,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
       />
       <InputGroupButton
         onClick={handleTogglePassword}
-        aria-label={showPassword ? 'Hide password' : 'Show password'}
+        aria-label={showPassword ? t('hide') : t('show')}
       >
         {showPassword ? <Eye /> : <EyeClosed />}
       </InputGroupButton>

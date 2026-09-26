@@ -63,7 +63,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
           </LandingRevealItem>
           <LandingRevealItem className="mt-8 flex flex-wrap gap-3">
             <Button size="xl" asChild>
-              <Link href={ROUTES.auth.signUp()}>{t('signUp')}</Link>
+              <Link href={ROUTES.game.new()}>{t('signUp')}</Link>
             </Button>
             <Button
               size="xl"

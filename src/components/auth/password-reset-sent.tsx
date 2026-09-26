@@ -8,11 +8,12 @@ import {
 } from '@components/auth/auth-layout';
 import { Button } from '@components/ui/button';
 import { Separator } from '@components/ui/separator';
-import { PASSWORD_RESET_TTL_LABEL } from '@constants/password-resets';
+import { PASSWORD_RESET_TTL_HOURS } from '@constants/password-resets';
 import ROUTES from '@constants/routes';
 import { requestResetOptions } from '@services/password-resets/password-resets.options';
 import { useMutation } from '@tanstack/react-query';
 import { Clock, Inbox, Lock, Mail } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
@@ -20,12 +21,9 @@ import { useEffect, useState } from 'react';
 const RESEND_COOLDOWN_SECONDS = 30;
 
 const TIPS = [
-  { icon: Clock, text: `The link expires in ${PASSWORD_RESET_TTL_LABEL}.` },
-  { icon: Inbox, text: 'Nothing after a minute? Look in your spam folder.' },
-  {
-    icon: Lock,
-    text: 'Your current password keeps working until you set a new one.',
-  },
+  { icon: Clock, key: 'expires' },
+  { icon: Inbox, key: 'spam' },
+  { icon: Lock, key: 'current' },
 ] as const;
 
 export interface PasswordResetSentProps {
@@ -46,6 +44,8 @@ export const PasswordResetSent: React.FC<PasswordResetSentProps> = ({
   email,
   onChangeEmail,
 }) => {
+  const tAuth = useTranslations('Auth');
+  const t = useTranslations('Auth.resetSent');
   const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_SECONDS);
   const { mutate: requestReset, isPending } = useMutation(
     requestResetOptions(),
@@ -72,17 +72,14 @@ export const PasswordResetSent: React.FC<PasswordResetSentProps> = ({
 
   return (
     <>
-      <AuthSteps current={2} total={3} label="Password reset" />
+      <AuthSteps current={2} total={3} label={tAuth('passwordResetSteps')} />
 
       <div className="space-y-5">
         <AuthSeal>
           <Mail />
         </AuthSeal>
 
-        <AuthHeader
-          title="Check your mail"
-          description="If an account exists for this address, a link to choose a new password is on its way to:"
-        />
+        <AuthHeader title={t('title')} description={t('description')} />
 
         <AuthMailbox>
           <Mail className="text-muted-foreground size-4 shrink-0" />
@@ -93,15 +90,15 @@ export const PasswordResetSent: React.FC<PasswordResetSentProps> = ({
             className="text-primary ml-auto"
             onClick={onChangeEmail}
           >
-            Change
+            {t('change')}
           </Button>
         </AuthMailbox>
 
         <ul className="text-muted-foreground grid gap-2.5 text-xs leading-relaxed">
-          {TIPS.map(({ icon: Icon, text }) => (
-            <li key={text} className="flex gap-2.5">
+          {TIPS.map(({ icon: Icon, key }) => (
+            <li key={key} className="flex gap-2.5">
               <Icon className="mt-px size-3.5 shrink-0" />
-              {text}
+              {t(`tips.${key}`, { hours: PASSWORD_RESET_TTL_HOURS })}
             </li>
           ))}
         </ul>
@@ -109,7 +106,7 @@ export const PasswordResetSent: React.FC<PasswordResetSentProps> = ({
 
       <div className="space-y-5">
         <p className="text-muted-foreground text-center text-xs">
-          Still nothing?{' '}
+          {t('stillNothing')}{' '}
           <Button
             variant="link"
             size="xs"
@@ -118,14 +115,14 @@ export const PasswordResetSent: React.FC<PasswordResetSentProps> = ({
             loading={isPending}
             disabled={isPending || cooldown > 0}
           >
-            {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend the link'}
+            {cooldown > 0 ? t('resendIn', { seconds: cooldown }) : t('resend')}
           </Button>
         </p>
 
         <Separator />
 
         <Button variant="secondary" className="h-10 w-full" asChild>
-          <Link href={ROUTES.auth.signIn()}>Back to sign in</Link>
+          <Link href={ROUTES.auth.signIn()}>{t('backToSignIn')}</Link>
         </Button>
       </div>
     </>
