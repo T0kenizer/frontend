@@ -212,6 +212,12 @@
     },
     "signUp": {
       "metaTitle": "Create an account"
+    },
+    "oauthErrors": {
+      "title": "Google sign-in did not go through",
+      "access_denied": "You cancelled on Google's side. Try again whenever you are ready.",
+      "unverified_email": "Your Google account has no verified email address. Verify it with Google, or sign in with your email and password.",
+      "failed": "Something went wrong while signing you in with Google. Please try again."
     }
   },
   "PasswordStrength": {

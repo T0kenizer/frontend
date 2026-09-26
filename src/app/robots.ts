@@ -12,6 +12,8 @@ const robots = (): MetadataRoute.Robots => ({
       '/delete-account',
       '/admin',
       '/game/',
+      '/oauth/',
+      '/callback/',
     ],
   },
   sitemap: `${SITE_URL}/sitemap.xml`,

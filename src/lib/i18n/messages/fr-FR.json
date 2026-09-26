@@ -212,6 +212,12 @@
     },
     "signUp": {
       "metaTitle": "Créer un compte"
+    },
+    "oauthErrors": {
+      "title": "La connexion avec Google n'a pas abouti",
+      "access_denied": "Vous avez annulé côté Google. Réessayez quand vous voulez.",
+      "unverified_email": "Votre compte Google n'a pas d'adresse e-mail vérifiée. Vérifiez-la chez Google, ou connectez-vous avec votre e-mail et votre mot de passe.",
+      "failed": "Une erreur est survenue pendant la connexion avec Google. Veuillez réessayer."
     }
   },
   "PasswordStrength": {
