@@ -16,24 +16,21 @@ export const GET = (request: NextRequest) => {
     request.nextUrl.searchParams.get(OAUTH_ERROR_PARAM),
   );
 
-  const target = request.nextUrl.clone();
-  target.search = '';
+  let location: string;
 
   if (error) {
-    target.pathname = ROUTES.auth.signIn();
-    if (redirectUrl) target.searchParams.set(REDIRECT_URL_PARAM, redirectUrl);
-    target.searchParams.set(OAUTH_ERROR_PARAM, error);
+    const params = new URLSearchParams();
+    if (redirectUrl) params.set(REDIRECT_URL_PARAM, redirectUrl);
+    params.set(OAUTH_ERROR_PARAM, error);
+    location = `${ROUTES.auth.signIn()}?${params}`;
   } else {
-    const destination = new URL(
-      redirectUrl ?? ROUTES.dashboard(),
-      request.nextUrl.origin,
-    );
-    target.pathname = destination.pathname;
-    target.search = destination.search;
-    target.hash = destination.hash;
+    location = redirectUrl ?? ROUTES.dashboard();
   }
 
-  const response = NextResponse.redirect(target);
+  const response = new NextResponse(null, {
+    status: 307,
+    headers: { Location: location },
+  });
   response.cookies.delete({
     name: OAUTH_REDIRECT_COOKIE,
     path: OAUTH_COOKIE_PATH,
