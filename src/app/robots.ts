@@ -7,6 +7,7 @@ const robots = (): MetadataRoute.Robots => ({
     allow: '/',
     disallow: [
       '/reset-password',
+      '/confirm-account',
       '/dashboard',
       '/settings/',
       '/delete-account',
