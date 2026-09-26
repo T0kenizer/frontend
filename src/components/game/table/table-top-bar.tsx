@@ -1,10 +1,10 @@
 'use client';
 
 import { FeltBadge } from '@components/game/felt/felt-stage';
-import { Logo } from '@components/layout/logo';
+import { Logo } from '@components/layout/logo/smart-logo';
 import { Button } from '@components/ui/button';
 import ROUTES from '@constants/routes';
-import { useHomeRoute } from '@hooks/use-home-route';
+import { useHome } from '@hooks/use-home';
 import { cn } from '@lib/utils';
 import { gameQrUrl } from '@services/games/games.api';
 import { LogOut, Monitor } from 'lucide-react';
@@ -29,7 +29,7 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
   spectatorMode = false,
   className,
 }) => {
-  const homeRoute = useHomeRoute();
+  const home = useHome();
 
   return (
     <header
@@ -39,11 +39,8 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
         className,
       )}
     >
-      {/* Equal side columns keep the name centred on the page, and the
-          fixed-height row lets the spectator's taller code card grow the bar
-          downwards without moving the logo or the name. */}
       <div className="flex h-13 items-center">
-        <Logo href={homeRoute} className="shrink-0" />
+        <Logo className="shrink-0" />
       </div>
 
       <span className="hidden h-13 max-w-[40vw] min-w-0 flex-col items-center justify-center text-center md:flex">
@@ -111,7 +108,7 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
               className="shrink-0"
               asChild
             >
-              <Link href={homeRoute}>
+              <Link href={home()}>
                 <LogOut />
               </Link>
             </Button>
