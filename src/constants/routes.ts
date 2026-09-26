@@ -16,7 +16,6 @@ const AUTH_ROUTES = {
   resetPassword: () => '/reset-password',
 
   confirmAccount: () => '/confirm-account',
-  resendConfirmation: () => '/resend-confirmation',
 
   deleteAccount: () => '/delete-account',
 

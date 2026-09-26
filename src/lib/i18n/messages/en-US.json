@@ -113,6 +113,106 @@
     "settings": "Settings",
     "signOut": "Sign out"
   },
+  "Auth": {
+    "home": "Home",
+    "loadError": {
+      "title": "Something went wrong",
+      "description": "We could not check your link. It is probably still valid — give it another try in a moment.",
+      "retry": "Try again"
+    },
+    "passwordResetSteps": "Password reset",
+    "forgotPassword": {
+      "metaTitle": "Forgot your password",
+      "backToSignIn": "Back to sign in",
+      "title": "Forgot your password?",
+      "description": "Give us the email on your account and we will send a link to choose a new one. The link is good for {hours, plural, one {# hour} other {# hours}}.",
+      "emailLabel": "Email",
+      "submit": "Send reset link"
+    },
+    "resetSent": {
+      "title": "Check your mail",
+      "description": "If an account exists for this address, a link to choose a new password is on its way to:",
+      "change": "Change",
+      "tips": {
+        "expires": "The link expires in {hours, plural, one {# hour} other {# hours}}.",
+        "spam": "Nothing after a minute? Look in your spam folder.",
+        "current": "Your current password keeps working until you set a new one."
+      },
+      "stillNothing": "Still nothing?",
+      "resend": "Resend the link",
+      "resendIn": "Resend in {seconds}s",
+      "backToSignIn": "Back to sign in"
+    },
+    "resetPassword": {
+      "metaTitle": "Choose a new password",
+      "loading": "Checking your reset link",
+      "invalid": {
+        "title": "This link is no longer valid",
+        "description": "Reset links are single-use and last {hours, plural, one {# hour} other {# hours}}. Ask for a fresh one and it will land in your inbox.",
+        "action": "Request a new link"
+      },
+      "title": "Choose a new password",
+      "description": "Pick one you have not used before. Your games and your history stay exactly as they were.",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "mismatch": "Passwords don't match",
+      "submit": "Reset password",
+      "done": {
+        "title": "Password changed",
+        "description": "Your new password is saved. You can sign in with it right away.",
+        "signIn": "Sign in",
+        "notYou": "Did not ask for this? <link>Reset it again</link> straight away."
+      }
+    },
+    "confirmAccount": {
+      "metaTitle": "Confirm your email",
+      "loading": "Confirming your email",
+      "done": {
+        "title": "Email confirmed",
+        "description": "{email} is verified. Your account is ready to play.",
+        "action": "Go to the dashboard"
+      },
+      "sent": {
+        "title": "Check your mail",
+        "description": "A fresh confirmation link is on its way to:",
+        "spam": "Nothing after a minute? Look in your spam folder."
+      },
+      "invalid": {
+        "title": "This link is no longer valid",
+        "description": "Confirmation links are single-use and expire after a while. Ask for a fresh one and it will land in your inbox.",
+        "action": "Send a new link"
+      },
+      "backToDashboard": "Back to the dashboard"
+    },
+    "deleteAccount": {
+      "metaTitle": "Delete your account",
+      "loading": "Checking your deletion link",
+      "done": {
+        "title": "Account deleted",
+        "description": "Your account and everything tied to it are gone. Thanks for playing with us.",
+        "action": "Back to home"
+      },
+      "invalid": {
+        "title": "This link is no longer valid",
+        "description": "Deletion links are single-use and expire after a while. You can ask for a new one from your security settings.",
+        "action": "Go to security settings"
+      },
+      "title": "Delete your account?",
+      "description": "This cannot be undone. You are about to permanently delete the account for:",
+      "consequences": {
+        "data": "Your account and all associated data are permanently deleted.",
+        "signOut": "You are signed out right away."
+      },
+      "confirm": "Delete my account",
+      "cancel": "Keep my account"
+    },
+    "signIn": {
+      "metaTitle": "Sign in"
+    },
+    "signUp": {
+      "metaTitle": "Create an account"
+    }
+  },
   "PasswordStrength": {
     "label": "Password strength",
     "labelWithLevel": "Password strength: {level}",

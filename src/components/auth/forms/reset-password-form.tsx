@@ -14,19 +14,22 @@ import { applyServerError } from '@lib/form-errors';
 import { applyResetOptions } from '@services/password-resets/password-resets.options';
 import { useMutation } from '@tanstack/react-query';
 import { applyResetDataSchema } from '@tokenizer/shared/schemas';
+import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
-const schema = applyResetDataSchema
-  .extend({
-    confirmPassword: applyResetDataSchema.shape.password,
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
+const createSchema = (mismatchMessage: string) =>
+  applyResetDataSchema
+    .extend({
+      confirmPassword: applyResetDataSchema.shape.password,
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: mismatchMessage,
+      path: ['confirmPassword'],
+    });
 
-type FormData = z.infer<typeof schema>;
+type FormData = z.infer<ReturnType<typeof createSchema>>;
 
 export type ResetPasswordFormProps = Omit<
   React.ComponentProps<'form'>,
@@ -41,6 +44,8 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
   onReset,
   ...props
 }) => {
+  const t = useTranslations('Auth.resetPassword');
+  const schema = useMemo(() => createSchema(t('mismatch')), [t]);
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { password: '', confirmPassword: '' },
@@ -72,7 +77,9 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="reset-password">New password</FieldLabel>
+              <FieldLabel htmlFor="reset-password">
+                {t('newPassword')}
+              </FieldLabel>
               <PasswordInput
                 {...field}
                 id="reset-password"
@@ -91,7 +98,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor="reset-confirm-password">
-                Confirm new password
+                {t('confirmPassword')}
               </FieldLabel>
               <PasswordInput
                 {...field}
@@ -111,7 +118,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
           disabled={isPending || isIncomplete}
           className="mt-1 h-11 w-full text-[0.9375rem]"
         >
-          Reset password
+          {t('submit')}
         </Button>
       </FieldGroup>
     </form>

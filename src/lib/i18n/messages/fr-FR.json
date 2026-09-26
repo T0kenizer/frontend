@@ -113,6 +113,106 @@
     "settings": "Paramètres",
     "signOut": "Se déconnecter"
   },
+  "Auth": {
+    "home": "Accueil",
+    "loadError": {
+      "title": "Une erreur est survenue",
+      "description": "Nous n'avons pas pu vérifier votre lien. Il est sans doute encore valide : réessayez dans un instant.",
+      "retry": "Réessayer"
+    },
+    "passwordResetSteps": "Réinitialisation du mot de passe",
+    "forgotPassword": {
+      "metaTitle": "Mot de passe oublié",
+      "backToSignIn": "Retour à la connexion",
+      "title": "Mot de passe oublié ?",
+      "description": "Indiquez l'e-mail de votre compte et nous vous enverrons un lien pour en choisir un nouveau. Le lien est valable {hours, plural, one {# heure} other {# heures}}.",
+      "emailLabel": "E-mail",
+      "submit": "Envoyer le lien"
+    },
+    "resetSent": {
+      "title": "Consultez vos e-mails",
+      "description": "Si un compte existe pour cette adresse, un lien pour choisir un nouveau mot de passe est en route vers :",
+      "change": "Modifier",
+      "tips": {
+        "expires": "Le lien expire dans {hours, plural, one {# heure} other {# heures}}.",
+        "spam": "Rien au bout d'une minute ? Regardez dans vos spams.",
+        "current": "Votre mot de passe actuel reste valable tant que vous n'en avez pas choisi un nouveau."
+      },
+      "stillNothing": "Toujours rien ?",
+      "resend": "Renvoyer le lien",
+      "resendIn": "Renvoyer dans {seconds} s",
+      "backToSignIn": "Retour à la connexion"
+    },
+    "resetPassword": {
+      "metaTitle": "Choisir un nouveau mot de passe",
+      "loading": "Vérification de votre lien",
+      "invalid": {
+        "title": "Ce lien n'est plus valide",
+        "description": "Les liens de réinitialisation ne servent qu'une fois et durent {hours, plural, one {# heure} other {# heures}}. Demandez-en un nouveau, il arrivera dans votre boîte de réception.",
+        "action": "Demander un nouveau lien"
+      },
+      "title": "Choisissez un nouveau mot de passe",
+      "description": "Prenez-en un que vous n'avez jamais utilisé. Vos parties et votre historique restent intacts.",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmez le nouveau mot de passe",
+      "mismatch": "Les mots de passe ne correspondent pas",
+      "submit": "Réinitialiser le mot de passe",
+      "done": {
+        "title": "Mot de passe modifié",
+        "description": "Votre nouveau mot de passe est enregistré. Vous pouvez vous connecter avec dès maintenant.",
+        "signIn": "Se connecter",
+        "notYou": "Ce n'est pas vous ? <link>Réinitialisez-le à nouveau</link> sans attendre."
+      }
+    },
+    "confirmAccount": {
+      "metaTitle": "Confirmer votre e-mail",
+      "loading": "Confirmation de votre e-mail",
+      "done": {
+        "title": "E-mail confirmé",
+        "description": "L'adresse {email} est vérifiée. Votre compte est prêt pour jouer.",
+        "action": "Aller au tableau de bord"
+      },
+      "sent": {
+        "title": "Consultez vos e-mails",
+        "description": "Un nouveau lien de confirmation est en route vers :",
+        "spam": "Rien au bout d'une minute ? Regardez dans vos spams."
+      },
+      "invalid": {
+        "title": "Ce lien n'est plus valide",
+        "description": "Les liens de confirmation ne servent qu'une fois et expirent au bout d'un moment. Demandez-en un nouveau, il arrivera dans votre boîte de réception.",
+        "action": "Envoyer un nouveau lien"
+      },
+      "backToDashboard": "Retour au tableau de bord"
+    },
+    "deleteAccount": {
+      "metaTitle": "Supprimer votre compte",
+      "loading": "Vérification de votre lien",
+      "done": {
+        "title": "Compte supprimé",
+        "description": "Votre compte et tout ce qui y était lié ont disparu. Merci d'avoir joué avec nous.",
+        "action": "Retour à l'accueil"
+      },
+      "invalid": {
+        "title": "Ce lien n'est plus valide",
+        "description": "Les liens de suppression ne servent qu'une fois et expirent au bout d'un moment. Vous pouvez en demander un nouveau depuis vos paramètres de sécurité.",
+        "action": "Aller aux paramètres de sécurité"
+      },
+      "title": "Supprimer votre compte ?",
+      "description": "Cette action est irréversible. Vous êtes sur le point de supprimer définitivement le compte associé à :",
+      "consequences": {
+        "data": "Votre compte et toutes ses données sont définitivement supprimés.",
+        "signOut": "Votre session est fermée immédiatement."
+      },
+      "confirm": "Supprimer mon compte",
+      "cancel": "Garder mon compte"
+    },
+    "signIn": {
+      "metaTitle": "Connexion"
+    },
+    "signUp": {
+      "metaTitle": "Créer un compte"
+    }
+  },
   "PasswordStrength": {
     "label": "Robustesse du mot de passe",
     "labelWithLevel": "Robustesse du mot de passe : {level}",
