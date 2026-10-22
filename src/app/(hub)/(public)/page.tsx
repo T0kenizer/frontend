@@ -5,6 +5,17 @@ import { LandingHowItWorks } from '@components/landing/sections/landing-how-it-w
 import { LandingPhone } from '@components/landing/sections/landing-phone';
 import { LandingTv } from '@components/landing/sections/landing-tv';
 import { Main } from '@components/layout/main';
+import { APP_NAME } from '@constants/index';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
+
+export const generateMetadata = async (): Promise<Metadata> => {
+  const t = await getTranslations('Landing');
+
+  return {
+    title: { absolute: `${APP_NAME} — ${t('metaTitle')}` },
+  };
+};
 
 const Page: React.FC = () => (
   <Main>
