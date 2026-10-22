@@ -8,6 +8,7 @@ import { cn } from '@lib/utils';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useQuery } from '@tanstack/react-query';
 import { Play, Plus, Sidebar } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 export type NavbarProps = Omit<React.ComponentProps<'nav'>, 'children'> & {
@@ -19,6 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   scrolled,
   ...props
 }) => {
+  const t = useTranslations('Sidebar');
   const { data: session } = useQuery(retrieveSessionOptions());
   const { isMobile, toggleSidebar } = useSidebar();
   const user = session?.user;
@@ -49,13 +51,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <Button size="lg" variant="secondary" asChild>
                     <Link href={ROUTES.game.join()}>
                       <Play />
-                      Join
+                      {t('join')}
                     </Link>
                   </Button>
                   <Button size="lg" asChild>
                     <Link href={ROUTES.game.new()}>
                       <Plus />
-                      New Game
+                      {t('newGame')}
                     </Link>
                   </Button>
                 </>
@@ -63,7 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Button size="lg" asChild>
                   <Link href={ROUTES.game.join()}>
                     <Play />
-                    Join
+                    {t('join')}
                   </Link>
                 </Button>
               )}

@@ -12,6 +12,7 @@ import {
   MAX_FILE_SIZE_BYTES,
 } from '@tokenizer/shared/constants/files.constants';
 import { Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
 import { toast } from 'sonner';
 
@@ -23,6 +24,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
   className,
   ...props
 }) => {
+  const t = useTranslations('Settings.profile.avatar');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { data: session } = useQuery(retrieveSessionOptions());
@@ -51,12 +53,12 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
 
     // Mirror the server-side upload validators so an invalid pick fails fast.
     if (!ALLOWED_MIME_TYPES.includes(file.type as never)) {
-      toast.error('Avatar must be a PNG, JPEG, WebP or GIF image');
+      toast.error(t('invalidType'));
       return;
     }
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      toast.error(`Avatar must be smaller than ${MAX_FILE_SIZE_MB} MB`);
+      toast.error(t('tooLarge', { size: MAX_FILE_SIZE_MB }));
       return;
     }
 
@@ -69,10 +71,10 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
         data: { avatar: uploaded.uuid },
       });
 
-      toast.success('Avatar updated');
+      toast.success(t('updated'));
     } catch (error) {
       toast.error(
-        (error instanceof Error && error.message) || 'Failed to update avatar',
+        (error instanceof Error && error.message) || t('updateFailed'),
       );
     }
   };
@@ -83,10 +85,10 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
     try {
       await detachAvatar({ uuid: user.uuid, data: { avatar: null } });
 
-      toast.success('Avatar removed');
+      toast.success(t('removed'));
     } catch (error) {
       toast.error(
-        (error instanceof Error && error.message) || 'Failed to remove avatar',
+        (error instanceof Error && error.message) || t('removeFailed'),
       );
     }
   };
@@ -110,7 +112,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
         <Avatar size="4xl">
           <AvatarImage
             src={user?.avatarUrl ?? undefined}
-            alt={user ? `${user.displayName}'s Avatar` : 'Avatar'}
+            alt={user ? t('alt', { name: user.displayName }) : t('altFallback')}
           />
           <AvatarFallback />
         </Avatar>
@@ -128,7 +130,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
           loading={isImporting}
           onClick={() => inputRef.current?.click()}
         >
-          Upload a photo
+          {t('upload')}
         </Button>
         <Button
           type="button"
@@ -137,7 +139,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
           loading={isDetaching}
           onClick={handleRemove}
         >
-          Remove
+          {t('remove')}
         </Button>
       </div>
     </div>

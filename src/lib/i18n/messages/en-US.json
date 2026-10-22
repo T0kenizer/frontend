@@ -243,20 +243,105 @@
     "hide": "Hide password"
   },
   "Dashboard": {
-    "metaTitle": "Dashboard"
+    "metaTitle": "Dashboard",
+    "greeting": {
+      "salutation": "{period, select, morning {Good morning} afternoon {Good afternoon} evening {Good evening} other {Hello}}, <brand>{name}</brand>",
+      "welcome": "Welcome to {appName}",
+      "tagline": "The companion app for your <brand>game nights</brand>"
+    },
+    "cta": {
+      "title": "Ready for another game night?",
+      "description": "Create a table, deal the cards with a swipe, and cast the game to your TV. Each player manages their bets from their phone.",
+      "start": "Start a game",
+      "join": "Join with a code"
+    }
   },
   "Admin": {
     "metaTitle": "Admin"
   },
   "Settings": {
+    "title": "Settings",
+    "description": "Manage your profile, preferences, security and subscription.",
+    "nav": {
+      "ariaLabel": "Settings sections",
+      "profile": "Profile",
+      "preferences": "Preferences",
+      "security": "Security",
+      "subscription": "Subscription",
+      "signOut": "Sign out",
+      "attention": "{count, plural, one {# item needing attention} other {# items needing attention}}"
+    },
+    "saveBar": {
+      "unsaved": "<b>{count}</b> unsaved {count, plural, one {change} other {changes}}",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
     "profile": {
-      "metaTitle": "Profile settings"
+      "metaTitle": "Profile settings",
+      "title": "Profile",
+      "username": "Username",
+      "displayName": "Display name",
+      "email": "Email",
+      "updated": "Profile updated",
+      "updatedEmail": "Profile updated — check your inbox to confirm your new email address",
+      "avatar": {
+        "label": "Avatar",
+        "alt": "{name}'s avatar",
+        "altFallback": "Avatar",
+        "upload": "Upload a photo",
+        "remove": "Remove",
+        "invalidType": "Avatar must be a PNG, JPEG, WebP or GIF image",
+        "tooLarge": "Avatar must be smaller than {size} MB",
+        "updated": "Avatar updated",
+        "updateFailed": "Failed to update avatar",
+        "removed": "Avatar removed",
+        "removeFailed": "Failed to remove avatar"
+      },
+      "emailConfirmation": {
+        "pending": "Pending confirmation",
+        "resend": "Send a new link",
+        "sent": "Confirmation link sent — check your inbox"
+      }
     },
     "preferences": {
-      "metaTitle": "Preferences"
+      "metaTitle": "Preferences",
+      "appearance": "Appearance",
+      "language": "Language",
+      "languageHint": "Applies to this browser.",
+      "theme": "Theme",
+      "themeHint": "System follows your device's light or dark setting."
     },
     "security": {
-      "metaTitle": "Security settings"
+      "metaTitle": "Security settings",
+      "password": {
+        "title": "Password",
+        "new": "New password",
+        "confirm": "Confirm new password",
+        "submit": "Change password",
+        "mismatch": "Passwords don't match",
+        "changed": "Your password has been changed"
+      },
+      "sessions": {
+        "title": "Active sessions",
+        "description": "The devices currently signed in to your account.",
+        "loadError": "Your sessions could not be loaded.",
+        "device": "{browser} on {os}",
+        "unknownDevice": "Unknown device",
+        "unknownLocation": "Unknown location",
+        "current": "This device",
+        "activeNow": "Active now",
+        "activeAgo": "Active {time}",
+        "signedIn": "Signed in {date}"
+      },
+      "deleteAccount": {
+        "title": "Delete account",
+        "description": "Permanently delete your account and all associated data.",
+        "action": "Delete account",
+        "dialogDescription": "This action is irreversible: your account and all associated data will be permanently deleted. To confirm, we will send a link to your email address. Nothing is deleted until you open it.",
+        "cancel": "Cancel",
+        "confirm": "Send confirmation email",
+        "sent": "Confirmation email sent — open the link it contains to finish deleting your account"
+      }
     }
   },
   "Sidebar": {
@@ -283,5 +368,14 @@
       "signUp": "Sign up",
       "signIn": "Sign in"
     }
+  },
+  "ThemeSwitcher": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "LangSwitcher": {
+    "label": "Language"
   }
 }

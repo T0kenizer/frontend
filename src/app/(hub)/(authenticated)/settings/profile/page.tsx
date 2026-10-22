@@ -12,15 +12,19 @@ export const generateMetadata = async (): Promise<Metadata> => {
   return { title: t('metaTitle') };
 };
 
-const Page: React.FC = () => (
-  <SettingsTabContainer>
-    <SettingsSection title="Profile">
-      <SettingsRow label="Avatar">
-        <AvatarUpload />
-      </SettingsRow>
-      <ProfileForm />
-    </SettingsSection>
-  </SettingsTabContainer>
-);
+const Page: React.FC = async () => {
+  const t = await getTranslations('Settings.profile');
+
+  return (
+    <SettingsTabContainer>
+      <SettingsSection title={t('title')}>
+        <SettingsRow label={t('avatar.label')}>
+          <AvatarUpload />
+        </SettingsRow>
+        <ProfileForm />
+      </SettingsSection>
+    </SettingsTabContainer>
+  );
+};
 
 export default Page;

@@ -4,24 +4,25 @@ import { APP_NAME } from '@constants/index';
 import { cn } from '@lib/utils';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useQuery } from '@tanstack/react-query';
+import { useFormatter, useTranslations } from 'next-intl';
 import { useSyncExternalStore } from 'react';
 
-const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
+const DATE_FORMAT = {
   weekday: 'long',
   day: 'numeric',
   month: 'long',
-});
+} as const satisfies Intl.DateTimeFormatOptions;
 
-const TIME_FORMATTER = new Intl.DateTimeFormat('en-US', {
+const TIME_FORMAT = {
   hour: '2-digit',
   minute: '2-digit',
-});
+} as const satisfies Intl.DateTimeFormatOptions;
 
 const capitalize = (value: string) =>
   value.charAt(0).toUpperCase() + value.slice(1);
 
-const getSalutation = (hours: number) =>
-  hours < 12 ? 'Good morning' : hours < 18 ? 'Good afternoon' : 'Good evening';
+const getPeriod = (hours: number) =>
+  hours < 12 ? 'morning' : hours < 18 ? 'afternoon' : 'evening';
 
 const getMinuteSnapshot = () => Math.floor(Date.now() / 60_000);
 
@@ -47,10 +48,14 @@ export const PageGreeting: React.FC<PageGreetingProps> = ({
   className,
   ...props
 }) => {
+  const t = useTranslations('Dashboard.greeting');
+  const format = useFormatter();
   const { data: session } = useQuery(retrieveSessionOptions());
   const user = session?.user;
 
   const now = useNow();
+  // The provider carries the server's time zone, the clock reads the device's.
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (
     <div
@@ -62,24 +67,30 @@ export const PageGreeting: React.FC<PageGreetingProps> = ({
         {user
           ? now && (
               <>
-                {capitalize(DATE_FORMATTER.format(now))} ·{' '}
-                {TIME_FORMATTER.format(now)}
+                {capitalize(format.dateTime(now, { ...DATE_FORMAT, timeZone }))}{' '}
+                · {format.dateTime(now, { ...TIME_FORMAT, timeZone })}
               </>
             )
-          : `Welcome to ${APP_NAME}`}
+          : t('welcome', { appName: APP_NAME })}
       </p>
       <h1 className="font-heading text-foreground text-3xl font-extrabold tracking-tight text-balance">
         {user ? (
           <>
-            {now ? getSalutation(now.getHours()) : 'Hello'},{' '}
-            <span className="text-gradient-brand">{user.displayName}</span>{' '}
+            {t.rich('salutation', {
+              period: now ? getPeriod(now.getHours()) : 'none',
+              name: user.displayName,
+              brand: (chunks) => (
+                <span className="text-gradient-brand">{chunks}</span>
+              ),
+            })}{' '}
             <span aria-hidden>👋</span>
           </>
         ) : (
-          <>
-            The companion app for your{' '}
-            <span className="text-gradient-brand">game nights</span>
-          </>
+          t.rich('tagline', {
+            brand: (chunks) => (
+              <span className="text-gradient-brand">{chunks}</span>
+            ),
+          })
         )}
       </h1>
     </div>
