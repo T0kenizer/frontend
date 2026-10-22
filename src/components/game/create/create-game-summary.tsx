@@ -34,7 +34,7 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
   const isPoker = draft.mode === GameMode.Poker;
 
   const meta = [
-    isPoker ? 'poker' : 'free table',
+    isPoker ? 'poker' : 'sandbox',
     isPoker
       ? BETTING_STRUCTURES.find(
           (entry) => entry.value === draft.bettingStructure,
@@ -46,7 +46,7 @@ export const CreateGameSummary: React.FC<CreateGameSummaryProps> = ({
     .join(' · ');
 
   const facts: [string, string][] = [
-    ...(isPoker ? pokerFacts(draft) : freeFacts(draft)),
+    ...(isPoker ? pokerFacts(draft) : sandboxFacts(draft)),
     ['Joining after the deal', draft.allowMidGameClaims ? 'Allowed' : 'Closed'],
     ['Extra seats', draft.allowExtraSeats ? 'Can be added' : 'Fixed'],
   ];
@@ -160,7 +160,7 @@ const pokerFacts = (draft: GameDraft): [string, string][] => [
   ['Showdown', 'Called by the table'],
 ];
 
-const freeFacts = (draft: GameDraft): [string, string][] => [
+const sandboxFacts = (draft: GameDraft): [string, string][] => [
   [
     'Opening bets',
     draft.forcedBets.length

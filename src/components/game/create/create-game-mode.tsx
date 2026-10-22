@@ -23,7 +23,7 @@ import { Check, Lock } from 'lucide-react';
  *
  * A mode the server calls experimental says so on its own card, and says what
  * that costs the host once it is picked. Burying it further down the list would
- * have been the quieter choice and the dishonest one: the free table is not a
+ * have been the quieter choice and the dishonest one: the sandbox is not a
  * lesser poker, it is a different promise — you write the rules, and nothing
  * checks them.
  *
