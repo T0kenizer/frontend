@@ -45,8 +45,9 @@ export const CreateGameMode: React.FC<CreateGameModeProps> = ({
   selected,
   onSelect,
 }) => {
-  const { data: modes, isPending } = useQuery(listGameModesOptions());
+  const { data, isPending } = useQuery(listGameModesOptions());
   const { modes: allowedModes } = useFeatureMetadata(FeatureFlag.CreateGame);
+  const modes = data && Object.values(data);
 
   const available = modes?.filter((entry) =>
     allowedModes.includes(entry.mode),
