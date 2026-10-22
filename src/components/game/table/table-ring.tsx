@@ -7,7 +7,7 @@ import type { ChipFlight } from '@components/game/table/use-chip-flights';
 import type { SeatView } from '@components/game/table/use-table-view';
 import { ScrollFade } from '@components/ui/scroll-fade';
 import { cn } from '@lib/utils';
-import type { ChipModel } from '@tokenizer/shared/types';
+import { ChipModel } from '@tokenizer/shared/types';
 import { motion } from 'motion/react';
 
 /**

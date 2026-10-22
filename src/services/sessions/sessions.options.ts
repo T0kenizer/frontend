@@ -1,8 +1,8 @@
 import { getQueryClient } from '@lib/query-client';
-import { RequesterError } from '@lib/requester';
+import type { RequesterError } from '@lib/requester';
 import * as API from '@services/sessions/sessions.api';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
-import {
+import type {
   CreateSessionData,
   CreateSessionResponse,
   DeleteSessionResponse,
@@ -30,10 +30,6 @@ export const retrieveSessionOptions = (id: SessionID = 'current') =>
     gcTime: 15 * 60 * 1000, // 15 minutes
   });
 
-/**
- * Server-only: relies on `next/headers` to forward cookies. Do not call from
- * client components.
- */
 export const retrieveSessionServerOptions = (id: SessionID = 'current') =>
   queryOptions<Nullable<RetrieveSessionResponse>, RequesterError>({
     ...retrieveSessionOptions(id),

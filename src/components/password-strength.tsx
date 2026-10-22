@@ -5,7 +5,7 @@ import {
   PASSWORD_MIN_LENGTH,
   PASSWORD_RULES,
 } from '@tokenizer/shared/constants/users.constants';
-import { PasswordRule } from '@tokenizer/shared/types';
+import type { PasswordRule } from '@tokenizer/shared/types';
 import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';

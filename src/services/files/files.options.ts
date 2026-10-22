@@ -1,12 +1,12 @@
 import { getQueryClient } from '@lib/query-client';
-import { RequesterError } from '@lib/requester';
+import type { RequesterError } from '@lib/requester';
 import * as API from '@services/files/files.api';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 import {
-  CreateFileQuery,
-  CreateFileResponse,
+  type CreateFileQuery,
+  type CreateFileResponse,
   FileStatus,
-  RetrieveFileResponse,
+  type RetrieveFileResponse,
 } from '@tokenizer/shared/types';
 
 export const FILES_QUERY_KEYS = {

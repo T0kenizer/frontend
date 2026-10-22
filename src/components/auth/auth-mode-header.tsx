@@ -1,7 +1,7 @@
 'use client';
 
-import { AuthHeader, AuthHeaderProps } from '@components/auth/auth-layout';
-import { AuthMode, useAuthMode } from '@hooks/use-auth-mode';
+import { AuthHeader, type AuthHeaderProps } from '@components/auth/auth-layout';
+import { type AuthMode, useAuthMode } from '@hooks/use-auth-mode';
 
 const COPY = {
   signin: {

@@ -13,7 +13,7 @@ import { applyServerError } from '@lib/form-errors';
 import { requestResetOptions } from '@services/password-resets/password-resets.options';
 import { useMutation } from '@tanstack/react-query';
 import { requestResetDataSchema } from '@tokenizer/shared/schemas';
-import { RequestResetData } from '@tokenizer/shared/types';
+import type { RequestResetData } from '@tokenizer/shared/types';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 

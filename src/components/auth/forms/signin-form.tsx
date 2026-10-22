@@ -22,7 +22,7 @@ import { REDIRECT_URL_PARAM, sanitizeRedirectUrl } from '@lib/redirect-url';
 import { createSessionOptions } from '@services/sessions/sessions.options';
 import { useMutation } from '@tanstack/react-query';
 import { createSessionDataSchema } from '@tokenizer/shared/schemas';
-import { CreateSessionData } from '@tokenizer/shared/types';
+import type { CreateSessionData } from '@tokenizer/shared/types';
 import { AtSign } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';

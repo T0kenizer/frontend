@@ -1,6 +1,6 @@
 import requester, { client } from '@lib/requester';
 import { PLAYER_TOKEN_HEADER } from '@tokenizer/shared/constants/games.constants';
-import {
+import type {
   ClaimSeatData,
   ClaimSeatResponse,
   CloseGameSessionResponse,

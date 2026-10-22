@@ -1,5 +1,5 @@
 import { RequesterError } from '@lib/requester';
-import { FieldValues, Path, UseFormReturn } from 'react-hook-form';
+import type { FieldValues, Path, UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
 const FALLBACK_MESSAGE = 'An unknown error occurred';

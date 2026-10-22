@@ -1,4 +1,4 @@
-import { InputProps } from '@components/ui/input';
+import type { InputProps } from '@components/ui/input';
 import {
   InputGroup,
   InputGroupAddon,

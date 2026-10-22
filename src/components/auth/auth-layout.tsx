@@ -1,5 +1,5 @@
 import { Logo } from '@components/layout/logo';
-import { Main, MainProps } from '@components/layout/main';
+import { Main, type MainProps } from '@components/layout/main';
 import { Button } from '@components/ui/button';
 import { Skeleton } from '@components/ui/skeleton';
 import ROUTES from '@constants/routes';

@@ -3,7 +3,7 @@
 import { GoogleAuthButton } from '@components/auth/google-auth-button';
 import { OAuthErrorToast } from '@components/auth/oauth-error-toast';
 import { FieldSeparator } from '@components/ui/field';
-import { AuthMode, useAuthMode } from '@hooks/use-auth-mode';
+import { type AuthMode, useAuthMode } from '@hooks/use-auth-mode';
 import { cn } from '@lib/utils';
 
 const COPY = {
