@@ -1,4 +1,4 @@
-import { type SerializedUser } from '@tokenizer/shared/types';
+import type { SerializedUser } from '@tokenizer/shared/types';
 
 export const FALLBACK_GAME_NAME = 'Unnamed game';
 
