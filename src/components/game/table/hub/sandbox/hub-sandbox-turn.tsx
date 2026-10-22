@@ -5,7 +5,7 @@ import { HubShell, HubStack } from '@components/game/table/hub/hub-shell';
 import type { TableActions } from '@components/game/table/table-actions';
 import type {
   ActionOption,
-  FreeTableView,
+  SandboxTableView,
 } from '@components/game/table/use-table-view';
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
@@ -15,12 +15,15 @@ import { AmountForm } from '@tokenizer/shared/types';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
 
-export interface HubFreeTurnProps {
-  view: FreeTableView;
+export interface HubSandboxTurnProps {
+  view: SandboxTableView;
   actions: TableActions;
 }
 
-export const HubFreeTurn: React.FC<HubFreeTurnProps> = ({ view, actions }) => {
+export const HubSandboxTurn: React.FC<HubSandboxTurnProps> = ({
+  view,
+  actions,
+}) => {
   const { legalActions, interruptionOpen, proxySeat, mySeat, pot } = view;
 
   const actingSeat = proxySeat ?? mySeat;

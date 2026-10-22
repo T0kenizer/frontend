@@ -11,21 +11,26 @@ import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { partialUpdateUserOptions } from '@services/users/users.options';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { partialUpdateUserDataSchema } from '@tokenizer/shared/schemas';
+import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { z } from 'zod';
+import type { z } from 'zod';
 
-const schema = partialUpdateUserDataSchema
-  .extend({
-    confirmPassword: partialUpdateUserDataSchema.shape.password,
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-  });
+const buildSchema = (mismatch: string) =>
+  partialUpdateUserDataSchema
+    .extend({
+      confirmPassword: partialUpdateUserDataSchema.shape.password,
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: mismatch,
+    });
 
-type FormData = z.infer<typeof schema>;
+type FormData = z.infer<ReturnType<typeof buildSchema>>;
 
 export const ChangePasswordForm: React.FC = () => {
+  const t = useTranslations('Settings.security.password');
+  const schema = useMemo(() => buildSchema(t('mismatch')), [t]);
   const { data: session } = useQuery(retrieveSessionOptions());
   const user = session?.user;
 
@@ -56,7 +61,7 @@ export const ChangePasswordForm: React.FC = () => {
       {
         onSuccess: () => {
           form.reset();
-          toast.success('Your password has been changed');
+          toast.success(t('changed'));
         },
         onError: (error) => applyServerError(form, error),
       },
@@ -69,7 +74,7 @@ export const ChangePasswordForm: React.FC = () => {
         name="password"
         control={form.control}
         render={({ field, fieldState }) => (
-          <SettingsRow label="New password" htmlFor="change-password">
+          <SettingsRow label={t('new')} htmlFor="change-password">
             <Field
               data-invalid={fieldState.invalid}
               className="max-w-sm gap-1.5"
@@ -91,7 +96,7 @@ export const ChangePasswordForm: React.FC = () => {
         control={form.control}
         render={({ field, fieldState }) => (
           <SettingsRow
-            label="Confirm new password"
+            label={t('confirm')}
             htmlFor="change-password-confirm-password"
           >
             <Field
@@ -111,7 +116,7 @@ export const ChangePasswordForm: React.FC = () => {
       />
       <SettingsRow>
         <Button type="submit" disabled={isPending || isIncomplete}>
-          Change password
+          {t('submit')}
         </Button>
       </SettingsRow>
     </form>

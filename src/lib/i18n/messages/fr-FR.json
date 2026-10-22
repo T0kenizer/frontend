@@ -97,6 +97,7 @@
   },
   "Footer": {
     "howItWorks": "Comment ça marche",
+    "pricing": "Tarifs",
     "signIn": "Se connecter",
     "contact": "Contact"
   },
@@ -104,6 +105,7 @@
     "howItWorks": "Comment ça marche",
     "tv": "Sur la télé",
     "phone": "Sur votre téléphone",
+    "pricing": "Tarifs",
     "signIn": "Se connecter",
     "signUp": "Créer un compte"
   },
@@ -113,6 +115,85 @@
     "dashboard": "Tableau de bord",
     "settings": "Paramètres",
     "signOut": "Se déconnecter"
+  },
+  "Plans": {
+    "FREE": "Gratuit",
+    "PREMIUM": "Premium",
+    "FOUNDER": "Fondateur"
+  },
+  "Pricing": {
+    "metaTitle": "Tarifs",
+    "metaDescription": "Gratuit pour commencer, Premium pour les grandes tablées. Découvrez les formules Tokenizer.",
+    "intro": {
+      "eyebrow": "Tarifs",
+      "title": "Gratuit pour jouer. Premium pour les grandes tablées.",
+      "description": "Commencez sans payer. Passez Premium quand la table s'agrandit."
+    },
+    "plans": {
+      "current": "Votre formule",
+      "interval": "{interval, select, month {/ mois} year {/ an} other {une seule fois}}",
+      "FREE": {
+        "name": "Gratuit",
+        "tagline": "Tout ce qu'il faut pour commencer.",
+        "note": "Sans abonnement, sans carte bancaire.",
+        "action": "Commencer"
+      },
+      "PREMIUM": {
+        "name": "Premium",
+        "badge": "Recommandé",
+        "tagline": "Plus de places. Plus de possibilités.",
+        "note": "Sans engagement, résiliable à tout moment.",
+        "action": "Passer Premium"
+      },
+      "FOUNDER": {
+        "name": "Fondateur",
+        "badge": "Offre limitée",
+        "tagline": "Soutenez Tokenizer dès ses débuts et profitez d'un accès permanent aux fonctionnalités incluses<ast>*</ast>.",
+        "note": "Offre disponible pour une durée limitée.",
+        "action": "Devenir Fondateur",
+        "footnote": "* Offre Fondateur : les fonctionnalités incluses sont celles indiquées sur la carte. Les futures fonctionnalités de Tokenizer pourront faire l'objet d'offres distinctes."
+      },
+      "features": {
+        "createGame": "Créer des tables de poker",
+        "joinGame": "Rejoindre des tables existantes",
+        "allFree": "Tout le plan Gratuit",
+        "maxSeats": "Jusqu'à <b>{count} places</b> par table",
+        "poker": "Mode Poker",
+        "sandbox": "Accès au <b>mode Sandbox</b>",
+        "createAndJoin": "Créer et rejoindre des tables",
+        "oneTime": "<b>Paiement unique</b>, sans abonnement",
+        "founderStatus": "Statut Fondateur"
+      }
+    },
+    "reassurance": {
+      "guests": "Les invités n'ont pas besoin de compte",
+      "stripe": "Paiement sécurisé par Stripe",
+      "cancel": "Résiliation en un clic"
+    },
+    "compare": {
+      "eyebrow": "Comparatif",
+      "title": "Formule par formule.",
+      "no": "Non inclus",
+      "plans": {
+        "FREE": "Gratuit",
+        "PREMIUM": "Premium",
+        "FOUNDER": "Fondateur"
+      },
+      "rows": {
+        "tables": "Créer et rejoindre des tables",
+        "seats": "Places par table",
+        "poker": "Mode Poker",
+        "sandbox": "Mode Sandbox",
+        "billing": "Facturation"
+      },
+      "billingValue": "{interval, select, month {Mensuelle} year {Annuelle} none {Aucune} other {Une seule fois}}"
+    },
+    "cta": {
+      "title": "Votre première table est gratuite.",
+      "description": "Créez un compte en une minute. Vous passerez Premium le jour où il manquera une chaise.",
+      "signUp": "Commencer gratuitement",
+      "discover": "Découvrir Tokenizer"
+    }
   },
   "Auth": {
     "home": "Accueil",
@@ -243,20 +324,217 @@
     "hide": "Masquer le mot de passe"
   },
   "Dashboard": {
-    "metaTitle": "Tableau de bord"
+    "metaTitle": "Tableau de bord",
+    "greeting": {
+      "salutation": "{period, select, morning {Bonjour} afternoon {Bon après-midi} evening {Bonsoir} other {Bonjour}}, <brand>{name}</brand>",
+      "welcome": "Bienvenue sur {appName}",
+      "tagline": "L'application compagnon de vos <brand>soirées jeux</brand>"
+    },
+    "cta": {
+      "title": "Prêt pour une nouvelle soirée jeux ?",
+      "description": "Créez une table, distribuez les cartes d'un geste et diffusez la partie sur votre télé. Chaque joueur gère ses mises depuis son téléphone.",
+      "start": "Lancer une partie",
+      "join": "Rejoindre avec un code"
+    }
   },
   "Admin": {
     "metaTitle": "Administration"
   },
   "Settings": {
+    "title": "Paramètres",
+    "description": "Gérez votre profil, vos préférences, votre sécurité et votre abonnement.",
+    "retry": "Réessayer",
+    "nav": {
+      "ariaLabel": "Sections des paramètres",
+      "profile": "Profil",
+      "preferences": "Préférences",
+      "security": "Sécurité",
+      "subscription": "Abonnement",
+      "signOut": "Se déconnecter",
+      "attention": "{count, plural, one {# élément à vérifier} other {# éléments à vérifier}}"
+    },
+    "saveBar": {
+      "unsaved": "<b>{count}</b> {count, plural, one {modification non enregistrée} other {modifications non enregistrées}}",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
     "profile": {
-      "metaTitle": "Paramètres du profil"
+      "metaTitle": "Paramètres du profil",
+      "title": "Profil",
+      "username": "Nom d'utilisateur",
+      "displayName": "Nom affiché",
+      "email": "E-mail",
+      "updated": "Profil mis à jour",
+      "updatedEmail": "Profil mis à jour — consultez votre boîte de réception pour confirmer votre nouvelle adresse e-mail",
+      "avatar": {
+        "label": "Avatar",
+        "alt": "Avatar de {name}",
+        "altFallback": "Avatar",
+        "upload": "Importer une photo",
+        "remove": "Supprimer",
+        "invalidType": "L'avatar doit être une image PNG, JPEG, WebP ou GIF",
+        "tooLarge": "L'avatar doit faire moins de {size} Mo",
+        "updated": "Avatar mis à jour",
+        "updateFailed": "Impossible de mettre à jour l'avatar",
+        "removed": "Avatar supprimé",
+        "removeFailed": "Impossible de supprimer l'avatar"
+      },
+      "emailConfirmation": {
+        "pending": "En attente de confirmation",
+        "resend": "Renvoyer un lien",
+        "sent": "Lien de confirmation envoyé — consultez votre boîte de réception"
+      }
     },
     "preferences": {
-      "metaTitle": "Préférences"
+      "metaTitle": "Préférences",
+      "appearance": "Apparence",
+      "language": "Langue",
+      "languageHint": "S'applique à ce navigateur.",
+      "theme": "Thème",
+      "themeHint": "Système suit le mode clair ou sombre de votre appareil."
     },
     "security": {
-      "metaTitle": "Paramètres de sécurité"
+      "metaTitle": "Paramètres de sécurité",
+      "password": {
+        "title": "Mot de passe",
+        "new": "Nouveau mot de passe",
+        "confirm": "Confirmer le nouveau mot de passe",
+        "submit": "Changer le mot de passe",
+        "mismatch": "Les mots de passe ne correspondent pas",
+        "changed": "Votre mot de passe a été modifié"
+      },
+      "sessions": {
+        "title": "Sessions actives",
+        "description": "Les appareils actuellement connectés à votre compte.",
+        "loadError": "Impossible de charger vos sessions.",
+        "device": "{browser} sur {os}",
+        "unknownDevice": "Appareil inconnu",
+        "unknownLocation": "Emplacement inconnu",
+        "current": "Cet appareil",
+        "activeNow": "Actif maintenant",
+        "activeAgo": "Actif {time}",
+        "signedIn": "Connecté le {date}"
+      },
+      "deleteAccount": {
+        "title": "Supprimer le compte",
+        "description": "Supprimez définitivement votre compte et toutes les données associées.",
+        "action": "Supprimer le compte",
+        "dialogDescription": "Cette action est irréversible : votre compte et toutes les données associées seront définitivement supprimés. Pour confirmer, nous allons envoyer un lien à votre adresse e-mail. Rien n'est supprimé tant que vous ne l'avez pas ouvert.",
+        "cancel": "Annuler",
+        "confirm": "Envoyer l'e-mail de confirmation",
+        "sent": "E-mail de confirmation envoyé — ouvrez le lien qu'il contient pour finaliser la suppression de votre compte"
+      }
+    },
+    "subscription": {
+      "metaTitle": "Abonnement",
+      "outcomes": {
+        "success": {
+          "title": "Abonnement mis à jour",
+          "description": "Merci ! Votre offre Premium est maintenant active."
+        },
+        "cancelled": {
+          "title": "Paiement annulé",
+          "description": "Vous n'avez pas été débité. Abonnez-vous quand vous voulez."
+        },
+        "failed": {
+          "title": "Un problème est survenu avec la facturation",
+          "description": "Impossible de joindre Stripe. Veuillez réessayer."
+        }
+      },
+      "plan": {
+        "current": "Formule actuelle",
+        "loading": "Chargement de votre formule",
+        "loadError": "Impossible de charger votre formule",
+        "loadErrorHint": "Stripe est peut-être momentanément injoignable.",
+        "manage": "Gérer dans Stripe",
+        "ends": "Prend fin le {date}",
+        "price": "{interval, select, month {{amount} / mois} year {{amount} / an} other {{amount}}}",
+        "renews": "{price} · renouvellement le {date}",
+        "endsOn": "{price} · prend fin le {date}",
+        "status": {
+          "active": "Actif",
+          "trialing": "Essai",
+          "past_due": "Paiement en retard",
+          "unpaid": "Impayé",
+          "paused": "En pause",
+          "canceled": "Résilié",
+          "incomplete": "Incomplet",
+          "incomplete_expired": "Expiré"
+        }
+      },
+      "free": {
+        "details": "Les tables accueillent jusqu'à {maxSeats} places. Passez Premium pour des tables plus grandes et plus de modes de jeu.",
+        "ended": "Votre formule payante a pris fin. Les tables accueillent jusqu'à {maxSeats} places.",
+        "upgrade": "Passer Premium",
+        "comeBack": "Reprendre Premium"
+      },
+      "granted": "Attribuée à votre compte, rien n'est facturé. Les tables accueillent jusqu'à {maxSeats} places.",
+      "founder": {
+        "lifetime": "À vie",
+        "details": "Paiement unique, sans renouvellement. Membre depuis le {since}.",
+        "detailsEnding": "Paiement unique. Membre depuis le {since}, jusqu'au {end}."
+      },
+      "resume": {
+        "action": "Reprendre l'abonnement",
+        "success": "Votre abonnement sera de nouveau renouvelé"
+      },
+      "cancellationNotice": {
+        "title": "Votre abonnement prend fin le {date}",
+        "description": "Vous conservez les fonctionnalités de votre formule jusque-là et ne serez plus débité."
+      },
+      "paymentIssue": {
+        "title": "Votre dernier paiement a échoué",
+        "description": "Réglez la facture en attente ou mettez à jour votre carte pour conserver votre formule. Stripe retente le prélèvement automatiquement en attendant.",
+        "pay": "Régler la facture",
+        "updateCard": "Mettre à jour ma carte"
+      },
+      "paymentMethod": {
+        "title": "Moyen de paiement",
+        "loadError": "Impossible de charger votre moyen de paiement.",
+        "cardEnding": "Carte {brand} se terminant par ",
+        "expires": "Expire fin {expiry}",
+        "expired": "Expirée",
+        "update": "Modifier dans Stripe",
+        "none": "Aucune carte enregistrée.",
+        "add": "Ajouter une carte dans Stripe"
+      },
+      "invoices": {
+        "title": "Factures",
+        "description": "Vos reçus, tels qu'émis par Stripe.",
+        "viewInStripe": "Voir dans Stripe",
+        "loading": "Chargement de vos factures",
+        "loadError": "Impossible de charger vos factures.",
+        "emptyTitle": "Aucune facture pour l'instant",
+        "emptySubscribed": "Votre première facture apparaîtra ici dès que Stripe l'aura émise.",
+        "empty": "Vos factures apparaîtront ici après votre premier paiement.",
+        "pay": "Payer",
+        "view": "Voir",
+        "download": "Télécharger la facture {number} en PDF",
+        "columns": {
+          "date": "Date",
+          "number": "Numéro",
+          "amount": "Montant",
+          "status": "Statut",
+          "actions": "Actions"
+        },
+        "status": {
+          "draft": "Brouillon",
+          "open": "À régler",
+          "paid": "Payée",
+          "uncollectible": "Irrécouvrable",
+          "void": "Annulée"
+        }
+      },
+      "cancel": {
+        "title": "Résilier l'abonnement",
+        "description": "Votre formule reste active jusqu'à la fin de la période payée, puis votre compte passe à la formule Gratuite. Votre historique de parties est conservé.",
+        "noCharge": "Aucun prélèvement après le {date}.",
+        "action": "Résilier l'abonnement",
+        "dialogDescription": "Vous ne serez plus débité. Votre formule reste active jusqu'au {date}, puis votre compte passe à la formule Gratuite. Vous pouvez reprendre votre abonnement à tout moment avant cette date.",
+        "keep": "Conserver l'abonnement",
+        "confirm": "Résilier l'abonnement",
+        "success": "Votre abonnement prendra fin le {date}"
+      }
     }
   },
   "Sidebar": {
@@ -283,5 +561,14 @@
       "signUp": "S'inscrire",
       "signIn": "Se connecter"
     }
+  },
+  "ThemeSwitcher": {
+    "label": "Thème",
+    "light": "Clair",
+    "dark": "Sombre",
+    "system": "Système"
+  },
+  "LangSwitcher": {
+    "label": "Langue"
   }
 }

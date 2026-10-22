@@ -17,7 +17,7 @@ import { applyResetDataSchema } from '@tokenizer/shared/schemas';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import { z } from 'zod';
+import type { z } from 'zod';
 
 const createSchema = (mismatchMessage: string) =>
   applyResetDataSchema

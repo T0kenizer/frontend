@@ -1,8 +1,9 @@
 import requester from '@lib/requester';
-import {
+import type {
   CreateUserData,
   CreateUserResponse,
-  ListUserSessionsResponse,
+  ListSessionsQuery,
+  ListSessionsResponse,
   PartialUpdateUserData,
   PartialUpdateUserResponse,
 } from '@tokenizer/shared/types';
@@ -17,5 +18,10 @@ export const partialUpdateUser = async (
   data: PartialUpdateUserData,
 ) => requester().patch<PartialUpdateUserResponse>(`${BASE_URL}/${uuid}`, data);
 
-export const listUserSessions = async (uuid: string) =>
-  requester().get<ListUserSessionsResponse>(`${BASE_URL}/${uuid}/sessions`);
+export const listUserSessions = async (
+  uuid: string,
+  query: Partial<ListSessionsQuery> = {},
+) =>
+  requester().get<ListSessionsResponse>(`${BASE_URL}/${uuid}/sessions`, {
+    params: query,
+  });

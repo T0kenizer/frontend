@@ -1,5 +1,6 @@
 'use client';
 
+import { PlanBadge } from '@components/badges/plans';
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import {
   DropdownMenu,
@@ -12,7 +13,7 @@ import {
 import ROUTES from '@constants/routes';
 import { cn } from '@lib/utils';
 import { useSignOut } from '@services/sessions/sessions.hooks';
-import { SerializedUser } from '@tokenizer/shared/types';
+import type { SerializedUser } from '@tokenizer/shared/types';
 import { LayoutDashboard, LogOut, Settings } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -49,7 +50,10 @@ export const UserMenuIdentity: React.FC<UserMenuIdentityProps> = ({
         <AvatarFallback />
       </Avatar>
       <div className="grid flex-1 text-left text-sm leading-tight">
-        <span className="truncate font-medium">{user.displayName}</span>
+        <span className="flex min-w-0 items-center gap-1.5">
+          <span className="truncate font-medium">{user.displayName}</span>
+          <PlanBadge plan={user.plan} />
+        </span>
         <span className="truncate text-xs">{user.email}</span>
       </div>
     </div>

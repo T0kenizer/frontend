@@ -1,6 +1,6 @@
 'use client';
 
-import { resolveGameName } from '@lib/game-name';
+import { resolveGameName } from '@services/games/games.utils';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useQuery } from '@tanstack/react-query';
 

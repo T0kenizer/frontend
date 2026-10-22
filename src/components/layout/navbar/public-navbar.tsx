@@ -12,11 +12,13 @@ import { useQuery } from '@tanstack/react-query';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const LINKS = [
   { key: 'howItWorks', href: ROUTES.landing(LandingSection.HowItWorks) },
   { key: 'tv', href: ROUTES.landing(LandingSection.Tv) },
   { key: 'phone', href: ROUTES.landing(LandingSection.Phone) },
+  { key: 'pricing', href: ROUTES.pricing() },
 ] as const;
 
 export type PublicNavbarProps = Omit<
@@ -32,6 +34,7 @@ export const PublicNavbar: React.FC<PublicNavbarProps> = ({
   ...props
 }) => {
   const t = useTranslations('Navbar');
+  const pathname = usePathname();
   const { data: session } = useQuery(retrieveSessionOptions());
   const user = session?.user;
   const avatar = useUserAvatar(user);
@@ -55,7 +58,8 @@ export const PublicNavbar: React.FC<PublicNavbarProps> = ({
             <Link
               key={href}
               href={href}
-              className="text-on-media-muted-foreground hover:text-on-media-foreground text-sm font-semibold transition-colors"
+              aria-current={pathname === href ? 'page' : undefined}
+              className="text-on-media-muted-foreground hover:text-on-media-foreground aria-[current=page]:text-on-media-foreground aria-[current=page]:decoration-primary text-sm font-semibold underline-offset-6 transition-colors aria-[current=page]:underline aria-[current=page]:decoration-2"
             >
               {t(key)}
             </Link>

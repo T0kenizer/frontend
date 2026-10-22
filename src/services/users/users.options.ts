@@ -1,19 +1,22 @@
 import { getQueryClient } from '@lib/query-client';
-import { RequesterError } from '@lib/requester';
+import type { RequesterError } from '@lib/requester';
 import { SESSIONS_QUERY_KEYS } from '@services/sessions/sessions.options';
 import * as API from '@services/users/users.api';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
-import {
+import { LIST_SESSIONS_DEFAULT_LIMIT } from '@tokenizer/shared/constants/sessions.constants';
+import type {
   CreateUserData,
   CreateUserResponse,
-  ListUserSessionsResponse,
+  ListSessionsQuery,
+  ListSessionsResponse,
   PartialUpdateUserData,
   PartialUpdateUserResponse,
   RetrieveSessionResponse,
 } from '@tokenizer/shared/types';
 
 export const USERS_QUERY_KEYS = {
-  listSessions: (uuid: string) => ['users', uuid, 'sessions'] as const,
+  listSessions: (uuid: string, query: ListSessionsQuery) =>
+    ['users', uuid, 'sessions', query] as const,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as const satisfies Record<string, (...args: any[]) => readonly any[]>;
 
@@ -23,10 +26,16 @@ export const USERS_MUTATION_KEYS = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as const satisfies Record<string, (...args: any[]) => readonly any[]>;
 
-export const listUserSessionsOptions = (uuid: Optional<string>) =>
-  queryOptions<ListUserSessionsResponse, RequesterError>({
-    queryKey: USERS_QUERY_KEYS.listSessions(uuid ?? ''),
-    queryFn: () => API.listUserSessions(uuid!),
+export const listUserSessionsOptions = (
+  uuid: Optional<string>,
+  {
+    offset = 0,
+    limit = LIST_SESSIONS_DEFAULT_LIMIT,
+  }: Partial<ListSessionsQuery> = {},
+) =>
+  queryOptions<ListSessionsResponse, RequesterError>({
+    queryKey: USERS_QUERY_KEYS.listSessions(uuid ?? '', { offset, limit }),
+    queryFn: () => API.listUserSessions(uuid!, { offset, limit }),
     enabled: !!uuid,
   });
 

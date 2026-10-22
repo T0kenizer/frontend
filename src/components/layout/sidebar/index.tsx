@@ -7,7 +7,7 @@ import {
   SidebarContent,
   SidebarHeader,
   Sidebar as UISidebar,
-  SidebarProps as UISidebarProps,
+  type SidebarProps as UISidebarProps,
 } from '@components/ui/sidebar';
 import ROUTES from '@constants/routes';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';

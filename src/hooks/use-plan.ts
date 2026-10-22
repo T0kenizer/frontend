@@ -1,17 +1,15 @@
 'use client';
 
-import { resolvePlan } from '@lib/plan';
+import { listPlansOptions } from '@services/plans/plans.options';
+import { resolvePlan } from '@services/plans/plans.utils';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import {
   Feature,
-  Plan,
   type FeatureMetadataMap,
+  type ListPlansResponse,
+  Plan,
 } from '@tokenizer/shared/types';
-import {
-  featureMetadata,
-  maxSeatsFor,
-} from '@tokenizer/shared/utils/plans.utils';
 
 export const usePlan = (): Plan => {
   const { data: session } = useQuery(retrieveSessionOptions());
@@ -19,9 +17,13 @@ export const usePlan = (): Plan => {
   return resolvePlan(session?.user);
 };
 
+// Prefetched by the root layout, hence always defined.
+export const usePlans = (): ListPlansResponse =>
+  useSuspenseQuery(listPlansOptions()).data;
+
 export const useFeatureMetadata = <F extends Feature>(
   feature: F,
-): FeatureMetadataMap[F] => featureMetadata(usePlan(), feature);
+): FeatureMetadataMap[F] => usePlans()[usePlan()].features[feature];
 
 export const useFeature = <F extends Feature>(
   feature: F,
@@ -29,4 +31,5 @@ export const useFeature = <F extends Feature>(
     metadata.access,
 ): boolean => when(useFeatureMetadata(feature));
 
-export const useMaxSeats = (): number => maxSeatsFor(usePlan());
+export const useMaxSeats = (): number =>
+  useFeatureMetadata(Feature.CreateGame).maxSeats;

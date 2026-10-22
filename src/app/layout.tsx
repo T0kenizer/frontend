@@ -1,4 +1,5 @@
 import { LangProvider } from '@components/providers/lang-provider';
+import { PlansProvider } from '@components/providers/plans-provider';
 import ReactQueryProvider from '@components/providers/react-query-provider';
 import { SessionProvider } from '@components/providers/session-provider';
 import { ThemeProvider } from '@components/providers/theme-provider';
@@ -56,10 +57,12 @@ const RootLayout: React.FC<React.PropsWithChildren> = async ({ children }) => {
             <ReactQueryProvider>
               <LangProvider lang={lang}>
                 <SessionProvider>
-                  <TooltipProvider>
-                    {children}
-                    <Toaster position="bottom-right" richColors />
-                  </TooltipProvider>
+                  <PlansProvider>
+                    <TooltipProvider>
+                      {children}
+                      <Toaster position="bottom-right" richColors />
+                    </TooltipProvider>
+                  </PlansProvider>
                 </SessionProvider>
               </LangProvider>
             </ReactQueryProvider>

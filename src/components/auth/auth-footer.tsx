@@ -4,7 +4,7 @@ import { Button } from '@components/ui/button';
 import { Separator } from '@components/ui/separator';
 import { APP_NAME } from '@constants/index';
 import ROUTES from '@constants/routes';
-import { AuthMode, useAuthMode } from '@hooks/use-auth-mode';
+import { type AuthMode, useAuthMode } from '@hooks/use-auth-mode';
 import { REDIRECT_URL_PARAM, sanitizeRedirectUrl } from '@lib/redirect-url';
 import { cn } from '@lib/utils';
 import { ArrowRight, Play } from 'lucide-react';

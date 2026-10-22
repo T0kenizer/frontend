@@ -1,5 +1,5 @@
 import requester, { RequesterError } from '@lib/requester';
-import {
+import type {
   CreateSessionData,
   CreateSessionResponse,
   DeleteSessionResponse,

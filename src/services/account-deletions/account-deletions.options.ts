@@ -1,9 +1,9 @@
 import { getQueryClient } from '@lib/query-client';
-import { RequesterError } from '@lib/requester';
+import type { RequesterError } from '@lib/requester';
 import * as API from '@services/account-deletions/account-deletions.api';
 import { SESSIONS_QUERY_KEYS } from '@services/sessions/sessions.options';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
-import { ValidateDeletionTokenResponse } from '@tokenizer/shared/types';
+import type { ValidateDeletionTokenResponse } from '@tokenizer/shared/types';
 
 export const ACCOUNT_DELETIONS_QUERY_KEYS = {
   validate: (token: string) =>
