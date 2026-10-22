@@ -1,11 +1,13 @@
 'use client';
 
 import { Badge } from '@components/ui/badge';
+import { OffsetPagination } from '@components/ui/pagination';
 import { Skeleton } from '@components/ui/skeleton';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { listUserSessionsOptions } from '@services/users/users.options';
-import { useQuery } from '@tanstack/react-query';
-import { DeviceType, UserSession } from '@tokenizer/shared/types';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { LIST_SESSIONS_DEFAULT_LIMIT } from '@tokenizer/shared/constants/sessions.constants';
+import { DeviceType, type Session } from '@tokenizer/shared/types';
 import {
   Monitor,
   MonitorSmartphone,
@@ -13,8 +15,8 @@ import {
   Tablet,
   type LucideIcon,
 } from 'lucide-react';
-import { useFormatter, useLocale } from 'next-intl';
-import { useMemo } from 'react';
+import { useFormatter, useLocale, useTranslations } from 'next-intl';
+import { useMemo, useState } from 'react';
 
 const DEVICE_ICONS: Record<DeviceType, LucideIcon> = {
   [DeviceType.Desktop]: Monitor,
@@ -23,7 +25,8 @@ const DEVICE_ICONS: Record<DeviceType, LucideIcon> = {
   [DeviceType.Unknown]: MonitorSmartphone,
 };
 
-const SessionRow: React.FC<{ session: UserSession }> = ({ session }) => {
+const SessionRow: React.FC<{ session: Session }> = ({ session }) => {
+  const t = useTranslations('Settings.security.sessions');
   const format = useFormatter();
   const locale = useLocale();
   const countries = useMemo(
@@ -34,7 +37,9 @@ const SessionRow: React.FC<{ session: UserSession }> = ({ session }) => {
   const Icon = DEVICE_ICONS[session.device.type];
   const { browser, os } = session.device;
   const title =
-    browser && os ? `${browser} on ${os}` : (browser ?? os ?? 'Unknown device');
+    browser && os
+      ? t('device', { browser, os })
+      : (browser ?? os ?? t('unknownDevice'));
 
   const { location } = session;
   const place = [
@@ -55,20 +60,22 @@ const SessionRow: React.FC<{ session: UserSession }> = ({ session }) => {
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="text-sm leading-none font-semibold">{title}</span>
-          {session.current && <Badge variant="success">This device</Badge>}
+          {session.current && <Badge variant="success">{t('current')}</Badge>}
         </div>
         <p className="text-muted-foreground text-xs leading-snug font-light">
-          {[place || 'Unknown location', session.ip]
+          {[place || t('unknownLocation'), session.ip]
             .filter(Boolean)
             .join(' · ')}
         </p>
         <p className="text-muted-foreground text-xs leading-snug font-light">
           {session.current
-            ? 'Active now'
-            : `Active ${format.relativeTime(lastSeenAt)}`}
+            ? t('activeNow')
+            : t('activeAgo', { time: format.relativeTime(lastSeenAt) })}
           {' · '}
           <time dateTime={createdAt.toISOString()}>
-            Signed in {format.dateTime(createdAt, { dateStyle: 'medium' })}
+            {t('signedIn', {
+              date: format.dateTime(createdAt, { dateStyle: 'medium' }),
+            })}
           </time>
         </p>
       </div>
@@ -77,19 +84,21 @@ const SessionRow: React.FC<{ session: UserSession }> = ({ session }) => {
 };
 
 export const SessionsList: React.FC = () => {
+  const t = useTranslations('Settings.security.sessions');
   const { data: session } = useQuery(retrieveSessionOptions());
+  const [offset, setOffset] = useState(0);
   const {
     data: sessions,
     isPending,
     isError,
-  } = useQuery(listUserSessionsOptions(session?.user.uuid));
+    isPlaceholderData,
+  } = useQuery({
+    ...listUserSessionsOptions(session?.user.uuid, { offset }),
+    placeholderData: keepPreviousData,
+  });
 
   if (isError)
-    return (
-      <p className="text-destructive py-3.5 text-sm">
-        Your sessions could not be loaded.
-      </p>
-    );
+    return <p className="text-destructive py-3.5 text-sm">{t('loadError')}</p>;
 
   if (isPending)
     return (
@@ -110,10 +119,19 @@ export const SessionsList: React.FC = () => {
     );
 
   return (
-    <ul>
-      {sessions.map((session) => (
-        <SessionRow key={session.id} session={session} />
-      ))}
-    </ul>
+    <>
+      <ul>
+        {sessions.items.map((session) => (
+          <SessionRow key={session.id} session={session} />
+        ))}
+      </ul>
+      <OffsetPagination
+        offset={offset}
+        limit={LIST_SESSIONS_DEFAULT_LIMIT}
+        total={sessions.total}
+        onOffsetChange={setOffset}
+        disabled={isPlaceholderData}
+      />
+    </>
   );
 };
