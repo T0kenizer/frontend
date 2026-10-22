@@ -97,6 +97,7 @@
   },
   "Footer": {
     "howItWorks": "How it works",
+    "pricing": "Pricing",
     "signIn": "Sign in",
     "contact": "Contact"
   },
@@ -104,6 +105,7 @@
     "howItWorks": "How it works",
     "tv": "On the TV",
     "phone": "On your phone",
+    "pricing": "Pricing",
     "signIn": "Sign in",
     "signUp": "Create an account"
   },
@@ -118,6 +120,80 @@
     "FREE": "Free",
     "PREMIUM": "Premium",
     "FOUNDER": "Founder"
+  },
+  "Pricing": {
+    "metaTitle": "Pricing",
+    "metaDescription": "Free to get started, Premium for bigger tables. Discover the Tokenizer plans.",
+    "intro": {
+      "eyebrow": "Pricing",
+      "title": "Free to play. Premium for bigger tables.",
+      "description": "Start without paying. Go Premium when the table grows."
+    },
+    "plans": {
+      "current": "Your plan",
+      "interval": "{interval, select, month {/ month} year {/ year} other {one time}}",
+      "FREE": {
+        "name": "Free",
+        "tagline": "Everything you need to get started.",
+        "note": "No subscription, no credit card.",
+        "action": "Get started"
+      },
+      "PREMIUM": {
+        "name": "Premium",
+        "badge": "Recommended",
+        "tagline": "More seats. More possibilities.",
+        "note": "No commitment, cancel anytime.",
+        "action": "Go Premium"
+      },
+      "FOUNDER": {
+        "name": "Founder",
+        "badge": "Limited offer",
+        "tagline": "Back Tokenizer from the very start and keep permanent access to the included features<ast>*</ast>.",
+        "note": "Available for a limited time.",
+        "action": "Become a Founder",
+        "footnote": "* Founder offer: the included features are the ones listed on the card. Future Tokenizer features may be offered separately."
+      },
+      "features": {
+        "createGame": "Create poker tables",
+        "joinGame": "Join existing tables",
+        "allFree": "Everything in Free",
+        "maxSeats": "Up to <b>{count} seats</b> per table",
+        "poker": "Poker mode",
+        "sandbox": "Access to <b>Sandbox mode</b>",
+        "createAndJoin": "Create and join tables",
+        "oneTime": "<b>One-time payment</b>, no subscription",
+        "founderStatus": "Founder status"
+      }
+    },
+    "reassurance": {
+      "guests": "Guests don't need an account",
+      "stripe": "Secure payment with Stripe",
+      "cancel": "Cancel in one click"
+    },
+    "compare": {
+      "eyebrow": "Compare",
+      "title": "Plan by plan.",
+      "no": "Not included",
+      "plans": {
+        "FREE": "Free",
+        "PREMIUM": "Premium",
+        "FOUNDER": "Founder"
+      },
+      "rows": {
+        "tables": "Create and join tables",
+        "seats": "Seats per table",
+        "poker": "Poker mode",
+        "sandbox": "Sandbox mode",
+        "billing": "Billing"
+      },
+      "billingValue": "{interval, select, month {Monthly} year {Yearly} none {None} other {One time}}"
+    },
+    "cta": {
+      "title": "Your first table is free.",
+      "description": "Create an account in a minute. You'll go Premium the day you're a chair short.",
+      "signUp": "Get started for free",
+      "discover": "Discover Tokenizer"
+    }
   },
   "Auth": {
     "home": "Home",
@@ -267,6 +343,7 @@
   "Settings": {
     "title": "Settings",
     "description": "Manage your profile, preferences, security and subscription.",
+    "retry": "Try again",
     "nav": {
       "ariaLabel": "Settings sections",
       "profile": "Profile",
@@ -346,6 +423,117 @@
         "cancel": "Cancel",
         "confirm": "Send confirmation email",
         "sent": "Confirmation email sent — open the link it contains to finish deleting your account"
+      }
+    },
+    "subscription": {
+      "metaTitle": "Subscription",
+      "outcomes": {
+        "success": {
+          "title": "Subscription updated",
+          "description": "Thanks! Your Premium plan is now active."
+        },
+        "cancelled": {
+          "title": "Checkout cancelled",
+          "description": "You have not been charged. Subscribe whenever you are ready."
+        },
+        "failed": {
+          "title": "Something went wrong with billing",
+          "description": "We could not reach Stripe. Please try again."
+        }
+      },
+      "plan": {
+        "current": "Current plan",
+        "loading": "Loading your plan",
+        "loadError": "Your plan could not be loaded",
+        "loadErrorHint": "Stripe may be unreachable for a moment.",
+        "manage": "Manage in Stripe",
+        "ends": "Ends {date}",
+        "price": "{interval, select, month {{amount} / month} year {{amount} / year} other {{amount}}}",
+        "renews": "{price} · renews on {date}",
+        "endsOn": "{price} · ends on {date}",
+        "status": {
+          "active": "Active",
+          "trialing": "Trial",
+          "past_due": "Payment overdue",
+          "unpaid": "Unpaid",
+          "paused": "Paused",
+          "canceled": "Cancelled",
+          "incomplete": "Incomplete",
+          "incomplete_expired": "Expired"
+        }
+      },
+      "free": {
+        "details": "Tables hold up to {maxSeats} seats. Upgrade for bigger tables and more game modes.",
+        "ended": "Your paid plan has ended. Tables hold up to {maxSeats} seats.",
+        "upgrade": "Upgrade",
+        "comeBack": "Get Premium back"
+      },
+      "granted": "Granted to your account, nothing is billed. Tables hold up to {maxSeats} seats.",
+      "founder": {
+        "lifetime": "Lifetime",
+        "details": "Paid once, no renewal. Member since {since}.",
+        "detailsEnding": "Paid once. Member since {since}, until {end}."
+      },
+      "resume": {
+        "action": "Resume subscription",
+        "success": "Your subscription renews again"
+      },
+      "cancellationNotice": {
+        "title": "Your subscription ends on {date}",
+        "description": "You keep your plan's features until then and won't be charged again."
+      },
+      "paymentIssue": {
+        "title": "Your last payment failed",
+        "description": "Pay the open invoice or update your card to keep your plan. Stripe retries the charge automatically in the meantime.",
+        "pay": "Pay the invoice",
+        "updateCard": "Update my card"
+      },
+      "paymentMethod": {
+        "title": "Payment method",
+        "loadError": "Your payment method could not be loaded.",
+        "cardEnding": "{brand} card ending in ",
+        "expires": "Expires {expiry}",
+        "expired": "Expired",
+        "update": "Update in Stripe",
+        "none": "No card on file.",
+        "add": "Add a card in Stripe"
+      },
+      "invoices": {
+        "title": "Invoices",
+        "description": "Your receipts, as issued by Stripe.",
+        "viewInStripe": "View in Stripe",
+        "loading": "Loading your invoices",
+        "loadError": "Your invoices could not be loaded.",
+        "emptyTitle": "No invoices yet",
+        "emptySubscribed": "Your first invoice shows here once Stripe bills it.",
+        "empty": "Your invoices will show here after your first payment.",
+        "pay": "Pay",
+        "view": "View",
+        "download": "Download invoice {number} as PDF",
+        "columns": {
+          "date": "Date",
+          "number": "Number",
+          "amount": "Amount",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "status": {
+          "draft": "Draft",
+          "open": "Due",
+          "paid": "Paid",
+          "uncollectible": "Uncollectible",
+          "void": "Void"
+        }
+      },
+      "cancel": {
+        "title": "Cancel subscription",
+        "description": "Your plan stays active until the end of the paid period, then your account moves to the Free plan. Your game history is kept.",
+        "noCharge": "No charge after {date}.",
+        "action": "Cancel subscription",
+        "dialogDescription": "You will not be charged again. Your plan stays active until {date}, then your account moves to the Free plan. You can resume your subscription any time before that date.",
+        "keep": "Keep subscription",
+        "confirm": "Cancel subscription",
+        "success": "Your subscription will end on {date}"
       }
     }
   },

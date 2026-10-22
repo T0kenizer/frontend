@@ -15,6 +15,7 @@ const robots = (): MetadataRoute.Robots => ({
       '/game/',
       '/oauth/',
       '/callback/',
+      '/subscription',
     ],
   },
   sitemap: `${SITE_URL}/sitemap.xml`,

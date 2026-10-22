@@ -13,6 +13,12 @@ const sitemap = (): MetadataRoute.Sitemap => {
       priority: 1,
     },
     {
+      url: `${SITE_URL}${ROUTES.pricing()}`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
       url: `${SITE_URL}${ROUTES.auth.signUp()}`,
       lastModified,
       changeFrequency: 'monthly',

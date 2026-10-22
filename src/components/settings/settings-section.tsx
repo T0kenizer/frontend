@@ -21,11 +21,13 @@ export type SettingsSectionProps = Omit<
   VariantProps<typeof settingsSectionVariants> & {
     title: React.ReactNode;
     description?: React.ReactNode;
+    action?: React.ReactNode;
   };
 
 export const SettingsSection: React.FC<SettingsSectionProps> = ({
   title,
   description,
+  action,
   variant,
   id,
   className,
@@ -46,15 +48,18 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
       )}
       {...props}
     >
-      <header className="space-y-1 px-5 pt-5">
-        <h2 className="font-heading text-foreground text-base leading-snug font-semibold tracking-tight">
-          {title}
-        </h2>
-        {description && (
-          <p className="text-muted-foreground max-w-[64ch] text-xs leading-relaxed font-light">
-            {description}
-          </p>
-        )}
+      <header className="flex flex-wrap items-start gap-3 px-5 pt-5">
+        <div className="min-w-0 flex-1 space-y-1">
+          <h2 className="font-heading text-foreground text-base leading-snug font-semibold tracking-tight">
+            {title}
+          </h2>
+          {description && (
+            <p className="text-muted-foreground max-w-[64ch] text-xs leading-relaxed font-light">
+              {description}
+            </p>
+          )}
+        </div>
+        {action}
       </header>
       <div className="px-5 pb-4 *:first:border-t-0 [&>:first-child>:first-child]:border-t-0">
         {children}

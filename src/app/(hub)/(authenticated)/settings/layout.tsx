@@ -2,7 +2,9 @@ import { Container } from '@components/layout/container';
 import { Main } from '@components/layout/main';
 import { SettingsNav } from '@components/settings/settings-nav';
 import { SettingsSaveBarProvider } from '@components/settings/settings-save-bar';
+import { SubscriptionOutcomeToast } from '@components/settings/subscription-outcome-toast';
 import { getTranslations } from 'next-intl/server';
+import { Suspense } from 'react';
 
 const SettingsLayout: React.FC<React.PropsWithChildren> = async ({
   children,
@@ -11,6 +13,9 @@ const SettingsLayout: React.FC<React.PropsWithChildren> = async ({
 
   return (
     <Main className="p-8 pb-32">
+      <Suspense>
+        <SubscriptionOutcomeToast />
+      </Suspense>
       <Container className="max-w-6xl space-y-0 p-0">
         <div className="space-y-1">
           <h1 className="font-heading text-foreground text-3xl font-bold tracking-tight text-balance">
