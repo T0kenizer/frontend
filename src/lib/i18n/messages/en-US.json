@@ -114,6 +114,11 @@
     "settings": "Settings",
     "signOut": "Sign out"
   },
+  "Plans": {
+    "FREE": "Free",
+    "PREMIUM": "Premium",
+    "FOUNDER": "Founder"
+  },
   "Auth": {
     "home": "Home",
     "loadError": {

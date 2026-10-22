@@ -114,6 +114,11 @@
     "settings": "Paramètres",
     "signOut": "Se déconnecter"
   },
+  "Plans": {
+    "FREE": "Gratuit",
+    "PREMIUM": "Premium",
+    "FOUNDER": "Fondateur"
+  },
   "Auth": {
     "home": "Accueil",
     "loadError": {

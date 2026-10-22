@@ -1,8 +1,9 @@
 'use client';
 
+import { PlanBadge } from '@components/badges/plans';
 import {
   UserMenu,
-  UserMenuProps,
+  type UserMenuProps,
   useUserAvatar,
 } from '@components/layout/user-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
@@ -27,7 +28,7 @@ import {
 } from '@components/ui/sidebar';
 import ROUTES from '@constants/routes';
 import { cn } from '@lib/utils';
-import { SerializedUser } from '@tokenizer/shared/types';
+import type { SerializedUser } from '@tokenizer/shared/types';
 import { LogIn, Play, Plus, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -91,8 +92,11 @@ export const SidebarFooter: React.FC<SidebarFooterProps> = ({ user }) => {
                   <AvatarFallback />
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">
-                    {user.displayName}
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    <span className="truncate font-medium">
+                      {user.displayName}
+                    </span>
+                    <PlanBadge plan={user.plan} />
                   </span>
                   <span className="truncate text-xs">{user.email}</span>
                 </div>
