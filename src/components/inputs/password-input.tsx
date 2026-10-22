@@ -1,6 +1,6 @@
 'use client';
 
-import { InputProps } from '@components/ui/input';
+import type { InputProps } from '@components/ui/input';
 import {
   InputGroup,
   InputGroupAddon,
@@ -8,7 +8,7 @@ import {
   InputGroupInput,
 } from '@components/ui/input-group';
 import { cn } from '@lib/utils';
-import { Eye, EyeClosed, Lock } from 'lucide-react';
+import { Eye, EyeOff, Lock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
@@ -44,7 +44,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
         onClick={handleTogglePassword}
         aria-label={showPassword ? t('hide') : t('show')}
       >
-        {showPassword ? <Eye /> : <EyeClosed />}
+        {showPassword ? <EyeOff /> : <Eye />}
       </InputGroupButton>
     </InputGroup>
   );
