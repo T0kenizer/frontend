@@ -1,13 +1,13 @@
-import { ErrorData, ValidationIssue } from '@/types/requester';
+import type { ErrorData, ValidationIssue } from '@/types/requester';
 import { INTERNAL_API_URL, NEXT_PUBLIC_API_URL } from '@lib/env';
 import { getQueryClient } from '@lib/query-client';
 import RequesterError from '@lib/requester/error';
 import { SESSIONS_QUERY_KEYS } from '@services/sessions/sessions.options';
 import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosResponse,
-  InternalAxiosRequestConfig,
+  type AxiosError,
+  type AxiosInstance,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
 } from 'axios';
 
 const isServer = typeof window === 'undefined';
@@ -44,8 +44,8 @@ client.interceptors.request.use((request: InternalAxiosRequestConfig) => {
 });
 
 client.interceptors.response.use(
-  async (response: AxiosResponse) => response,
-  async (error: AxiosError) => {
+  (response: AxiosResponse) => response,
+  (error: AxiosError) => {
     if (error.response) {
       if (error.response.status === 401 && !isServer) {
         getQueryClient().removeQueries({
