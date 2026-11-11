@@ -1,6 +1,6 @@
 import { LandingSection } from '@constants/landing';
 import { REDIRECT_URL_PARAM } from '@lib/redirect-url';
-import { offerSlug } from '@services/plans/plans.utils';
+import { offerSlug } from '@services/offers/offers.utils';
 import { Offer } from '@tokenizer/shared/types';
 import { buildGameJoinPath } from '@tokenizer/shared/utils/games.utils';
 

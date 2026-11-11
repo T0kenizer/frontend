@@ -8,7 +8,7 @@ import ROUTES from '@constants/routes';
 import { useBillingAccount } from '@hooks/use-billing-account';
 import { usePlan, usePlans } from '@hooks/use-plan';
 import { cn } from '@lib/utils';
-import { formatPrice, planOf } from '@services/plans/plans.utils';
+import { formatPrice } from '@services/offers/offers.utils';
 import {
   listInvoicesOptions,
   resumeSubscriptionOptions,
@@ -203,7 +203,6 @@ const SubscriptionCard: React.FC<{ subscription: Subscription }> = ({
   const t = useTranslations('Settings.subscription');
   const format = useFormatter();
   const locale = useLocale();
-  const plans = usePlans();
 
   const formatDate = (date: Date) =>
     format.dateTime(date, { dateStyle: 'long' });
@@ -269,7 +268,7 @@ const SubscriptionCard: React.FC<{ subscription: Subscription }> = ({
 
   return (
     <PlanCard
-      plan={planOf(plans, subscription.offer) ?? Plan.Premium}
+      plan={subscription.plan}
       pill={
         <Badge
           variant="outline"

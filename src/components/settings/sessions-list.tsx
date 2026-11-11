@@ -63,9 +63,7 @@ const SessionRow: React.FC<{ session: Session }> = ({ session }) => {
           {session.current && <Badge variant="success">{t('current')}</Badge>}
         </div>
         <p className="text-muted-foreground text-xs leading-snug font-light">
-          {[place || t('unknownLocation'), session.ip]
-            .filter(Boolean)
-            .join(' · ')}
+          {place || t('unknownLocation')}
         </p>
         <p className="text-muted-foreground text-xs leading-snug font-light">
           {session.current

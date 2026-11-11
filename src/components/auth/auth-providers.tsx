@@ -1,14 +1,15 @@
 'use client';
 
+import { type AuthMode, useAuthMode } from '@components/auth/auth-mode-context';
 import { GoogleAuthButton } from '@components/auth/google-auth-button';
 import { OAuthErrorToast } from '@components/auth/oauth-error-toast';
 import { FieldSeparator } from '@components/ui/field';
-import { type AuthMode, useAuthMode } from '@hooks/use-auth-mode';
 import { cn } from '@lib/utils';
+import { useTranslations } from 'next-intl';
 
 const COPY = {
-  signin: 'Continue with Google',
-  signup: 'Sign up with Google',
+  signin: 'signIn.google',
+  signup: 'signUp.google',
 } as const satisfies Record<AuthMode, string>;
 
 export type AuthProvidersProps = Omit<React.ComponentProps<'div'>, 'children'>;
@@ -17,6 +18,7 @@ export const AuthProviders: React.FC<AuthProvidersProps> = ({
   className,
   ...props
 }) => {
+  const t = useTranslations('Auth');
   const mode = useAuthMode();
 
   return (
@@ -26,10 +28,10 @@ export const AuthProviders: React.FC<AuthProvidersProps> = ({
       {...props}
     >
       <OAuthErrorToast />
-      <GoogleAuthButton>{COPY[mode]}</GoogleAuthButton>
+      <GoogleAuthButton>{t(COPY[mode])}</GoogleAuthButton>
 
       <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card my-0">
-        or
+        {t('providersSeparator')}
       </FieldSeparator>
     </div>
   );

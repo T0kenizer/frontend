@@ -21,7 +21,6 @@ import * as React from 'react';
 type DataTableColumnMeta = {
   headerClassName?: string;
   cellClassName?: string;
-  /** Placeholder rendered in this column while the table is loading. */
   skeleton?: React.ReactNode;
 };
 
@@ -50,10 +49,8 @@ export type DataTableProps<TData extends RowData> = Omit<
   columns: DataTableColumnDef<TData>[];
   data: Optional<TData[]>;
   getRowId?: (row: TData, index: number) => string;
-  /** Renders `skeletonRows` placeholder rows instead of the data. */
   loading?: boolean;
   skeletonRows?: number;
-  /** Applied to every row, header row included. */
   rowClassName?: string;
 };
 

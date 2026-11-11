@@ -3,6 +3,7 @@ import {
   LandingRevealGroup,
   LandingRevealItem,
 } from '@components/landing/landing-reveal';
+import { PricingBillingToggle } from '@components/pricing/pricing-billing-toggle';
 import { cn } from '@lib/utils';
 import { useTranslations } from 'next-intl';
 
@@ -42,6 +43,9 @@ export const PricingIntro: React.FC<PricingIntroProps> = ({
           <p className="text-on-media-foreground/85 mt-5 max-w-md text-lg leading-relaxed text-pretty">
             {t('description')}
           </p>
+        </LandingRevealItem>
+        <LandingRevealItem>
+          <PricingBillingToggle className="mt-7.5" />
         </LandingRevealItem>
       </LandingRevealGroup>
     </section>

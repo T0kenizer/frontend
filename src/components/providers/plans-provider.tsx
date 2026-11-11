@@ -7,8 +7,6 @@ export const PlansProvider: React.FC<React.PropsWithChildren> = async ({
 }) => {
   const queryClient = getQueryClient();
 
-  // `fetchQuery` rather than `prefetchQuery`: it throws, so nothing below ever
-  // renders without the plans.
   await queryClient.fetchQuery(listPlansServerOptions());
 
   return (

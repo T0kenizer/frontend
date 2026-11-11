@@ -6,6 +6,7 @@ import {
   DataTable,
   type DataTableColumnDef,
 } from '@components/ui/data-table';
+import { InfoHint } from '@components/ui/info-hint';
 import { type PricingOffer, usePricingOffers } from '@hooks/use-pricing';
 import { cn } from '@lib/utils';
 import { Plan } from '@tokenizer/shared/types';
@@ -13,9 +14,22 @@ import { useTranslations } from 'next-intl';
 
 type Value = boolean | string | number;
 
-type RowKey = 'tables' | 'seats' | 'poker' | 'sandbox' | 'billing';
+type RowKey =
+  | 'tables'
+  | 'seats'
+  | 'activeGames'
+  | 'poker'
+  | 'sandbox'
+  | 'billing';
 
-type CompareRow = { key: RowKey; value: (offer: PricingOffer) => Value };
+type HintKey = 'activeGames';
+
+type CompareRow = {
+  key: RowKey;
+  value: (offer: PricingOffer) => Value;
+  // Explains the row behind an info icon next to its label.
+  hint?: HintKey;
+};
 
 const column = createDataTableColumnHelper<CompareRow>();
 
@@ -31,18 +45,34 @@ export const PricingCompare: React.FC<PricingCompareProps> = ({
   const rows: CompareRow[] = [
     { key: 'tables', value: (o) => o.canCreate && o.canJoin },
     { key: 'seats', value: (o) => o.maxSeats },
+    {
+      key: 'activeGames',
+      hint: 'activeGames',
+      value: (o) => o.maxActiveGames,
+    },
     { key: 'poker', value: (o) => o.poker },
     { key: 'sandbox', value: (o) => o.sandbox },
     {
       key: 'billing',
       value: (o) =>
         t('billingValue', {
-          interval: o.price ? (o.price.interval ?? 'once') : 'none',
+          interval:
+            o.intervals.length > 1
+              ? 'flexible'
+              : o.price
+                ? (o.price.interval ?? 'once')
+                : 'none',
         }),
     },
   ];
 
   const renderValue = (value: Value) => {
+    if (value === Infinity)
+      return (
+        <span className="text-lg leading-none" aria-label={t('unlimited')}>
+          ∞
+        </span>
+      );
     if (value === true)
       return <span className="font-extrabold text-teal-600">✓</span>;
     if (value === false)
@@ -58,7 +88,19 @@ export const PricingCompare: React.FC<PricingCompareProps> = ({
     column.display({
       id: 'feature',
       header: '',
-      cell: ({ row }) => t(`rows.${row.original.key}`),
+      cell: ({ row }) => {
+        const { key, hint } = row.original;
+        if (!hint) return t(`rows.${key}`);
+
+        return (
+          <span className="inline-flex items-center gap-1.5">
+            {t(`rows.${key}`)}
+            <InfoHint aria-label={t(`hints.${hint}`)}>
+              {t(`hints.${hint}`)}
+            </InfoHint>
+          </span>
+        );
+      },
       meta: {
         headerClassName: 'px-5 py-4',
         cellClassName: 'px-5 py-4 whitespace-normal',

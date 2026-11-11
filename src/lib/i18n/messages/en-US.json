@@ -5,7 +5,7 @@
       "eyebrow": "Your game night's bank",
       "title": "You play. We <em>count</em> the chips.",
       "description": "Buy-ins, rebuys, blinds and pots: {appName} keeps the bank on the living-room TV, and everyone bets from their phone.",
-      "signUp": "Open my first table",
+      "signUp": "Create my first table",
       "howItWorks": "See how it works",
       "photoAlt": "Friends around a poker table, the game showing on the TV"
     },
@@ -15,7 +15,7 @@
       "steps": {
         "setup": {
           "title": "Set up your table",
-          "description": "Name the seats, set the buy-in and the blinds. Your settings are remembered for next time.",
+          "description": "Name the seats, set the buy-in and the blinds.",
           "shotAlt": "The new game screen"
         },
         "scan": {
@@ -37,17 +37,17 @@
       "roomAlt": "A living room with the table showing on the wall-mounted TV",
       "screenAlt": "The full-screen TV view of a table",
       "points": {
-        "blinds": {
-          "title": "Timed blinds",
-          "description": "The next level shows up with its countdown."
+        "sidePots": {
+          "title": "Side pots, done for you",
+          "description": "Someone's all-in? The side pots split themselves."
         },
-        "pot": {
-          "title": "The pot, live",
-          "description": "Every bet lands on the table the moment it is made."
+        "seats": {
+          "title": "Every seat, every face",
+          "description": "Each player's photo and stack, readable from the couch."
         },
-        "qr": {
-          "title": "The QR code, always on screen",
-          "description": "Latecomers join the table without stopping the hand."
+        "inHand": {
+          "title": "Who's still in the hand",
+          "description": "Folded, all-in, still betting: the TV keeps track."
         }
       }
     },
@@ -59,16 +59,16 @@
       "screenAlt": "A player's stack and actions on their phone",
       "points": {
         "actions": {
-          "title": "Call, raise, fold",
-          "description": "The game's actions, and only those."
+          "title": "Only the moves you can make",
+          "description": "The exact amount to call, the minimum raise: no mental math."
         },
-        "turn": {
-          "title": "It buzzes when it's your turn",
-          "description": "Put your phone down and talk to the others."
+        "seat": {
+          "title": "Your seat waits for you",
+          "description": "Phone died? Scan back in, your stack is right where you left it."
         },
-        "tally": {
-          "title": "The tally at the end",
-          "description": "Who owes what to whom, worked out before anyone leaves."
+        "avatar": {
+          "title": "Your face on your seat",
+          "description": "Snap a selfie, it shows up on the TV."
         }
       }
     },
@@ -143,6 +143,7 @@
         "badge": "Recommended",
         "tagline": "More seats. More possibilities.",
         "note": "No commitment, cancel anytime.",
+        "yearlyNote": "That's {monthly} / month, billed {yearly} yearly.",
         "action": "Go Premium"
       },
       "FOUNDER": {
@@ -158,12 +159,20 @@
         "joinGame": "Join existing tables",
         "allFree": "Everything in Free",
         "maxSeats": "Up to <b>{count} seats</b> per table",
+        "maxActiveGames": "Up to <b>{count, plural, one {# active game} other {# active games}}</b> at once",
+        "unlimitedActiveGames": "<b>As many games</b> as you want",
         "poker": "Poker mode",
         "sandbox": "Access to <b>Sandbox mode</b>",
         "createAndJoin": "Create and join tables",
         "oneTime": "<b>One-time payment</b>, no subscription",
         "founderStatus": "Founder status"
       }
+    },
+    "billing": {
+      "label": "Premium billing period",
+      "month": "Monthly",
+      "year": "Yearly",
+      "savings": "{count, plural, one {# month free} other {# months free}}"
     },
     "reassurance": {
       "guests": "Guests don't need an account",
@@ -174,6 +183,8 @@
       "eyebrow": "Compare",
       "title": "Plan by plan.",
       "no": "Not included",
+      "unlimited": "Unlimited",
+      "moreInfo": "More info",
       "plans": {
         "FREE": "Free",
         "PREMIUM": "Premium",
@@ -182,11 +193,15 @@
       "rows": {
         "tables": "Create and join tables",
         "seats": "Seats per table",
+        "activeGames": "Active games",
         "poker": "Poker mode",
         "sandbox": "Sandbox mode",
         "billing": "Billing"
       },
-      "billingValue": "{interval, select, month {Monthly} year {Yearly} none {None} other {One time}}"
+      "hints": {
+        "activeGames": "Games you host that have not ended yet. Finished games do not count toward the limit."
+      },
+      "billingValue": "{interval, select, month {Monthly} year {Yearly} none {None} flexible {Monthly or yearly} other {One time}}"
     },
     "cta": {
       "title": "Your first table is free.",
@@ -289,17 +304,51 @@
       "cancel": "Keep my account"
     },
     "signIn": {
-      "metaTitle": "Sign in"
+      "metaTitle": "Sign in",
+      "title": "Welcome back",
+      "description": "Pick your game up right where you left it.",
+      "google": "Continue with Google",
+      "login": "Email or username",
+      "password": "Password",
+      "forgotPassword": "Forgot?",
+      "stayConnected": "Stay connected on this device.",
+      "submit": "Sign in",
+      "switchPrompt": "No account yet?",
+      "switchAction": "Create an account"
     },
     "signUp": {
-      "metaTitle": "Create an account"
+      "metaTitle": "Create an account",
+      "title": "Open your first table",
+      "description": "Free for your first night. No card required.",
+      "google": "Sign up with Google",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "mismatch": "Passwords do not match",
+      "acceptTerms": "I accept the terms of service and the privacy policy.",
+      "termsRequired": "You must accept the terms to create an account",
+      "submit": "Create my account",
+      "switchPrompt": "Already have an account?",
+      "switchAction": "Sign in"
     },
     "oauthErrors": {
       "title": "Google sign-in did not go through",
       "access_denied": "You cancelled on Google's side. Try again whenever you are ready.",
       "unverified_email": "Your Google account has no verified email address. Verify it with Google, or sign in with your email and password.",
       "failed": "Something went wrong while signing you in with Google. Please try again."
-    }
+    },
+    "modeTabs": {
+      "label": "Authentication mode",
+      "signIn": "Sign In",
+      "signUp": "Sign Up"
+    },
+    "providersSeparator": "or",
+    "guestJoin": {
+      "prompt": "Someone gave you a table code?",
+      "action": "Join without an account"
+    },
+    "securedBy": "Secured by {appName}. No payment details are ever required to play."
   },
   "PasswordStrength": {
     "label": "Password strength",

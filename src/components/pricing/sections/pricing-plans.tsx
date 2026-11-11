@@ -6,10 +6,10 @@ import { Chip } from '@components/ui/chip';
 import ROUTES from '@constants/routes';
 import { type PricingOffer, usePricingOffers } from '@hooks/use-pricing';
 import { cn } from '@lib/utils';
-import { formatPrice } from '@services/plans/plans.utils';
+import { formatPrice } from '@services/offers/offers.utils';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useQuery } from '@tanstack/react-query';
-import { Plan } from '@tokenizer/shared/types';
+import { BillingInterval, Plan } from '@tokenizer/shared/types';
 import { Check, RotateCcw, ShieldCheck, Smartphone } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -73,7 +73,6 @@ const PlanAction: React.FC<{ offer: PricingOffer; className?: string }> = ({
     );
   }
 
-  // A plain link: the checkout route redirects out to Stripe (or to sign-in).
   return (
     <Button size="xl" variant={variant} className={className} asChild>
       <a href={ROUTES.subscription(offer)}>{t(`${plan}.action`)}</a>
@@ -84,7 +83,7 @@ const PlanAction: React.FC<{ offer: PricingOffer; className?: string }> = ({
 const PlanCard: React.FC<{ offer: PricingOffer }> = ({ offer }) => {
   const t = useTranslations('Pricing.plans');
   const locale = useLocale();
-  const { plan, price, maxSeats, sandbox } = offer;
+  const { plan, price, maxSeats, maxActiveGames, sandbox } = offer;
   const styles = PLAN_STYLES[plan];
 
   const features: React.ReactNode[] = [
@@ -95,6 +94,14 @@ const PlanCard: React.FC<{ offer: PricingOffer }> = ({ offer }) => {
       count: maxSeats,
       b: (chunks) => <b className="font-bold">{chunks}</b>,
     }),
+    maxActiveGames === Infinity
+      ? t.rich('features.unlimitedActiveGames', {
+          b: (chunks) => <b className="font-bold">{chunks}</b>,
+        })
+      : t.rich('features.maxActiveGames', {
+          count: maxActiveGames,
+          b: (chunks) => <b className="font-bold">{chunks}</b>,
+        }),
     sandbox
       ? t.rich('features.sandbox', {
           b: (chunks) => <b className="font-bold">{chunks}</b>,
@@ -171,7 +178,15 @@ const PlanCard: React.FC<{ offer: PricingOffer }> = ({ offer }) => {
         )}
       </div>
       <p className={cn('mt-2 min-h-[1.4em] text-xs', styles.muted)}>
-        {t(`${plan}.note`)}
+        {price?.interval === BillingInterval.Year
+          ? t('PREMIUM.yearlyNote', {
+              monthly: formatPrice(
+                { ...price, amount: Math.round(price.amount / 12) },
+                locale,
+              ),
+              yearly: formatPrice(price, locale),
+            })
+          : t(`${plan}.note`)}
       </p>
       <PlanAction offer={offer} className="mt-6 w-full" />
       <ul

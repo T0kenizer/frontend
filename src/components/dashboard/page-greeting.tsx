@@ -54,7 +54,6 @@ export const PageGreeting: React.FC<PageGreetingProps> = ({
   const user = session?.user;
 
   const now = useNow();
-  // The provider carries the server's time zone, the clock reads the device's.
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (

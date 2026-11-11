@@ -1,10 +1,11 @@
 'use client';
 
+import { useAuthMode } from '@components/auth/auth-mode-context';
 import { Tabs, TabsList, TabsThumb, TabsTrigger } from '@components/ui/tabs';
 import ROUTES from '@constants/routes';
-import { useAuthMode } from '@hooks/use-auth-mode';
 import { REDIRECT_URL_PARAM, sanitizeRedirectUrl } from '@lib/redirect-url';
 import { cn } from '@lib/utils';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
@@ -17,6 +18,7 @@ export const AuthModeTabs: React.FC<AuthModeTabsProps> = ({
   className,
   ...props
 }) => {
+  const t = useTranslations('Auth.modeTabs');
   const mode = useAuthMode();
   const searchParams = useSearchParams();
   const redirectUrl =
@@ -24,13 +26,13 @@ export const AuthModeTabs: React.FC<AuthModeTabsProps> = ({
 
   return (
     <Tabs value={mode} className={cn('w-full', className)} {...props}>
-      <TabsList variant="pill" aria-label="Authentication mode">
+      <TabsList variant="pill" aria-label={t('label')}>
         <TabsThumb />
         <TabsTrigger value="signin" asChild>
-          <Link href={ROUTES.auth.signIn(redirectUrl)}>Sign In</Link>
+          <Link href={ROUTES.auth.signIn(redirectUrl)}>{t('signIn')}</Link>
         </TabsTrigger>
         <TabsTrigger value="signup" asChild>
-          <Link href={ROUTES.auth.signUp(redirectUrl)}>Sign Up</Link>
+          <Link href={ROUTES.auth.signUp(redirectUrl)}>{t('signUp')}</Link>
         </TabsTrigger>
       </TabsList>
     </Tabs>

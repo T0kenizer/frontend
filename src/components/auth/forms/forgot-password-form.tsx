@@ -21,7 +21,6 @@ export type ForgotPasswordFormProps = Omit<
   React.ComponentProps<'form'>,
   'onSubmit'
 > & {
-  /** Prefilled when coming back from the mail screen to fix a typo. */
   defaultEmail?: string;
   onSent: (email: string) => void;
 };
@@ -46,8 +45,6 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   const handleSubmit = (data: RequestResetData) => {
     if (isPending) return;
 
-    /* The caller never learns whether the address was on file — the API does
-       not say, and saying would enumerate accounts. */
     requestReset(data, {
       onSuccess: () => onSent(data.email),
       onError: (error) => applyServerError(form, error),

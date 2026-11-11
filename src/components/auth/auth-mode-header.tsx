@@ -1,34 +1,25 @@
 'use client';
 
 import { AuthHeader, type AuthHeaderProps } from '@components/auth/auth-layout';
-import { type AuthMode, useAuthMode } from '@hooks/use-auth-mode';
+import { type AuthMode, useAuthMode } from '@components/auth/auth-mode-context';
+import { useTranslations } from 'next-intl';
 
 const COPY = {
-  signin: {
-    title: 'Welcome back',
-    description: 'Pick your game up right where you left it.',
-  },
-  signup: {
-    title: 'Open your first table',
-    description: 'Free for your first night. No card required.',
-  },
-} as const satisfies Record<
-  AuthMode,
-  Pick<AuthHeaderProps, 'title' | 'description'>
->;
+  signin: { title: 'signIn.title', description: 'signIn.description' },
+  signup: { title: 'signUp.title', description: 'signUp.description' },
+} as const satisfies Record<AuthMode, { title: string; description: string }>;
 
 export type AuthModeHeaderProps = Omit<
   AuthHeaderProps,
   'title' | 'description'
 >;
 
-/**
- * The heading for whichever credential screen is on show. Like the mode switch
- * below it, it reads the mode off the route so it can live in the shared layout
- * instead of being restated by each page.
- */
 export const AuthModeHeader: React.FC<AuthModeHeaderProps> = (props) => {
+  const t = useTranslations('Auth');
   const mode = useAuthMode();
+  const { title, description } = COPY[mode];
 
-  return <AuthHeader {...COPY[mode]} {...props} />;
+  return (
+    <AuthHeader title={t(title)} description={t(description)} {...props} />
+  );
 };

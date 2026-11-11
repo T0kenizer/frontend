@@ -1,7 +1,7 @@
 import ROUTES from '@constants/routes';
 import { NEXT_PUBLIC_API_URL } from '@lib/env';
 import { REDIRECT_URL_PARAM } from '@lib/redirect-url';
-import { parseOffer } from '@services/plans/plans.utils';
+import { parseOffer } from '@services/offers/offers.utils';
 import { retrieveSessionCached } from '@services/sessions/sessions.api';
 import { STRIPE_OFFER_PARAM } from '@tokenizer/shared/constants/subscriptions.constants';
 import { notFound, redirect } from 'next/navigation';

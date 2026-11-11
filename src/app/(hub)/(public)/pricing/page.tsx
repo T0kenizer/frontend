@@ -3,6 +3,7 @@ import { PricingCompare } from '@components/pricing/sections/pricing-compare';
 import { PricingCta } from '@components/pricing/sections/pricing-cta';
 import { PricingIntro } from '@components/pricing/sections/pricing-intro';
 import { PricingPlans } from '@components/pricing/sections/pricing-plans';
+import { OffersProvider } from '@components/providers/offers-provider';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
@@ -16,12 +17,14 @@ export const generateMetadata = async (): Promise<Metadata> => {
 };
 
 const Page: React.FC = () => (
-  <Main>
-    <PricingIntro />
-    <PricingPlans />
-    <PricingCompare />
-    <PricingCta />
-  </Main>
+  <OffersProvider>
+    <Main>
+      <PricingIntro />
+      <PricingPlans />
+      <PricingCompare />
+      <PricingCta />
+    </Main>
+  </OffersProvider>
 );
 
 export default Page;

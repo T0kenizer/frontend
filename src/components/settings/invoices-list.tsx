@@ -17,7 +17,7 @@ import {
 import { OffsetPagination } from '@components/ui/pagination';
 import { Skeleton } from '@components/ui/skeleton';
 import { useBillingAccount } from '@hooks/use-billing-account';
-import { formatPrice } from '@services/plans/plans.utils';
+import { formatPrice } from '@services/offers/offers.utils';
 import {
   listInvoicesOptions,
   retrieveSubscriptionOptions,
