@@ -22,8 +22,9 @@ import { REDIRECT_URL_PARAM, sanitizeRedirectUrl } from '@lib/redirect-url';
 import { createSessionOptions } from '@services/sessions/sessions.options';
 import { useMutation } from '@tanstack/react-query';
 import { createSessionDataSchema } from '@tokenizer/shared/schemas';
-import { CreateSessionData } from '@tokenizer/shared/types';
+import type { CreateSessionData } from '@tokenizer/shared/types';
 import { AtSign } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Controller, useForm, useWatch } from 'react-hook-form';
@@ -31,6 +32,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 export type SignInFormProps = Omit<React.ComponentProps<'form'>, 'onSubmit'>;
 
 export const SignInForm: React.FC<SignInFormProps> = ({ ...props }) => {
+  const t = useTranslations('Auth.signIn');
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = sanitizeRedirectUrl(searchParams.get(REDIRECT_URL_PARAM));
@@ -71,7 +73,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ ...props }) => {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="signin-login">Email or username</FieldLabel>
+              <FieldLabel htmlFor="signin-login">{t('login')}</FieldLabel>
               <InputGroup>
                 <InputGroupAddon>
                   <AtSign />
@@ -94,12 +96,14 @@ export const SignInForm: React.FC<SignInFormProps> = ({ ...props }) => {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <div className="flex items-center justify-between gap-3">
-                <FieldLabel htmlFor="signin-password">Password</FieldLabel>
+                <FieldLabel htmlFor="signin-password">
+                  {t('password')}
+                </FieldLabel>
                 <Link
                   href={ROUTES.auth.forgotPassword()}
                   className="text-muted-foreground hover:text-foreground text-xs font-semibold transition-colors"
                 >
-                  Forgot?
+                  {t('forgotPassword')}
                 </Link>
               </div>
               <PasswordInput
@@ -130,7 +134,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ ...props }) => {
                   htmlFor="signin-stay-connected"
                   className="text-muted-foreground text-xs leading-relaxed font-normal"
                 >
-                  Stay connected on this device.
+                  {t('stayConnected')}
                 </FieldLabel>
               </FieldContent>
             </Field>
@@ -143,7 +147,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ ...props }) => {
           disabled={isPending || isIncomplete}
           className="mt-1 h-11 w-full text-[0.9375rem]"
         >
-          Sign in
+          {t('submit')}
         </Button>
       </FieldGroup>
     </form>

@@ -6,10 +6,12 @@ import { requestConfirmationOptions } from '@services/account-confirmations/acco
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Clock } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
 /** Renders nothing once the address is confirmed. */
 export const EmailConfirmationNotice: React.FC = () => {
+  const t = useTranslations('Settings.profile.emailConfirmation');
   const { data: session } = useQuery(retrieveSessionOptions());
   const user = session?.user;
   const { mutate: requestConfirmation, isPending } = useMutation(
@@ -22,8 +24,7 @@ export const EmailConfirmationNotice: React.FC = () => {
     requestConfirmation(
       { email: user.email },
       {
-        onSuccess: () =>
-          toast.success('Confirmation link sent — check your inbox'),
+        onSuccess: () => toast.success(t('sent')),
         onError: (error) => toast.error(error.data.message),
       },
     );
@@ -35,7 +36,7 @@ export const EmailConfirmationNotice: React.FC = () => {
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
       <Badge variant="warning">
         <Clock aria-hidden />
-        Pending confirmation
+        {t('pending')}
       </Badge>
       <Button
         type="button"
@@ -44,7 +45,7 @@ export const EmailConfirmationNotice: React.FC = () => {
         loading={isPending}
         onClick={handleResend}
       >
-        Send a new link
+        {t('resend')}
       </Button>
     </div>
   );

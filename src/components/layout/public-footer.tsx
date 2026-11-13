@@ -11,6 +11,7 @@ import Link from 'next/link';
 
 const LINKS = [
   { key: 'howItWorks', href: ROUTES.landing(LandingSection.HowItWorks) },
+  { key: 'pricing', href: ROUTES.pricing() },
   { key: 'signIn', href: ROUTES.auth.signIn() },
 ] as const;
 

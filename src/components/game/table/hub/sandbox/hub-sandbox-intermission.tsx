@@ -4,7 +4,7 @@ import { FeltNotice } from '@components/game/felt/felt-stage';
 import { WaitingDial } from '@components/game/table/hub/hub-lobby';
 import { HubShell, HubStack } from '@components/game/table/hub/hub-shell';
 import type { TableActions } from '@components/game/table/table-actions';
-import type { FreeTableView } from '@components/game/table/use-table-view';
+import type { SandboxTableView } from '@components/game/table/use-table-view';
 import { Button } from '@components/ui/button';
 import { formatAmount } from '@lib/amount';
 
@@ -15,17 +15,17 @@ import { formatAmount } from '@lib/amount';
  * last pot is announced, and skipping straight from a resolved round to the
  * next deal is how a player ends up richer without ever being told why.
  *
- * It names the winners without naming amounts: a free round settles one pot and
- * the runtime does not report what each seat took out of it — unlike a poker
- * hand, where side pots make that the only honest way to say it.
+ * It names the winners without naming amounts: a sandbox round settles one pot
+ * and the runtime does not report what each seat took out of it — unlike a
+ * poker hand, where side pots make that the only honest way to say it.
  */
 
-export interface HubFreeIntermissionProps {
-  view: FreeTableView;
+export interface HubSandboxIntermissionProps {
+  view: SandboxTableView;
   actions: TableActions;
 }
 
-export const HubFreeIntermission: React.FC<HubFreeIntermissionProps> = ({
+export const HubSandboxIntermission: React.FC<HubSandboxIntermissionProps> = ({
   view,
   actions,
 }) => {

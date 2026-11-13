@@ -1,19 +1,20 @@
 import { NEXT_PUBLIC_API_URL } from '@lib/env';
-import type {
-  AttachSocketData,
-  AttachSocketResponse,
-  DeclareWinnersData,
-  GameResolution,
-  GameSnapshot,
-  HandResolution,
-  ResolveRoundData,
-  RoundResolution,
-  SpectateSocketData,
-  SpectateSocketResponse,
-  SubmitActionData,
-  UpdateSeatData,
+import {
+  type AttachSocketData,
+  type AttachSocketResponse,
+  type DeclareWinnersData,
+  GameClientMessage,
+  type GameResolution,
+  GameServerEvent,
+  type GameSnapshot,
+  type HandResolution,
+  type ResolveRoundData,
+  type RoundResolution,
+  type SpectateSocketData,
+  type SpectateSocketResponse,
+  type SubmitActionData,
+  type UpdateSeatData,
 } from '@tokenizer/shared/types';
-import { GameClientMessage, GameServerEvent } from '@tokenizer/shared/types';
 import { io, type Socket } from 'socket.io-client';
 
 export interface GameSocketFailure {

@@ -41,8 +41,8 @@ export interface CreateGameEconomyProps {
 }
 
 /**
- * How a free table counts, pools and pays out — and what it takes off the
- * players before a round is even played.
+ * How a sandbox counts, pools and pays out — and what it takes off the players
+ * before a round is even played.
  *
  * Poker asks none of this: its pot, its payout and its forced bets all follow
  * from the rules of the game, and the host is only asked for the stakes. Here

@@ -20,6 +20,8 @@ const badgeVariants = cva(
         warning: 'bg-warning-soft text-warning-soft-foreground',
         /** Solid counter for a nav item that needs the user's attention. */
         notification: 'bg-warning text-warning-foreground font-extrabold',
+        /** The top tier: a plan, a reward — never a status. */
+        gold: 'bg-gold text-gold-foreground font-bold',
         outline:
           'border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground',
         ghost:

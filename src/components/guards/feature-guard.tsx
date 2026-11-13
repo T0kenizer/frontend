@@ -1,7 +1,7 @@
-import { resolvePlan } from '@lib/plan';
+import { listPlansCached } from '@services/plans/plans.api';
+import { resolvePlan } from '@services/plans/plans.utils';
 import { retrieveSessionCached } from '@services/sessions/sessions.api';
 import { Feature } from '@tokenizer/shared/types';
-import { hasFeature } from '@tokenizer/shared/utils/plans.utils';
 import { notFound } from 'next/navigation';
 import 'server-only';
 
@@ -13,11 +13,13 @@ export const FeatureGuard: React.FC<FeatureGuardProps> = async ({
   features,
   children,
 }) => {
-  const session = await retrieveSessionCached('current');
-  const plan = resolvePlan(session?.user);
+  const [session, plans] = await Promise.all([
+    retrieveSessionCached('current'),
+    listPlansCached(),
+  ]);
+  const { features: granted } = plans[resolvePlan(session?.user)];
 
-  if (!features.every((feature) => hasFeature(plan, feature)))
-    return notFound();
+  if (!features.every((feature) => granted[feature].access)) return notFound();
 
   return children;
 };

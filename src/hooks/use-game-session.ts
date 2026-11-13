@@ -1,4 +1,4 @@
-import { RequesterError } from '@lib/requester';
+import type { RequesterError } from '@lib/requester';
 import * as API from '@services/games/games.api';
 import {
   GAMES_QUERY_KEYS,
@@ -9,7 +9,6 @@ import {
   type GameAck,
   type GameActionResult,
   type GameSocket,
-  type GameSocketFailure,
   type HandSettledPayload,
   type RoundResolvedPayload,
 } from '@services/games/games.socket';
@@ -22,9 +21,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   GameClientMessage,
   GameServerEvent,
+  PokerAction,
   type GameResolution,
   type GameSnapshot,
-  type PokerAction,
   type PotAward,
 } from '@tokenizer/shared/types';
 import { isGameOver } from '@tokenizer/shared/utils/games.utils';
@@ -50,9 +49,9 @@ export interface JoinSeatParams {
 
 function unwrapAck<T>(response: GameAck<T>): T {
   if (response && typeof response === 'object' && 'error' in response) {
-    throw new Error((response as GameSocketFailure).error);
+    throw new Error(response.error);
   }
-  return response as T;
+  return response;
 }
 
 export function useGameSession(params: UseGameSessionParams) {
@@ -106,7 +105,7 @@ export function useGameSession(params: UseGameSessionParams) {
     ) => {
       const { resolution: dealResolution, ...snapshot } = payload;
       setResolution(dealResolution);
-      setSnapshot(snapshot as GameSnapshot);
+      setSnapshot(snapshot);
     };
 
     socket.on('connect', () => {

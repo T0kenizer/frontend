@@ -1,7 +1,7 @@
 import { RolesGuard } from '@components/guards/roles-guard';
 import { AuthenticatedShell } from '@components/layout/authenticated-shell';
 import { ADMIN_ROLES } from '@tokenizer/shared/constants/users.constants';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
 export const generateMetadata = async (): Promise<Metadata> => {

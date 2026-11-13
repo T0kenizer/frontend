@@ -7,20 +7,20 @@ import {
 } from '@constants/games';
 import type { useGameSession } from '@hooks/use-game-session';
 import {
+  type ActionDef,
+  AmountForm,
   ChipModel,
   GameMode,
   GameSessionStatus,
-  HandStatus,
-  ParticipantRole,
-  ParticipantStatus,
-  RoundStatus,
-  type ActionDef,
-  type AmountForm,
   type HandPayout,
+  HandStatus,
   type LegalAction,
+  ParticipantRole,
   type ParticipantSnapshot,
+  ParticipantStatus,
   type PotSnapshot,
-  type Street,
+  RoundStatus,
+  Street,
   type TableStakes,
 } from '@tokenizer/shared/types';
 import { useMemo } from 'react';
@@ -120,13 +120,13 @@ export interface PokerTableView extends TableViewBase {
   payouts: HandPayout[];
 }
 
-export interface FreeTableView extends TableViewBase {
+export interface SandboxTableView extends TableViewBase {
   mode: GameMode.Free;
   legalActions: ActionOption[];
   interruptionOpen: boolean;
 }
 
-export type TableView = PokerTableView | FreeTableView;
+export type TableView = PokerTableView | SandboxTableView;
 
 const FEED_LENGTH = 6;
 

@@ -2,6 +2,7 @@
 
 import { Button } from '@components/ui/button';
 import { cn } from '@lib/utils';
+import { useTranslations } from 'next-intl';
 import {
   createContext,
   useCallback,
@@ -139,6 +140,7 @@ const SettingsSaveBar: React.FC<SettingsSaveBarProps> = ({
   onSave,
   onReset,
 }) => {
+  const t = useTranslations('Settings.saveBar');
   const isVisible = dirtyCount > 0;
 
   useEffect(() => {
@@ -170,8 +172,10 @@ const SettingsSaveBar: React.FC<SettingsSaveBarProps> = ({
         className="bg-night-880 text-chalk dark:border-border pointer-events-auto flex w-full max-w-160 items-center gap-4 rounded-full py-2 pr-2.5 pl-5 shadow-lg dark:border"
       >
         <p className="flex-1 text-sm">
-          <b className="font-bold">{dirtyCount}</b> unsaved{' '}
-          {dirtyCount > 1 ? 'changes' : 'change'}
+          {t.rich('unsaved', {
+            count: dirtyCount,
+            b: (chunks) => <b className="font-bold">{chunks}</b>,
+          })}
         </p>
         <Button
           type="button"
@@ -180,10 +184,10 @@ const SettingsSaveBar: React.FC<SettingsSaveBarProps> = ({
           disabled={isPending}
           onClick={onReset}
         >
-          Cancel
+          {t('cancel')}
         </Button>
         <Button type="button" loading={isPending} onClick={onSave}>
-          Save
+          {t('save')}
         </Button>
       </div>
     </div>

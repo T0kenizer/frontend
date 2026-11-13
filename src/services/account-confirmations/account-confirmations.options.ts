@@ -1,9 +1,9 @@
 import { getQueryClient } from '@lib/query-client';
-import { RequesterError } from '@lib/requester';
+import type { RequesterError } from '@lib/requester';
 import * as API from '@services/account-confirmations/account-confirmations.api';
 import { SESSIONS_QUERY_KEYS } from '@services/sessions/sessions.options';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
-import {
+import type {
   RequestConfirmationData,
   ValidateConfirmationTokenResponse,
 } from '@tokenizer/shared/types';
@@ -47,7 +47,7 @@ export const applyConfirmationOptions = () =>
     // purpose: removing it would make the still-mounted confirmation page
     // refetch a token the backend has just consumed.
     onSuccess: () => {
-      getQueryClient().invalidateQueries({
+      void getQueryClient().invalidateQueries({
         queryKey: SESSIONS_QUERY_KEYS.retrieve('current'),
       });
     },

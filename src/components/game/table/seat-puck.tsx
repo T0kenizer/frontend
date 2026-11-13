@@ -4,7 +4,7 @@ import { SeatStack } from '@components/game/table/seat-stack';
 import type { SeatView } from '@components/game/table/use-table-view';
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import { cn } from '@lib/utils';
-import type { ChipModel } from '@tokenizer/shared/types';
+import { ChipModel } from '@tokenizer/shared/types';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { motion, useReducedMotion } from 'motion/react';
 

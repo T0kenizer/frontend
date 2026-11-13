@@ -53,7 +53,9 @@ export const TableRoom: React.FC<TableRoomProps> = ({ gameId, game }) => {
           url,
         });
         return;
-      } catch {}
+      } catch {
+        // Dismissed or unsupported: fall back to copying the link.
+      }
     }
 
     try {

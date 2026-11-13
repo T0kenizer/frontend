@@ -1,4 +1,4 @@
-import type { PokerAction, PotAward } from '@tokenizer/shared/types';
+import { PokerAction, type PotAward } from '@tokenizer/shared/types';
 
 export interface TableActions {
   startHand: () => void;

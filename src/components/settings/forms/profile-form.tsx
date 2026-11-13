@@ -17,18 +17,20 @@ import { retrieveSessionOptions } from '@services/sessions/sessions.options';
 import { partialUpdateUserOptions } from '@services/users/users.options';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { partialUpdateUserDataSchema } from '@tokenizer/shared/schemas';
-import { PartialUpdateUserData } from '@tokenizer/shared/types';
+import type { PartialUpdateUserData } from '@tokenizer/shared/types';
 import { User } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { z } from 'zod';
+import type { z } from 'zod';
 
 type FormData = z.infer<typeof partialUpdateUserDataSchema>;
 
 const DISCARD_DIRTY = { keepDirtyValues: false } as const;
 
 export const ProfileForm: React.FC = () => {
+  const t = useTranslations('Settings.profile');
   const { data: session } = useQuery(retrieveSessionOptions());
   const user = session?.user;
 
@@ -66,9 +68,7 @@ export const ProfileForm: React.FC = () => {
         onSuccess: () => {
           form.reset(data, DISCARD_DIRTY);
           toast.success(
-            payload.email !== undefined
-              ? 'Profile updated — check your inbox to confirm your new email address'
-              : 'Profile updated',
+            payload.email !== undefined ? t('updatedEmail') : t('updated'),
           );
         },
         onError: (error) => applyServerError(form, error),
@@ -79,13 +79,13 @@ export const ProfileForm: React.FC = () => {
   useSettingsSaveBar({
     dirtyCount: Object.keys(form.formState.dirtyFields).length,
     isPending,
-    onSave: form.handleSubmit(handleSubmit),
+    onSave: () => void form.handleSubmit(handleSubmit)(),
     onReset: () => form.reset(values, DISCARD_DIRTY),
   });
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} className="contents">
-      <SettingsRow label="Username" htmlFor="profile-username">
+      <SettingsRow label={t('username')} htmlFor="profile-username">
         <UsernameInput
           id="profile-username"
           value={user?.username ?? ''}
@@ -97,7 +97,7 @@ export const ProfileForm: React.FC = () => {
         name="displayName"
         control={form.control}
         render={({ field, fieldState }) => (
-          <SettingsRow label="Display name" htmlFor="profile-display-name">
+          <SettingsRow label={t('displayName')} htmlFor="profile-display-name">
             <Field data-invalid={fieldState.invalid} className="gap-1.5">
               <InputGroup className="max-w-sm">
                 <InputGroupAddon>
@@ -121,7 +121,7 @@ export const ProfileForm: React.FC = () => {
         name="email"
         control={form.control}
         render={({ field, fieldState }) => (
-          <SettingsRow label="Email" htmlFor="profile-email">
+          <SettingsRow label={t('email')} htmlFor="profile-email">
             <Field data-invalid={fieldState.invalid} className="gap-1.5">
               <EmailInput
                 {...field}

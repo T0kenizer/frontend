@@ -1,4 +1,4 @@
-import { ErrorData } from '@/types/requester';
+import type { ErrorData } from '@/types/requester';
 
 const DEFAULT_ERROR_DATA: ErrorData = {
   statusCode: 500,

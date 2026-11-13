@@ -30,8 +30,6 @@ export const LangProvider: React.FC<LangProviderProps> = ({
   const queryClient = useQueryClient();
   const [, startTransition] = useTransition();
 
-  // The server is the one that decides, but it only answers once the refresh
-  // lands — until then the picker shows what was just asked for.
   const [lang, setOptimisticLang] = useOptimistic(serverLang);
 
   const setLang = useCallback(
@@ -44,8 +42,6 @@ export const LangProvider: React.FC<LangProviderProps> = ({
         setOptimisticLang(next);
         document.documentElement.lang = next;
 
-        // Server components re-render from the cookie; anything the client
-        // fetched was answered in the previous language.
         router.refresh();
         void queryClient.invalidateQueries();
       });
