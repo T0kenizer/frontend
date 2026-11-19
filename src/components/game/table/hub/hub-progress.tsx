@@ -1,5 +1,6 @@
 'use client';
 
+import { StreetBadge } from '@components/badges/street';
 import { feltTitleVariants } from '@components/game/felt/felt-stage';
 import { TurnOrder } from '@components/game/table/turn-order';
 import type { TableView } from '@components/game/table/use-table-view';
@@ -15,19 +16,24 @@ export const HubProgress: React.FC<{ view: TableView }> = ({ view }) => {
   const interruption = !poker && view.interruptionOpen;
   const active = view.activeSeat;
 
+  // Only the stage the hand is in now — no track of the ones around it.
+  const stage = !poker
+    ? null
+    : view.phase === 'showdown'
+      ? 'showdown'
+      : view.phase === 'betting'
+        ? view.street
+        : null;
+
   return (
     <header className="pb-4 text-left" aria-live="polite" aria-atomic="true">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+      <div className="flex items-center justify-between gap-3">
         <h1
           className={cn(feltTitleVariants({ size: 'default' }), 'tabular-nums')}
         >
           {poker ? 'Hand' : 'Round'} {number}
         </h1>
-        {poker && view.streetLabel && (
-          <span className="text-on-media-muted-foreground text-xs">
-            {view.streetLabel}
-          </span>
-        )}
+        {stage && <StreetBadge stage={stage} />}
       </div>
 
       {view.phase === 'betting' && (

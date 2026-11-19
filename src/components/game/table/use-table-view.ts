@@ -113,7 +113,6 @@ export interface PokerTableView extends TableViewBase {
   legalActions: LegalAction[];
   handNumber: Nullable<number>;
   street: Nullable<Street>;
-  streetLabel: Nullable<string>;
   currentBet: number;
   committed: number;
   stakes: TableStakes;
@@ -294,7 +293,6 @@ export function useTableView(game: GameSession): Nullable<TableView> {
 
         handNumber: hand?.handNumber ?? null,
         street: hand?.street ?? null,
-        streetLabel: hand ? STREET_LABELS[hand.street] : null,
         currentBet,
         committed: actingCommitted,
         stakes: snapshot.stakes,
