@@ -75,7 +75,7 @@ export interface ActionOption {
   foldsParticipant: Optional<boolean>;
 }
 
-export type TableEnding = 'ended-by-host' | 'abandoned';
+export type TableEnding = 'won' | 'ended-by-host' | 'abandoned';
 
 export interface TableViewBase {
   phase: TablePhase;
@@ -153,7 +153,7 @@ export function useTableView(game: GameSession): Nullable<TableView> {
     const common = {
       seatCount: seats.length,
       dealsPlayed: snapshot.dealsPlayed,
-      ending: endingOf(snapshot.status),
+      ending: endingOf(snapshot.status, snapshot.mode, seats),
       claimedCount: seats.filter((seat) => seat.claimed).length,
       mySeat,
       isHost,
@@ -390,12 +390,22 @@ export function useTableView(game: GameSession): Nullable<TableView> {
   }, [snapshot, participantId, resolution]);
 }
 
-const endingOf = (status: GameSessionStatus): Nullable<TableEnding> =>
-  status === GameSessionStatus.Finished
-    ? 'ended-by-host'
-    : status === GameSessionStatus.Abandoned
-      ? 'abandoned'
-      : null;
+/**
+ * How the table ended. A finished poker table with a single stack left was won
+ * outright — the server closes those on its own — rather than called by the
+ * host.
+ */
+const endingOf = (
+  status: GameSessionStatus,
+  mode: GameMode,
+  seats: ParticipantSnapshot[],
+): Nullable<TableEnding> => {
+  if (status === GameSessionStatus.Abandoned) return 'abandoned';
+  if (status !== GameSessionStatus.Finished) return null;
+
+  const stacks = seats.filter((seat) => seat.balance > 0).length;
+  return mode === GameMode.Poker && stacks === 1 ? 'won' : 'ended-by-host';
+};
 
 const toActionOption = (action: ActionDef): ActionOption => ({
   id: action.id,

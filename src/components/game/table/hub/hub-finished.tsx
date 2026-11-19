@@ -21,6 +21,10 @@ export interface HubFinishedProps {
 }
 
 const ENDING_COPY: Record<TableEnding, { eyebrow: string; line: string }> = {
+  won: {
+    eyebrow: 'Game over',
+    line: 'Everyone else is out of chips.',
+  },
   'ended-by-host': {
     eyebrow: 'Game over',
     line: 'The host called time on the table.',
@@ -32,9 +36,7 @@ const ENDING_COPY: Record<TableEnding, { eyebrow: string; line: string }> = {
 };
 
 const standingsOf = (seats: SeatView[]): SeatView[] =>
-  seats
-    .filter((entry) => entry.seat.claimed)
-    .sort((a, b) => b.seat.balance - a.seat.balance);
+  [...seats].sort((a, b) => b.seat.balance - a.seat.balance);
 
 export const Standings: React.FC<{ standings: SeatView[] }> = ({
   standings,
