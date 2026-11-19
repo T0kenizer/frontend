@@ -115,7 +115,7 @@ export interface PokerTableView extends TableViewBase {
   street: Nullable<Street>;
   streetLabel: Nullable<string>;
   currentBet: number;
-  toCall: number;
+  committed: number;
   stakes: TableStakes;
   payouts: HandPayout[];
 }
@@ -238,6 +238,7 @@ export function useTableView(game: GameSession): Nullable<TableView> {
       const currentBet = hand?.betting.currentBet ?? 0;
       const committedOf = (id: string) => hand?.betting.committed[id] ?? 0;
       const actingSeat = proxySeat ?? (isMyTurn ? mySeat : null);
+      const actingCommitted = actingSeat ? committedOf(actingSeat.id) : 0;
 
       const recentEvents: TableEvent[] = hand
         ? [...hand.events]
@@ -295,9 +296,7 @@ export function useTableView(game: GameSession): Nullable<TableView> {
         street: hand?.street ?? null,
         streetLabel: hand ? STREET_LABELS[hand.street] : null,
         currentBet,
-        toCall: actingSeat
-          ? Math.max(0, currentBet - committedOf(actingSeat.id))
-          : 0,
+        committed: actingCommitted,
         stakes: snapshot.stakes,
 
         pots: hand?.pots ?? [],
