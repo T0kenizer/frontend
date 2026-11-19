@@ -14,10 +14,37 @@ export interface SeatStackProps {
   amount: number;
   chipModel: ChipModel;
   muted?: boolean;
-  size?: 'default' | 'sm';
+  size?: StackSize;
   reduceMotion?: boolean;
   className?: string;
 }
+
+type StackSize = 'sm' | 'default' | 'lg';
+
+/** Matches the puck the stack sits under — see `SeatPuck`. */
+const STACK_METRICS: Record<
+  StackSize,
+  { gap: string; chip: string; box: string; text: string }
+> = {
+  sm: {
+    gap: 'mt-1',
+    chip: 'size-[1.15rem]',
+    box: 'h-4 min-w-8',
+    text: 'px-1.5 py-0.5 text-[0.625rem]',
+  },
+  default: {
+    gap: 'mt-1',
+    chip: 'size-[1.35rem]',
+    box: 'h-4 min-w-8',
+    text: 'px-1.5 py-0.5 text-[0.625rem]',
+  },
+  lg: {
+    gap: 'mt-1.5',
+    chip: 'size-[1.7rem]',
+    box: 'h-5 min-w-10',
+    text: 'px-2 py-0.5 text-[0.8125rem]',
+  },
+};
 
 const DENOMINATION_VALUES = CHIP_DENOMINATIONS.map((denomination) =>
   denomination === '1k' ? 1000 : denomination,
@@ -54,12 +81,14 @@ export const SeatStack: React.FC<SeatStackProps> = ({
 }) => {
   const isDenominated = chipModel === ChipModel.Denominated;
   const chips = isDenominated ? topDenominations(amount) : [];
+  const metrics = STACK_METRICS[size];
 
   return (
     <span
       data-slot="seat-stack"
       className={cn(
-        'mt-1 flex items-center justify-center gap-1',
+        'flex items-center justify-center gap-1',
+        metrics.gap,
         muted && 'opacity-55',
         className,
       )}
@@ -75,7 +104,7 @@ export const SeatStack: React.FC<SeatStackProps> = ({
                 // Follows the art's alpha, so the chip reads against the felt
                 // without a box around a round image.
                 'drop-shadow-[0_1px_3px_oklch(0_0_0/.5)]',
-                size === 'sm' ? 'size-[1.15rem]' : 'size-[1.35rem]',
+                metrics.chip,
               )}
             />
           ))}
@@ -86,6 +115,8 @@ export const SeatStack: React.FC<SeatStackProps> = ({
         amount={amount}
         reduceMotion={reduceMotion}
         solid={!isDenominated}
+        boxClassName={metrics.box}
+        textClassName={metrics.text}
       />
     </span>
   );
@@ -95,11 +126,16 @@ const AmountPill: React.FC<{
   amount: number;
   reduceMotion: boolean;
   solid: boolean;
-}> = ({ amount, reduceMotion, solid }) => (
-  <span className="relative block h-4 min-w-8 overflow-hidden">
+  boxClassName: string;
+  textClassName: string;
+}> = ({ amount, reduceMotion, solid, boxClassName, textClassName }) => (
+  <span className={cn('relative block overflow-hidden', boxClassName)}>
     <span
       aria-hidden
-      className="invisible block px-1.5 py-0.5 text-[0.625rem] leading-none font-extrabold tabular-nums"
+      className={cn(
+        'invisible block leading-none font-extrabold tabular-nums',
+        textClassName,
+      )}
     >
       {formatAmount(amount)}
     </span>
@@ -108,7 +144,8 @@ const AmountPill: React.FC<{
       <motion.span
         key={amount}
         className={cn(
-          'text-on-media-foreground absolute inset-x-0 top-0 mx-auto w-fit rounded-full px-1.5 py-0.5 text-[0.625rem] leading-none font-extrabold tabular-nums',
+          'text-on-media-foreground absolute inset-x-0 top-0 mx-auto w-fit rounded-full leading-none font-extrabold tabular-nums',
+          textClassName,
           solid && 'bg-on-media-scrim',
         )}
         initial={reduceMotion ? false : { y: 10, opacity: 0 }}
