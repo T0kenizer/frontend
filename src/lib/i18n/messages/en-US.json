@@ -211,6 +211,24 @@
       "discover": "Discover Tokenizer"
     }
   },
+  "Legal": {
+    "eyebrow": "Legal",
+    "navAriaLabel": "Legal documents",
+    "documents": {
+      "legal-notice": {
+        "title": "Legal notice",
+        "description": "Who publishes {appName} and where it is hosted."
+      },
+      "privacy-policy": {
+        "title": "Privacy policy",
+        "description": "What data {appName} collects, why, and how you stay in control of it."
+      },
+      "terms-of-service": {
+        "title": "Terms of service",
+        "description": "The rules that apply when you use {appName}."
+      }
+    }
+  },
   "Auth": {
     "home": "Home",
     "loadError": {

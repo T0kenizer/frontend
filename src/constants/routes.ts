@@ -1,4 +1,5 @@
 import { LandingSection } from '@constants/landing';
+import type { LegalDocument } from '@constants/legal';
 import { REDIRECT_URL_PARAM } from '@lib/redirect-url';
 import { offerSlug } from '@services/offers/offers.utils';
 import { Offer } from '@tokenizer/shared/types';
@@ -55,6 +56,8 @@ const LANDING_ROUTE = (section?: LandingSection) =>
 const PRICING_ROUTE = () => '/pricing';
 const DASHBOARD_ROUTE = () => '/dashboard';
 
+const LEGAL_ROUTE = (document: LegalDocument) => `/${document}`;
+
 const HOME_ROUTE = (isAuthenticated: boolean) =>
   isAuthenticated ? DASHBOARD_ROUTE() : LANDING_ROUTE();
 
@@ -64,6 +67,8 @@ const ROUTES = {
   landing: LANDING_ROUTE,
 
   pricing: PRICING_ROUTE,
+
+  legal: LEGAL_ROUTE,
 
   dashboard: DASHBOARD_ROUTE,
 

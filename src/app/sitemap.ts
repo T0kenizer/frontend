@@ -1,4 +1,5 @@
 import { SITE_URL } from '@constants/index';
+import { LegalDocument } from '@constants/legal';
 import ROUTES from '@constants/routes';
 import type { MetadataRoute } from 'next';
 
@@ -30,6 +31,12 @@ const sitemap = (): MetadataRoute.Sitemap => {
       changeFrequency: 'monthly',
       priority: 0.5,
     },
+    ...Object.values(LegalDocument).map((document) => ({
+      url: `${SITE_URL}${ROUTES.legal(document)}`,
+      lastModified,
+      changeFrequency: 'yearly' as const,
+      priority: 0.3,
+    })),
   ];
 };
 
