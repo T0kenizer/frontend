@@ -1,11 +1,12 @@
 'use client';
 
 import { SeatStack } from '@components/game/table/seat-stack';
+import type { RingSeatSize } from '@components/game/table/table-geometry';
 import type { SeatView } from '@components/game/table/use-table-view';
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import { cn } from '@lib/utils';
 import { ChipModel } from '@tokenizer/shared/types';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
 import { motion, useReducedMotion } from 'motion/react';
 
 const discVariants = cva(
@@ -20,31 +21,81 @@ const discVariants = cva(
         'all-in': 'border-on-media-border border-2 border-dashed bg-black/30',
         out: 'border-on-media-hairline border-2 border-dotted bg-black/40 opacity-40',
       },
-      size: {
-        default: 'size-13',
-        sm: 'size-11',
-      },
     },
-    defaultVariants: { tone: 'seated', size: 'default' },
+    defaultVariants: { tone: 'seated' },
   },
 );
 
-export type SeatPuckProps = VariantProps<typeof discVariants> & {
+/** `sm` is the phone rail; the ring picks between the other two by room. */
+export type SeatPuckSize = 'sm' | RingSeatSize;
+
+interface PuckMetrics {
+  width: string;
+  disc: string;
+  avatar: React.ComponentProps<typeof Avatar>['size'];
+  halo: string;
+  name: string;
+  caption: string;
+  marker: string;
+  position: string;
+  pill: string;
+}
+
+const SMALL_TEXT = {
+  name: 'mt-1.5 text-[0.7rem]',
+  caption: 'text-[0.625rem]',
+  marker: 'size-5 text-[0.55rem]',
+  position: 'h-5 min-w-5 text-[0.5rem]',
+  pill: 'px-1.5 text-[0.5625rem]',
+};
+
+/** Every measure of a puck, per size. `lg` matches `SEAT_METRICS.lg`. */
+const PUCK_METRICS: Record<SeatPuckSize, PuckMetrics> = {
+  sm: {
+    width: 'w-[4.6rem]',
+    disc: 'size-11',
+    avatar: 'default',
+    halo: '-inset-1 ring-2',
+    ...SMALL_TEXT,
+  },
+  default: {
+    width: 'w-24',
+    disc: 'size-13',
+    avatar: 'lg',
+    halo: '-inset-1 ring-2',
+    ...SMALL_TEXT,
+  },
+  lg: {
+    width: 'w-30',
+    disc: 'size-16',
+    avatar: 'xl',
+    halo: '-inset-1.5 ring-3',
+    name: 'mt-2 text-sm',
+    caption: 'text-xs',
+    marker: 'size-6 text-[0.7rem]',
+    position: 'h-6 min-w-6 text-[0.625rem]',
+    pill: 'px-2 text-[0.6875rem]',
+  },
+};
+
+export interface SeatPuckProps {
   view: SeatView;
   chipModel: ChipModel;
+  size?: SeatPuckSize;
   index?: number;
   className?: string;
-};
+}
 
 export const SeatPuck: React.FC<SeatPuckProps> = ({
   view,
   chipModel,
-  size,
+  size = 'default',
   index = 0,
   className,
 }) => {
   const reduceMotion = useReducedMotion();
   const { seat, tone, isActive, isFree, isHost, isWinner } = view;
+  const metrics = PUCK_METRICS[size];
 
   return (
     <motion.div
@@ -60,8 +111,8 @@ export const SeatPuck: React.FC<SeatPuckProps> = ({
         delay: reduceMotion ? 0 : Math.min(index * 0.05, 0.5),
       }}
       className={cn(
-        'flex w-24 flex-col items-center text-center',
-        size === 'sm' && 'w-[4.6rem]',
+        'flex flex-col items-center text-center',
+        metrics.width,
         className,
       )}
     >
@@ -69,12 +120,13 @@ export const SeatPuck: React.FC<SeatPuckProps> = ({
         <span
           aria-hidden
           className={cn(
-            'ring-warning/70 pointer-events-none absolute -inset-1 rounded-full ring-2 transition-opacity duration-300 motion-reduce:transition-none',
+            'ring-warning/70 pointer-events-none absolute rounded-full transition-opacity duration-300 motion-reduce:transition-none',
+            metrics.halo,
             isActive ? 'opacity-100' : 'opacity-0',
           )}
         />
         <motion.span
-          className={cn(discVariants({ tone, size }))}
+          className={cn(discVariants({ tone }), metrics.disc)}
           animate={
             isWinner && !reduceMotion
               ? { scale: [1, 1.14, 1], rotate: [0, -4, 0] }
@@ -82,19 +134,20 @@ export const SeatPuck: React.FC<SeatPuckProps> = ({
           }
           transition={{ duration: 0.65, ease: 'easeOut' }}
         >
-          <Avatar size={size === 'sm' ? 'default' : 'lg'}>
+          <Avatar size={metrics.avatar}>
             {seat.avatarUrl && <AvatarImage src={seat.avatarUrl} alt="" />}
             <AvatarFallback />
           </Avatar>
 
-          <SeatMarker view={view} />
-          <SeatPosition view={view} />
+          <SeatMarker view={view} className={metrics.marker} />
+          <SeatPosition view={view} className={metrics.position} />
         </motion.span>
       </span>
 
       <span
         className={cn(
-          'mt-1.5 block max-w-full truncate text-[0.7rem] leading-tight font-bold',
+          'block max-w-full truncate leading-tight font-bold',
+          metrics.name,
           isFree && 'text-on-media-muted-foreground font-semibold',
         )}
       >
@@ -108,9 +161,19 @@ export const SeatPuck: React.FC<SeatPuckProps> = ({
       </span>
 
       {view.status ? (
-        <SeatStatusPill status={view.status} isHost={isHost && !isFree} />
+        <SeatStatusPill
+          status={view.status}
+          isHost={isHost && !isFree}
+          captionClassName={metrics.caption}
+          className={metrics.pill}
+        />
       ) : (
-        <span className="text-on-media-muted-foreground mt-0.5 block max-w-full truncate text-[0.625rem] leading-tight">
+        <span
+          className={cn(
+            'text-on-media-muted-foreground mt-0.5 block max-w-full truncate leading-tight',
+            metrics.caption,
+          )}
+        >
           {isHost ? 'Host · ' : ''}
           {view.caption}
         </span>
@@ -120,14 +183,17 @@ export const SeatPuck: React.FC<SeatPuckProps> = ({
         amount={seat.balance}
         chipModel={chipModel}
         muted={view.tone === 'folded' || view.tone === 'out'}
-        size={size === 'sm' ? 'sm' : 'default'}
+        size={size}
         reduceMotion={!!reduceMotion}
       />
     </motion.div>
   );
 };
 
-const SeatMarker: React.FC<{ view: SeatView }> = ({ view }) => {
+const SeatMarker: React.FC<{ view: SeatView; className: string }> = ({
+  view,
+  className: sizeClassName,
+}) => {
   const { label, className } = view.isFree
     ? {
         label: 'H',
@@ -143,7 +209,8 @@ const SeatMarker: React.FC<{ view: SeatView }> = ({ view }) => {
     <span
       aria-hidden
       className={cn(
-        'border-felt-deep absolute -right-1 -bottom-1 grid size-5 place-items-center rounded-full border-2 text-[0.55rem] leading-none font-extrabold',
+        'border-felt-deep absolute -right-1 -bottom-1 grid place-items-center rounded-full border-2 leading-none font-extrabold',
+        sizeClassName,
         className,
       )}
     >
@@ -158,14 +225,18 @@ const POSITION_LABELS = {
   'big-blind': 'BB',
 } as const;
 
-const SeatPosition: React.FC<{ view: SeatView }> = ({ view }) => {
+const SeatPosition: React.FC<{ view: SeatView; className: string }> = ({
+  view,
+  className,
+}) => {
   if (!view.marker) return null;
 
   return (
     <span
       aria-hidden
       className={cn(
-        'border-felt-deep absolute -bottom-1 -left-1 grid h-5 min-w-5 place-items-center rounded-full border-2 px-1 text-[0.5rem] leading-none font-extrabold',
+        'border-felt-deep absolute -bottom-1 -left-1 grid place-items-center rounded-full border-2 px-1 leading-none font-extrabold',
+        className,
         view.marker === 'dealer'
           ? 'bg-on-media-foreground text-felt-inverse-foreground'
           : 'bg-felt-bright text-white',
@@ -179,19 +250,27 @@ const SeatPosition: React.FC<{ view: SeatView }> = ({ view }) => {
 const SeatStatusPill: React.FC<{
   status: NonNullable<SeatView['status']>;
   isHost: boolean;
-}> = ({ status, isHost }) => {
+  captionClassName: string;
+  className: string;
+}> = ({ status, isHost, captionClassName, className: sizeClassName }) => {
   const { label, className } = STATUS_STYLES[status];
 
   return (
     <span className="mt-0.5 flex max-w-full items-center justify-center gap-1">
       {isHost && (
-        <span className="text-on-media-muted-foreground shrink-0 text-[0.625rem] leading-tight">
+        <span
+          className={cn(
+            'text-on-media-muted-foreground shrink-0 leading-tight',
+            captionClassName,
+          )}
+        >
           Host ·
         </span>
       )}
       <span
         className={cn(
-          'truncate rounded-full px-1.5 py-px text-[0.5625rem] leading-tight font-bold tracking-[0.04em] uppercase',
+          'truncate rounded-full py-px leading-tight font-bold tracking-[0.04em] uppercase',
+          sizeClassName,
           className,
         )}
       >

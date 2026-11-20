@@ -15,6 +15,9 @@ export interface RingPoint {
   y: number;
 }
 
+/** How big the seats around the ring are drawn. */
+export type RingSeatSize = 'default' | 'lg';
+
 export interface RingGeometry {
   width: number;
   height: number;
@@ -22,6 +25,8 @@ export interface RingGeometry {
   centre: RingPoint;
   /** One point per seat, in seat order. */
   points: RingPoint[];
+  /** The puck size these points were laid out for. */
+  seatSize: RingSeatSize;
 }
 
 export const EMPTY_RING: RingGeometry = {
@@ -29,6 +34,7 @@ export const EMPTY_RING: RingGeometry = {
   height: 0,
   centre: { x: 0, y: 0 },
   points: [],
+  seatSize: 'default',
 };
 
 export interface LayOutRingParams {
@@ -40,21 +46,73 @@ export interface LayOutRingParams {
   hubHeight: number;
 }
 
-/** Half a seat puck, give or take — how far a seat stays off the felt's edge. */
-const SEAT_INSET_X = 62;
-const SEAT_INSET_Y = 54;
+interface SeatMetrics {
+  /** The puck's box, name and stack included. Kept in step with `SeatPuck`. */
+  width: number;
+  height: number;
+  /** Half a puck, give or take — how far a seat stays off the felt's edge. */
+  insetX: number;
+  insetY: number;
+  /** Clearance kept between the centre panel and the nearest seat. */
+  hubMarginX: number;
+  hubMarginY: number;
+  /** Below this the ellipse collapses and seats start overlapping each other. */
+  minRadiusY: number;
+}
 
-/** Clearance kept between the centre panel and the nearest seat. */
-const HUB_MARGIN_X = 52;
-const HUB_MARGIN_Y = 46;
-
-/** Below this the ellipse collapses and seats start overlapping each other. */
-const MIN_RADIUS_Y = 120;
+const SEAT_METRICS: Record<RingSeatSize, SeatMetrics> = {
+  default: {
+    width: 96,
+    height: 108,
+    insetX: 62,
+    insetY: 54,
+    hubMarginX: 52,
+    hubMarginY: 46,
+    minRadiusY: 120,
+  },
+  lg: {
+    width: 120,
+    height: 140,
+    insetX: 76,
+    insetY: 70,
+    hubMarginX: 66,
+    hubMarginY: 58,
+    minRadiusY: 150,
+  },
+};
 
 /**
  * Seats spread evenly around an ellipse, with the middle of the table kept
  * clear for the centre panel.
  *
+ * The seats are drawn large whenever the table has room for them — the felt is
+ * read from across a room, on a shared screen — and fall back to the smaller
+ * puck once a full table in a small window would pile them on top of each
+ * other.
+ */
+export function layOutRing(params: LayOutRingParams): RingGeometry {
+  const { count, width, height } = params;
+  const centre = { x: width / 2, y: height / 2 };
+
+  if (!width || !height || count <= 0) {
+    return { ...EMPTY_RING, width, height, centre };
+  }
+
+  const large = placeSeats(params, SEAT_METRICS.lg);
+  if (fits(large, SEAT_METRICS.lg, width, height)) {
+    return { width, height, centre, points: large, seatSize: 'lg' };
+  }
+
+  return {
+    width,
+    height,
+    centre,
+    points: placeSeats(params, SEAT_METRICS.default),
+    seatSize: 'default',
+  };
+}
+
+/**
  * The clearance is the whole reason this is not one line of trigonometry. A
  * plain ellipse puts a seat at due east and due west — exactly where the panel
  * that holds every action of the game is — so those two seats are pushed
@@ -65,26 +123,19 @@ const MIN_RADIUS_Y = 120;
  * Seat 0 is offset half a step off top-dead-centre so an even seat count does
  * not put one player squarely behind the panel's title.
  */
-export function layOutRing({
-  count,
-  width,
-  height,
-  hubWidth,
-  hubHeight,
-}: LayOutRingParams): RingGeometry {
+function placeSeats(
+  { count, width, height, hubWidth, hubHeight }: LayOutRingParams,
+  metrics: SeatMetrics,
+): RingPoint[] {
   const centre = { x: width / 2, y: height / 2 };
 
-  if (!width || !height || count <= 0) {
-    return { ...EMPTY_RING, width, height, centre };
-  }
+  const radiusX = Math.max(0, width / 2 - metrics.insetX);
+  const radiusY = Math.max(metrics.minRadiusY, height / 2 - metrics.insetY);
 
-  const radiusX = Math.max(0, width / 2 - SEAT_INSET_X);
-  const radiusY = Math.max(MIN_RADIUS_Y, height / 2 - SEAT_INSET_Y);
+  const clearX = hubWidth / 2 + metrics.hubMarginX;
+  const clearY = hubHeight / 2 + metrics.hubMarginY;
 
-  const clearX = hubWidth / 2 + HUB_MARGIN_X;
-  const clearY = hubHeight / 2 + HUB_MARGIN_Y;
-
-  const points = Array.from({ length: count }, (_, index) => {
+  return Array.from({ length: count }, (_, index) => {
     const angle = -Math.PI / 2 + ((index + 0.5) / count) * Math.PI * 2;
 
     const offsetY = radiusY * Math.sin(angle);
@@ -99,6 +150,30 @@ export function layOutRing({
 
     return { x: centre.x + offsetX, y: centre.y + offsetY };
   });
+}
 
-  return { width, height, centre, points };
+/** Every puck inside the ring box, and no two of them touching. */
+function fits(
+  points: RingPoint[],
+  { width: seatWidth, height: seatHeight }: SeatMetrics,
+  width: number,
+  height: number,
+): boolean {
+  const halfWidth = seatWidth / 2;
+  const halfHeight = seatHeight / 2;
+
+  return points.every(
+    (point, index) =>
+      point.x - halfWidth >= 0 &&
+      point.x + halfWidth <= width &&
+      point.y - halfHeight >= 0 &&
+      point.y + halfHeight <= height &&
+      points
+        .slice(index + 1)
+        .every(
+          (other) =>
+            Math.abs(point.x - other.x) >= seatWidth ||
+            Math.abs(point.y - other.y) >= seatHeight,
+        ),
+  );
 }

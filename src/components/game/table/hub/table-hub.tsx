@@ -70,7 +70,7 @@ export const TableHub: React.FC<TableHubProps> = ({
         if (view.mode === GameMode.Free) {
           return view.canAct
             ? {
-                key: 'turn',
+                key: `turn:${view.activeSeat?.id}`,
                 panel: <HubSandboxTurn view={view} actions={actions} />,
               }
             : {
@@ -78,8 +78,13 @@ export const TableHub: React.FC<TableHubProps> = ({
                 panel: <HubSandboxWatch view={view} actions={actions} />,
               };
         }
+        // Keyed by seat: a host playing an empty chair keeps this panel from
+        // one turn to the next, and the swap is what shows the hand changed.
         return view.canAct
-          ? { key: 'turn', panel: <HubTurn view={view} actions={actions} /> }
+          ? {
+              key: `turn:${view.activeSeat?.id}`,
+              panel: <HubTurn view={view} actions={actions} />,
+            }
           : { key: 'watch', panel: <HubWatch view={view} /> };
 
       case 'showdown':

@@ -96,7 +96,12 @@ export const TableRing: React.FC<TableRingProps> = ({
                 animate={{ left: point.x, top: point.y }}
                 transition={{ type: 'spring', stiffness: 220, damping: 30 }}
               >
-                <SeatPuck view={view} index={index} chipModel={chipModel} />
+                <SeatPuck
+                  view={view}
+                  index={index}
+                  chipModel={chipModel}
+                  size={geometry.seatSize}
+                />
               </motion.div>
             );
           })}

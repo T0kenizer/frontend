@@ -35,16 +35,16 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
     <header
       data-slot="table-top-bar"
       className={cn(
-        'grid shrink-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-3 px-4 py-3.5',
+        'grid shrink-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-3 px-4 py-3.5 md:gap-4 md:px-6 md:py-4',
         className,
       )}
     >
-      <div className="flex h-13 items-center">
-        <Logo className="shrink-0" />
+      <div className="flex h-13 items-center md:h-16">
+        <Logo className="shrink-0 md:[&>img]:h-10 md:[&>span]:text-2xl" />
       </div>
 
-      <span className="hidden h-13 max-w-[40vw] min-w-0 flex-col items-center justify-center text-center md:flex">
-        <span className="block max-w-full truncate text-sm font-bold">
+      <span className="hidden h-16 max-w-[40vw] min-w-0 flex-col items-center justify-center text-center md:flex">
+        <span className="block max-w-full truncate text-lg font-bold">
           {tableName}
         </span>
         {!isConnected ? (
@@ -54,12 +54,12 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
         ) : null}
       </span>
 
-      <div className="col-start-3 flex min-h-13 flex-row items-center justify-end gap-3">
+      <div className="col-start-3 flex min-h-13 flex-row items-center justify-end gap-3 md:min-h-16">
         {joinCode && (
           <div
             className={cn(
-              'border-on-media-hairline flex shrink-0 items-center gap-2.5 rounded-xl bg-black/35 px-3 py-2',
-              spectatorMode && 'md:flex-col md:gap-2 md:py-3',
+              'border-on-media-hairline flex shrink-0 items-center gap-2.5 rounded-xl bg-black/35 px-3 py-2 md:px-4 md:py-2.5',
+              spectatorMode && 'md:flex-col md:gap-2.5 md:py-3.5',
             )}
           >
             {spectatorMode && (
@@ -68,7 +68,7 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
                 src={gameQrUrl(gameId)}
                 alt=""
                 aria-hidden
-                className="hidden size-24 rounded-lg bg-white p-1 md:block"
+                className="hidden size-32 rounded-lg bg-white p-1 md:block"
               />
             )}
             <span
@@ -77,10 +77,10 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
                 spectatorMode && 'md:items-center',
               )}
             >
-              <span className="text-on-media-muted-foreground text-[0.6rem] font-bold tracking-[0.11em] whitespace-nowrap uppercase">
+              <span className="text-on-media-muted-foreground text-[0.6rem] font-bold tracking-[0.11em] whitespace-nowrap uppercase md:text-[0.7rem]">
                 Table code
               </span>
-              <span className="text-sm font-extrabold tracking-[0.11em] tabular-nums">
+              <span className="text-sm font-extrabold tracking-[0.11em] tabular-nums md:text-lg">
                 {joinCode}
               </span>
             </span>
@@ -93,7 +93,7 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
               size="icon"
               aria-label="Open the spectator view"
               title="Open the spectator view"
-              className="hidden shrink-0 md:flex"
+              className="hidden shrink-0 md:flex md:size-10 md:[&_svg:not([class*='size-'])]:size-5"
               asChild
             >
               <Link href={ROUTES.game.spectator(gameId)} target="_blank">
@@ -105,7 +105,7 @@ export const TableTopBar: React.FC<TableTopBarProps> = ({
               size="icon"
               aria-label="Leave the table"
               title="Leave the table"
-              className="shrink-0"
+              className="shrink-0 md:size-10 md:[&_svg:not([class*='size-'])]:size-5"
               asChild
             >
               <Link href={home()}>
