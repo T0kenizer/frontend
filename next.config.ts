@@ -1,7 +1,17 @@
+import createMDX from '@next/mdx';
 import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/lib/i18n/request.ts');
+
+// Compiles the Markdown content (legal documents) at build time. Plugins are
+// named by string so Turbopack can serialise them.
+const withMDX = createMDX({
+  extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: ['remark-gfm'],
+  },
+});
 
 const nextConfig: NextConfig = {
   env: {
@@ -21,4 +31,4 @@ const nextConfig: NextConfig = {
   ],
 };
 
-export default withNextIntl(nextConfig);
+export default withNextIntl(withMDX(nextConfig));
