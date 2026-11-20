@@ -99,7 +99,8 @@
     "howItWorks": "How it works",
     "pricing": "Pricing",
     "signIn": "Sign in",
-    "contact": "Contact"
+    "contact": "Contact",
+    "legal": "Legal"
   },
   "Navbar": {
     "howItWorks": "How it works",
@@ -131,6 +132,7 @@
     },
     "plans": {
       "current": "Your plan",
+      "comingSoon": "Coming soon",
       "interval": "{interval, select, month {/ month} year {/ year} other {one time}}",
       "FREE": {
         "name": "Free",
@@ -208,6 +210,24 @@
       "description": "Create an account in a minute. You'll go Premium the day you're a chair short.",
       "signUp": "Get started for free",
       "discover": "Discover Tokenizer"
+    }
+  },
+  "Legal": {
+    "eyebrow": "Legal",
+    "navAriaLabel": "Legal documents",
+    "documents": {
+      "legal-notice": {
+        "title": "Legal notice",
+        "description": "Who publishes {appName} and where it is hosted."
+      },
+      "privacy-policy": {
+        "title": "Privacy policy",
+        "description": "What data {appName} collects, why, and how you stay in control of it."
+      },
+      "terms-of-service": {
+        "title": "Terms of service",
+        "description": "The rules that apply when you use {appName}."
+      }
     }
   },
   "Auth": {

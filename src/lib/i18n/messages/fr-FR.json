@@ -99,7 +99,8 @@
     "howItWorks": "Comment ça marche",
     "pricing": "Tarifs",
     "signIn": "Se connecter",
-    "contact": "Contact"
+    "contact": "Contact",
+    "legal": "Informations légales"
   },
   "Navbar": {
     "howItWorks": "Comment ça marche",
@@ -131,6 +132,7 @@
     },
     "plans": {
       "current": "Votre formule",
+      "comingSoon": "Bientôt disponible",
       "interval": "{interval, select, month {/ mois} year {/ an} other {une seule fois}}",
       "FREE": {
         "name": "Gratuit",
@@ -208,6 +210,24 @@
       "description": "Créez un compte en une minute. Vous passerez Premium le jour où il manquera une chaise.",
       "signUp": "Commencer gratuitement",
       "discover": "Découvrir Tokenizer"
+    }
+  },
+  "Legal": {
+    "eyebrow": "Informations légales",
+    "navAriaLabel": "Documents légaux",
+    "documents": {
+      "legal-notice": {
+        "title": "Mentions légales",
+        "description": "Qui édite {appName} et où il est hébergé."
+      },
+      "privacy-policy": {
+        "title": "Politique de confidentialité",
+        "description": "Les données que {appName} collecte, pourquoi, et comment vous en gardez le contrôle."
+      },
+      "terms-of-service": {
+        "title": "Conditions d'utilisation",
+        "description": "Les règles qui s'appliquent lorsque vous utilisez {appName}."
+      }
     }
   },
   "Auth": {

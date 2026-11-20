@@ -5,6 +5,7 @@ import { Button } from '@components/ui/button';
 import { ScrollFade } from '@components/ui/scroll-fade';
 import { Separator } from '@components/ui/separator';
 import ROUTES from '@constants/routes';
+import { NEXT_PUBLIC_STRIPE_ENABLED } from '@lib/env';
 import { cn } from '@lib/utils';
 import { useSignOut } from '@services/sessions/sessions.hooks';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
@@ -76,6 +77,7 @@ const items: SettingsNavItem[] = [
     id: 'subscription',
     renderIcon: () => <CreditCard />,
     href: ROUTES.settings.subscription(),
+    isLocked: !NEXT_PUBLIC_STRIPE_ENABLED,
   },
 ];
 
