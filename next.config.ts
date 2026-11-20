@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     INTERNAL_API_URL: process.env.INTERNAL_API_URL,
+    NEXT_PUBLIC_STRIPE_ENABLED: process.env.NEXT_PUBLIC_STRIPE_ENABLED,
   },
   images: {
     remotePatterns: [new URL('https://www.placecats.com/**')],

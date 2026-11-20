@@ -1,4 +1,5 @@
 import ROUTES from '@constants/routes';
+import { NEXT_PUBLIC_STRIPE_ENABLED } from '@lib/env';
 import { REDIRECT_URL_PARAM, sanitizeRedirectUrl } from '@lib/redirect-url';
 import {
   parseSubscriptionOutcome,
@@ -12,6 +13,9 @@ import { CheckoutError } from '@tokenizer/shared/types';
 import { type NextRequest, NextResponse } from 'next/server';
 
 export const GET = (request: NextRequest) => {
+  if (!NEXT_PUBLIC_STRIPE_ENABLED)
+    return new NextResponse(null, { status: 404 });
+
   const { searchParams } = request.nextUrl;
   const redirectUrl =
     sanitizeRedirectUrl(searchParams.get(REDIRECT_URL_PARAM)) ??

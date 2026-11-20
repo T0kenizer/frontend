@@ -6,3 +6,6 @@ export const NEXT_PUBLIC_API_URL: string =
 
 export const INTERNAL_API_URL: string =
   process.env.INTERNAL_API_URL || NEXT_PUBLIC_API_URL;
+
+export const NEXT_PUBLIC_STRIPE_ENABLED: boolean =
+  process.env.NEXT_PUBLIC_STRIPE_ENABLED?.toLowerCase() === 'true';

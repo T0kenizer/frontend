@@ -131,6 +131,7 @@
     },
     "plans": {
       "current": "Your plan",
+      "comingSoon": "Coming soon",
       "interval": "{interval, select, month {/ month} year {/ year} other {one time}}",
       "FREE": {
         "name": "Free",

@@ -131,6 +131,7 @@
     },
     "plans": {
       "current": "Votre formule",
+      "comingSoon": "Bientôt disponible",
       "interval": "{interval, select, month {/ mois} year {/ an} other {une seule fois}}",
       "FREE": {
         "name": "Gratuit",

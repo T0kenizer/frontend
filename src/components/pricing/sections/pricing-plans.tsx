@@ -5,6 +5,7 @@ import { Button } from '@components/ui/button';
 import { Chip } from '@components/ui/chip';
 import ROUTES from '@constants/routes';
 import { type PricingOffer, usePricingOffers } from '@hooks/use-pricing';
+import { NEXT_PUBLIC_STRIPE_ENABLED } from '@lib/env';
 import { cn } from '@lib/utils';
 import { formatPrice } from '@services/offers/offers.utils';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
@@ -69,6 +70,14 @@ const PlanAction: React.FC<{ offer: PricingOffer; className?: string }> = ({
     return (
       <Button size="xl" variant={variant} className={className} asChild>
         <Link href={ROUTES.home(isAuthenticated)}>{t(`${plan}.action`)}</Link>
+      </Button>
+    );
+  }
+
+  if (!NEXT_PUBLIC_STRIPE_ENABLED) {
+    return (
+      <Button size="xl" variant={variant} className={className} disabled>
+        {t('comingSoon')}
       </Button>
     );
   }

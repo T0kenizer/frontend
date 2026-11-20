@@ -1,5 +1,5 @@
 import ROUTES from '@constants/routes';
-import { NEXT_PUBLIC_API_URL } from '@lib/env';
+import { NEXT_PUBLIC_API_URL, NEXT_PUBLIC_STRIPE_ENABLED } from '@lib/env';
 import { REDIRECT_URL_PARAM } from '@lib/redirect-url';
 import { parseOffer } from '@services/offers/offers.utils';
 import { retrieveSessionCached } from '@services/sessions/sessions.api';
@@ -11,6 +11,8 @@ export type SubscriptionPageProps = {
 };
 
 const SubscriptionPage = async ({ params }: SubscriptionPageProps) => {
+  if (!NEXT_PUBLIC_STRIPE_ENABLED) notFound();
+
   const segments = (await params).offer ?? [];
 
   if (segments.length > 1) notFound();
