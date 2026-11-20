@@ -1,8 +1,5 @@
 'use client';
 
-import { HubFreeIntermission } from '@components/game/table/hub/free/hub-free-intermission';
-import { HubFreeTurn } from '@components/game/table/hub/free/hub-free-turn';
-import { HubFreeWatch } from '@components/game/table/hub/free/hub-free-watch';
 import { HubFinished } from '@components/game/table/hub/hub-finished';
 import { HubIntermission } from '@components/game/table/hub/hub-intermission';
 import { HubLobby } from '@components/game/table/hub/hub-lobby';
@@ -10,6 +7,9 @@ import { HubFrame, HubTransition } from '@components/game/table/hub/hub-shell';
 import { HubShowdown } from '@components/game/table/hub/hub-showdown';
 import { HubTurn } from '@components/game/table/hub/hub-turn';
 import { HubWatch } from '@components/game/table/hub/hub-watch';
+import { HubSandboxIntermission } from '@components/game/table/hub/sandbox/hub-sandbox-intermission';
+import { HubSandboxTurn } from '@components/game/table/hub/sandbox/hub-sandbox-turn';
+import { HubSandboxWatch } from '@components/game/table/hub/sandbox/hub-sandbox-watch';
 import type { TableActions } from '@components/game/table/table-actions';
 import type { TableView } from '@components/game/table/use-table-view';
 import { GameMode } from '@tokenizer/shared/types';
@@ -70,20 +70,25 @@ export const TableHub: React.FC<TableHubProps> = ({
         if (view.mode === GameMode.Free) {
           return view.canAct
             ? {
-                key: 'turn',
-                panel: <HubFreeTurn view={view} actions={actions} />,
+                key: `turn:${view.activeSeat?.id}`,
+                panel: <HubSandboxTurn view={view} actions={actions} />,
               }
             : {
                 key: 'watch',
-                panel: <HubFreeWatch view={view} actions={actions} />,
+                panel: <HubSandboxWatch view={view} actions={actions} />,
               };
         }
+        // Keyed by seat: a host playing an empty chair keeps this panel from
+        // one turn to the next, and the swap is what shows the hand changed.
         return view.canAct
-          ? { key: 'turn', panel: <HubTurn view={view} actions={actions} /> }
+          ? {
+              key: `turn:${view.activeSeat?.id}`,
+              panel: <HubTurn view={view} actions={actions} />,
+            }
           : { key: 'watch', panel: <HubWatch view={view} /> };
 
       case 'showdown':
-        // Poker's alone: a free round settles when the host says so, from the
+        // Poker's alone: a sandbox round settles when the host says so, from the
         // panel it is still being played on.
         return view.mode === GameMode.Poker
           ? {
@@ -92,7 +97,7 @@ export const TableHub: React.FC<TableHubProps> = ({
             }
           : {
               key: 'watch',
-              panel: <HubFreeWatch view={view} actions={actions} />,
+              panel: <HubSandboxWatch view={view} actions={actions} />,
             };
 
       case 'intermission':
@@ -100,7 +105,7 @@ export const TableHub: React.FC<TableHubProps> = ({
           key: 'intermission',
           panel:
             view.mode === GameMode.Free ? (
-              <HubFreeIntermission view={view} actions={actions} />
+              <HubSandboxIntermission view={view} actions={actions} />
             ) : (
               <HubIntermission view={view} actions={actions} />
             ),

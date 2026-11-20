@@ -408,6 +408,9 @@ export const feltBadgeVariants = cva(
         muted: 'border-on-media-border text-on-media-muted-foreground border',
         /** The same, filled — for the one that stands out. */
         solid: 'bg-on-media-film text-on-media-foreground',
+        /** Ruled and filled — a state the whole panel is in, like a street. */
+        framed:
+          'bg-on-media-film border-on-media-border text-on-media-foreground border',
         /** Live, now. */
         active: 'bg-warning text-felt-inverse-foreground',
       },

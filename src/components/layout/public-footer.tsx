@@ -3,6 +3,7 @@ import { Logo } from '@components/layout/logo';
 import { ThemeSwitcher } from '@components/theme/theme-switcher';
 import { APP_NAME, CONTACT_EMAIL } from '@constants/index';
 import { LandingSection } from '@constants/landing';
+import { LegalDocument } from '@constants/legal';
 import ROUTES from '@constants/routes';
 import { cn } from '@lib/utils';
 import { MailIcon } from 'lucide-react';
@@ -11,6 +12,7 @@ import Link from 'next/link';
 
 const LINKS = [
   { key: 'howItWorks', href: ROUTES.landing(LandingSection.HowItWorks) },
+  { key: 'pricing', href: ROUTES.pricing() },
   { key: 'signIn', href: ROUTES.auth.signIn() },
 ] as const;
 
@@ -24,6 +26,7 @@ export const PublicFooter: React.FC<PublicFooterProps> = ({
   ...props
 }) => {
   const t = useTranslations('Footer');
+  const tLegal = useTranslations('Legal.documents');
 
   return (
     <footer className={cn('border-t pt-9 pb-11', className)} {...props}>
@@ -51,9 +54,25 @@ export const PublicFooter: React.FC<PublicFooterProps> = ({
           </nav>
         </div>
         <div className="flex flex-col-reverse gap-4 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-muted-foreground text-xs">
-            © {new Date().getFullYear()} {APP_NAME}
-          </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5">
+            <p className="text-muted-foreground text-xs">
+              © {new Date().getFullYear()} {APP_NAME}
+            </p>
+            <nav
+              aria-label={t('legal')}
+              className="flex flex-wrap items-center gap-x-5 gap-y-2"
+            >
+              {Object.values(LegalDocument).map((document) => (
+                <Link
+                  key={document}
+                  href={ROUTES.legal(document)}
+                  className="text-muted-foreground hover:text-foreground text-xs underline-offset-4 transition-colors hover:underline"
+                >
+                  {tLegal(`${document}.title`)}
+                </Link>
+              ))}
+            </nav>
+          </div>
           <div className="flex items-center gap-2">
             <LangSwitcher size="sm" className="w-full sm:w-44" />
             <ThemeSwitcher compact size="sm" />

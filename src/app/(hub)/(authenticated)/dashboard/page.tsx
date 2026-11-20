@@ -2,7 +2,7 @@ import { GameCTA } from '@components/dashboard/game-cta';
 import { PageGreeting } from '@components/dashboard/page-greeting';
 import { Container } from '@components/layout/container';
 import { Main } from '@components/layout/main';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
 export const generateMetadata = async (): Promise<Metadata> => {

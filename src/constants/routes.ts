@@ -1,5 +1,8 @@
 import { LandingSection } from '@constants/landing';
+import type { LegalDocument } from '@constants/legal';
 import { REDIRECT_URL_PARAM } from '@lib/redirect-url';
+import { offerSlug } from '@services/offers/offers.utils';
+import { Offer } from '@tokenizer/shared/types';
 import { buildGameJoinPath } from '@tokenizer/shared/utils/games.utils';
 
 const withRedirectUrl = (path: string, redirectUrl?: string) =>
@@ -28,6 +31,13 @@ SETTINGS_ROUTES.preferences = () => '/settings/preferences';
 SETTINGS_ROUTES.security = () => '/settings/security';
 SETTINGS_ROUTES.subscription = () => '/settings/subscription';
 
+/**
+ * Out to Stripe Checkout to buy `offer`, to the subscription settings
+ * otherwise.
+ */
+const SUBSCRIPTION_ROUTE = (offer?: Offer) =>
+  offer ? `/subscription/${offerSlug(offer)}` : '/subscription';
+
 const ADMIN_ROUTES = () => '/admin';
 
 const GAME_ROUTES = (uuid: string) => `/game/${uuid}`;
@@ -43,7 +53,10 @@ GAME_ROUTES.join = JOIN_ROUTES;
 
 const LANDING_ROUTE = (section?: LandingSection) =>
   section ? `/#${section}` : '/';
+const PRICING_ROUTE = () => '/pricing';
 const DASHBOARD_ROUTE = () => '/dashboard';
+
+const LEGAL_ROUTE = (document: LegalDocument) => `/${document}`;
 
 const HOME_ROUTE = (isAuthenticated: boolean) =>
   isAuthenticated ? DASHBOARD_ROUTE() : LANDING_ROUTE();
@@ -53,6 +66,10 @@ const ROUTES = {
 
   landing: LANDING_ROUTE,
 
+  pricing: PRICING_ROUTE,
+
+  legal: LEGAL_ROUTE,
+
   dashboard: DASHBOARD_ROUTE,
 
   auth: AUTH_ROUTES,
@@ -60,6 +77,8 @@ const ROUTES = {
   profile: PROFILE_ROUTES,
 
   settings: SETTINGS_ROUTES,
+
+  subscription: SUBSCRIPTION_ROUTE,
 
   admin: ADMIN_ROUTES,
 

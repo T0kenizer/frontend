@@ -23,7 +23,7 @@ interface TurnOrderProps {
   currentLabel: string;
 }
 
-/** The shared turn handoff for poker and free-play tables. */
+/** The shared turn handoff for poker and sandbox tables. */
 export const TurnOrder: React.FC<TurnOrderProps> = ({
   current,
   next,

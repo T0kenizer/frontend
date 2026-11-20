@@ -4,11 +4,12 @@ import { FeltNotice } from '@components/game/felt/felt-stage';
 import { HubShell, HubStack } from '@components/game/table/hub/hub-shell';
 import type { TableActions } from '@components/game/table/table-actions';
 import type { PokerTableView } from '@components/game/table/use-table-view';
-import { Button } from '@components/ui/button';
+import { Button, type ButtonProps } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import { formatAmount, toAmount } from '@lib/amount';
 import { cn } from '@lib/utils';
 import { PokerAction, type LegalAction } from '@tokenizer/shared/types';
+import { Coins } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
 
@@ -19,13 +20,42 @@ const isSized = (action: LegalAction) =>
 
 const isFree = (action: LegalAction) => action.min === undefined;
 
+const isRaise = (action: LegalAction) => action.action === PokerAction.Raise;
+
+const verbOf = (action: LegalAction) =>
+  isRaise(action) ? `${action.label} to` : action.label;
+
+const variantOf = (action: LegalAction): ButtonProps['variant'] => {
+  if (action.action === PokerAction.Check) return 'gold';
+  return 'line';
+};
+
+const shownAmount = (action: LegalAction, total: number, committed: number) =>
+  isRaise(action) ? total : Math.max(0, total - committed);
+
 export interface HubTurnProps {
   view: PokerTableView;
   actions: TableActions;
 }
 
+/** The pot, on its own line: the one number every seat is playing for. */
+const PotLine: React.FC<{ amount: number }> = ({ amount }) => (
+  <dl className="bg-on-media-scrim flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left">
+    <Coins
+      aria-hidden
+      className="text-on-media-muted-foreground size-4 shrink-0"
+    />
+    <dt className="text-on-media-muted-foreground text-[0.6rem] font-bold tracking-[0.09em] uppercase">
+      Pot
+    </dt>
+    <dd className="ml-auto text-lg font-extrabold tabular-nums">
+      {formatAmount(amount)}
+    </dd>
+  </dl>
+);
+
 export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
-  const { legalActions, proxySeat, mySeat, pot, toCall } = view;
+  const { legalActions, proxySeat, mySeat, pot, currentBet, committed } = view;
 
   const actingSeat = proxySeat ?? mySeat;
 
@@ -44,9 +74,15 @@ export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
 
   return (
     <HubShell
+      lead={<PotLine amount={pot} />}
+      // Totals for the street, side by side: what this seat has in, what it
+      // must reach to stay. What it costs to get there is on the Call button.
       facts={[
-        { label: 'Pot', value: formatAmount(pot) },
-        { label: 'To call', value: toCall ? formatAmount(toCall) : '—' },
+        {
+          label: proxySeat ? 'Seat bet' : 'Your bet',
+          value: formatAmount(committed),
+        },
+        { label: 'Current bet', value: formatAmount(currentBet) },
         {
           label: proxySeat ? 'Seat stack' : 'Your stack',
           value: formatAmount(actingSeat?.balance ?? 0),
@@ -63,7 +99,7 @@ export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
         {legalActions.map((action, index) => (
           <Button
             key={action.action}
-            variant={action.action === PokerAction.Check ? 'gold' : 'line'}
+            variant={variantOf(action)}
             size="lg"
             loading={actions.pending === action.action}
             aria-pressed={picked?.action === action.action}
@@ -87,7 +123,7 @@ export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
           >
             {isFree(action)
               ? action.label
-              : `${action.label} ${formatAmount(isSized(action) ? action.min! : action.min!)}`}
+              : `${verbOf(action)} ${formatAmount(shownAmount(action, action.min!, committed))}`}
           </Button>
         ))}
       </HubStack>
@@ -97,6 +133,7 @@ export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
           <AmountStep
             key={picked.action}
             action={picked}
+            committed={committed}
             pending={actions.pending === picked.action}
             onConfirm={(amount) => {
               actions.submitAction(picked.action, amount, target);
@@ -118,10 +155,11 @@ export const HubTurn: React.FC<HubTurnProps> = ({ view, actions }) => {
 
 const AmountStep: React.FC<{
   action: LegalAction;
+  committed: number;
   pending: boolean;
   onConfirm: (amount: number) => void;
   onCancel: () => void;
-}> = ({ action, pending, onConfirm, onCancel }) => {
+}> = ({ action, committed, pending, onConfirm, onCancel }) => {
   const reduceMotion = useReducedMotion();
   const min = action.min!;
   const max = action.max!;
@@ -152,7 +190,7 @@ const AmountStep: React.FC<{
           htmlFor="turn-amount"
           className="text-on-media-muted-foreground text-[0.625rem] font-bold tracking-[0.09em] uppercase"
         >
-          {action.label} to — {formatAmount(min)} to {formatAmount(max)}
+          {verbOf(action)} — {formatAmount(min)} to {formatAmount(max)}
         </label>
 
         <Input
@@ -169,6 +207,12 @@ const AmountStep: React.FC<{
           }
           className="text-center text-base font-extrabold tabular-nums"
         />
+
+        {isValid && committed > 0 && (
+          <p className="text-on-media-muted-foreground text-center text-xs tabular-nums">
+            {formatAmount(amount - committed)} from your stack
+          </p>
+        )}
 
         <div className="flex gap-1.5">
           {presets.map((preset) => (
@@ -204,7 +248,9 @@ const AmountStep: React.FC<{
             disabled={!isValid}
             onClick={() => onConfirm(amount)}
           >
-            {isValid ? `${action.label} ${formatAmount(amount)}` : action.label}
+            {isValid
+              ? `${verbOf(action)} ${formatAmount(shownAmount(action, amount, committed))}`
+              : action.label}
           </Button>
         </div>
       </div>

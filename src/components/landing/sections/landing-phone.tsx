@@ -7,7 +7,7 @@ import { LandingSectionHeading } from '@components/landing/landing-section-headi
 import { PhoneFrame } from '@components/ui/device-frame';
 import { LandingSection } from '@constants/landing';
 import { cn } from '@lib/utils';
-import { ChartNoAxesColumn, Plus, Vibrate } from 'lucide-react';
+import { Calculator, Camera, RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
@@ -15,9 +15,9 @@ const HAND_PHOTO = 'https://www.placecats.com/1200/1500';
 const PHONE_SHOT = 'https://www.placecats.com/390/844';
 
 const POINTS = [
-  { key: 'actions', icon: Plus },
-  { key: 'turn', icon: Vibrate },
-  { key: 'tally', icon: ChartNoAxesColumn },
+  { key: 'actions', icon: Calculator },
+  { key: 'seat', icon: RotateCcw },
+  { key: 'avatar', icon: Camera },
 ] as const;
 
 export type LandingPhoneProps = React.ComponentProps<'section'>;

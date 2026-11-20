@@ -1,5 +1,5 @@
 import requester from '@lib/requester';
-import {
+import type {
   ApplyConfirmationResponse,
   RequestConfirmationData,
   RequestConfirmationResponse,

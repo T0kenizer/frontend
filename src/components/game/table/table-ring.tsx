@@ -7,7 +7,7 @@ import type { ChipFlight } from '@components/game/table/use-chip-flights';
 import type { SeatView } from '@components/game/table/use-table-view';
 import { ScrollFade } from '@components/ui/scroll-fade';
 import { cn } from '@lib/utils';
-import type { ChipModel } from '@tokenizer/shared/types';
+import { ChipModel } from '@tokenizer/shared/types';
 import { motion } from 'motion/react';
 
 /**
@@ -96,7 +96,12 @@ export const TableRing: React.FC<TableRingProps> = ({
                 animate={{ left: point.x, top: point.y }}
                 transition={{ type: 'spring', stiffness: 220, damping: 30 }}
               >
-                <SeatPuck view={view} index={index} chipModel={chipModel} />
+                <SeatPuck
+                  view={view}
+                  index={index}
+                  chipModel={chipModel}
+                  size={geometry.seatSize}
+                />
               </motion.div>
             );
           })}

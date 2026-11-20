@@ -21,33 +21,45 @@ import { createSessionOptions } from '@services/sessions/sessions.options';
 import { createUserOptions } from '@services/users/users.options';
 import { useMutation } from '@tanstack/react-query';
 import { createUserDataSchema } from '@tokenizer/shared/schemas';
+import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
-const schema = createUserDataSchema
-  .extend({
-    confirmPassword: createUserDataSchema.shape.password,
-    acceptTerms: z.boolean(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  })
-  .refine((data) => data.acceptTerms, {
-    message: 'You must accept the terms to create an account',
-    path: ['acceptTerms'],
-  });
+const createSchema = (messages: { mismatch: string; termsRequired: string }) =>
+  createUserDataSchema
+    .extend({
+      confirmPassword: createUserDataSchema.shape.password,
+      acceptTerms: z.boolean(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: messages.mismatch,
+      path: ['confirmPassword'],
+    })
+    .refine((data) => data.acceptTerms, {
+      message: messages.termsRequired,
+      path: ['acceptTerms'],
+    });
 
-type FormData = z.infer<typeof schema>;
+type FormData = z.infer<ReturnType<typeof createSchema>>;
 
 export type SignUpFormProps = Omit<React.ComponentProps<'form'>, 'onSubmit'>;
 
 export const SignUpForm: React.FC<SignUpFormProps> = ({ ...props }) => {
+  const t = useTranslations('Auth.signUp');
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = sanitizeRedirectUrl(searchParams.get(REDIRECT_URL_PARAM));
-  const form = useForm({
+  const schema = useMemo(
+    () =>
+      createSchema({
+        mismatch: t('mismatch'),
+        termsRequired: t('termsRequired'),
+      }),
+    [t],
+  );
+  const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       username: '',
@@ -103,7 +115,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ ...props }) => {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="signup-username">Username</FieldLabel>
+              <FieldLabel htmlFor="signup-username">{t('username')}</FieldLabel>
               <UsernameInput
                 {...field}
                 id="signup-username"
@@ -118,7 +130,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ ...props }) => {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="signup-email">Email</FieldLabel>
+              <FieldLabel htmlFor="signup-email">{t('email')}</FieldLabel>
               <EmailInput
                 {...field}
                 id="signup-email"
@@ -133,7 +145,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ ...props }) => {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="signup-password">Password</FieldLabel>
+              <FieldLabel htmlFor="signup-password">{t('password')}</FieldLabel>
               <PasswordInput
                 {...field}
                 id="signup-password"
@@ -151,7 +163,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ ...props }) => {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor="signup-confirm-password">
-                Confirm password
+                {t('confirmPassword')}
               </FieldLabel>
               <PasswordInput
                 {...field}
@@ -182,7 +194,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ ...props }) => {
                   htmlFor="signup-terms"
                   className="text-muted-foreground text-xs leading-relaxed font-normal"
                 >
-                  I accept the terms of service and the privacy policy.
+                  {t('acceptTerms')}
                 </FieldLabel>
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -198,7 +210,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ ...props }) => {
           disabled={isPending || isIncomplete}
           className="mt-1 h-11 w-full text-[0.9375rem]"
         >
-          Create my account
+          {t('submit')}
         </Button>
       </FieldGroup>
     </form>

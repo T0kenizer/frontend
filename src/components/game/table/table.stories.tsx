@@ -22,10 +22,10 @@ import {
   PokerAction,
   RoundStatus,
   Street,
-  type FreeGameSnapshot,
   type GameSnapshot,
   type ParticipantSnapshot,
   type PokerGameSnapshot,
+  type SandboxGameSnapshot,
 } from '@tokenizer/shared/types';
 import { useState } from 'react';
 
@@ -244,7 +244,7 @@ export const YourTurn: Story = {
   },
 };
 
-const freeSnapshot: FreeGameSnapshot = {
+const sandboxSnapshot: SandboxGameSnapshot = {
   id: baseSnapshot.id,
   name: baseSnapshot.name,
   mode: GameMode.Free,
@@ -296,12 +296,12 @@ const freeSnapshot: FreeGameSnapshot = {
   },
 };
 
-export const FreeRound: Story = {
-  args: { snapshot: freeSnapshot, participantId: 'seat-3' },
+export const SandboxRound: Story = {
+  args: { snapshot: sandboxSnapshot, participantId: 'seat-3' },
 };
 
-export const FreeRoundWatching: Story = {
-  args: { snapshot: freeSnapshot, participantId: 'seat-0' },
+export const SandboxRoundWatching: Story = {
+  args: { snapshot: sandboxSnapshot, participantId: 'seat-0' },
 };
 
 /** Click a move repeatedly to inspect the next-to-current handoff. */
@@ -311,13 +311,13 @@ const TurnHandoffDemo = () => {
     ...entry,
     claimed: index === 0,
   }));
-  const snapshot: FreeGameSnapshot = {
-    ...freeSnapshot,
+  const snapshot: SandboxGameSnapshot = {
+    ...sandboxSnapshot,
     participants,
     currentRound: {
-      ...freeSnapshot.currentRound!,
+      ...sandboxSnapshot.currentRound!,
       turn: {
-        ...freeSnapshot.currentRound!.turn,
+        ...sandboxSnapshot.currentRound!.turn,
         activeParticipant: participants[turn % participants.length].id,
         nextParticipant: participants[(turn + 1) % participants.length].id,
       },
@@ -337,14 +337,14 @@ const TurnHandoffDemo = () => {
 };
 
 export const TurnHandoff: Story = {
-  args: { snapshot: freeSnapshot, participantId: 'seat-0' },
+  args: { snapshot: sandboxSnapshot, participantId: 'seat-0' },
   render: () => <TurnHandoffDemo />,
 };
 
 export const LongPlayerNames: Story = {
   args: {
     snapshot: {
-      ...freeSnapshot,
+      ...sandboxSnapshot,
       participants: SEATS.map((entry, index) => ({
         ...entry,
         displayName:

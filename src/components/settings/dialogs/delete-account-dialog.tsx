@@ -8,12 +8,13 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogProps,
+  type AlertDialogProps,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@components/ui/alert-dialog';
 import { requestDeletionOptions } from '@services/account-deletions/account-deletions.options';
 import { useMutation } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -23,6 +24,7 @@ export const DeleteAccountDialog: React.FC<DeleteAccountDialogProps> = ({
   children,
   ...props
 }) => {
+  const t = useTranslations('Settings.security.deleteAccount');
   const [open, setOpen] = useState(false);
   const { mutate: requestDeletion, isPending } = useMutation(
     requestDeletionOptions(),
@@ -36,9 +38,7 @@ export const DeleteAccountDialog: React.FC<DeleteAccountDialogProps> = ({
     requestDeletion(undefined, {
       onSuccess: () => {
         setOpen(false);
-        toast.success(
-          'Confirmation email sent — open the link it contains to finish deleting your account',
-        );
+        toast.success(t('sent'));
       },
       onError: (error) => toast.error(error.data.message),
     });
@@ -49,21 +49,21 @@ export const DeleteAccountDialog: React.FC<DeleteAccountDialogProps> = ({
       {children && <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>}
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete account</AlertDialogTitle>
+          <AlertDialogTitle>{t('title')}</AlertDialogTitle>
           <AlertDialogDescription>
-            This action is irreversible: your account and all associated data
-            will be permanently deleted. To confirm, we will send a link to your
-            email address. Nothing is deleted until you open it.
+            {t('dialogDescription')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>
+            {t('cancel')}
+          </AlertDialogCancel>
           <AlertDialogAction
             variant="danger"
             disabled={isPending}
             onClick={handleConfirm}
           >
-            Send confirmation email
+            {t('confirm')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

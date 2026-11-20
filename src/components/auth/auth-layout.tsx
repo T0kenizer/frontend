@@ -1,5 +1,5 @@
 import { Logo } from '@components/layout/logo';
-import { Main, MainProps } from '@components/layout/main';
+import { Main, type MainProps } from '@components/layout/main';
 import { Button } from '@components/ui/button';
 import { Skeleton } from '@components/ui/skeleton';
 import ROUTES from '@constants/routes';
@@ -100,10 +100,6 @@ export const AuthHeader: React.FC<AuthHeaderProps> = ({
 
 export type AuthBackLinkProps = React.ComponentProps<typeof Link>;
 
-/**
- * The way out of a screen that is a detour rather than a mode. Recovery uses
- * it; sign-in and sign-up have the tabs instead.
- */
 export const AuthBackLink: React.FC<AuthBackLinkProps> = ({
   className,
   children,
@@ -123,17 +119,11 @@ export const AuthBackLink: React.FC<AuthBackLinkProps> = ({
 );
 
 export type AuthStepsProps = Omit<React.ComponentProps<'div'>, 'children'> & {
-  /** 1-based position of the step on show. */
   current: number;
   total: number;
   label: string;
 };
 
-/**
- * The rail that tells a multi-screen flow how far along it is. Recovery spans
- * three screens with a trip to an inbox in the middle, so without it the mail
- * screen reads as the end rather than the middle.
- */
 export const AuthSteps: React.FC<AuthStepsProps> = ({
   current,
   total,
@@ -167,7 +157,6 @@ export type AuthSealProps = React.ComponentProps<'div'> & {
   tone?: 'primary' | 'success' | 'danger';
 };
 
-/** The tinted disc that gives a screen with no form something to lead with. */
 export const AuthSeal: React.FC<AuthSealProps> = ({
   tone = 'primary',
   className,
@@ -191,10 +180,6 @@ export const AuthSeal: React.FC<AuthSealProps> = ({
 
 export type AuthMailboxProps = React.ComponentProps<'div'>;
 
-/**
- * The address a screen is talking about, quoted back so a typo is caught here
- * rather than after a wait on mail that was never going to arrive.
- */
 export const AuthMailbox: React.FC<AuthMailboxProps> = ({
   className,
   ...props
@@ -210,14 +195,9 @@ export const AuthMailbox: React.FC<AuthMailboxProps> = ({
 );
 
 export type AuthLoadingProps = Omit<React.ComponentProps<'div'>, 'children'> & {
-  /** Read out to assistive tech while the placeholder is on screen. */
   label: string;
 };
 
-/**
- * Stands in for a seal-led screen while its link is being checked, shaped like
- * what replaces it so the panel does not jump when the answer lands.
- */
 export const AuthLoading: React.FC<AuthLoadingProps> = ({
   label,
   className,
@@ -248,11 +228,6 @@ export type AuthLoadErrorProps = {
   isRetrying?: boolean;
 };
 
-/**
- * The link could not be checked at all — the server or the network failed,
- * which says nothing about the link itself, so the way out is to try again
- * rather than to ask for a new one.
- */
 export const AuthLoadError: React.FC<AuthLoadErrorProps> = ({
   onRetry,
   isRetrying,

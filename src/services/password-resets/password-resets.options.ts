@@ -1,12 +1,8 @@
 import { getQueryClient } from '@lib/query-client';
-import { RequesterError } from '@lib/requester';
+import type { RequesterError } from '@lib/requester';
 import * as API from '@services/password-resets/password-resets.api';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
-import {
-  ApplyResetData,
-  RequestResetData,
-  ValidateTokenResponse,
-} from '@tokenizer/shared/types';
+import type { ApplyResetData, RequestResetData } from '@tokenizer/shared/types';
 
 export const PASSWORD_RESETS_QUERY_KEYS = {
   validate: (token: string) => ['password-resets', 'validate', token] as const,
@@ -20,9 +16,13 @@ export const PASSWORD_RESETS_MUTATION_KEYS = {
 } as const satisfies Record<string, (...args: any[]) => readonly any[]>;
 
 export const validateResetTokenOptions = (token: string) =>
-  queryOptions<ValidateTokenResponse, RequesterError>({
+  queryOptions<null, RequesterError>({
     queryKey: PASSWORD_RESETS_QUERY_KEYS.validate(token),
-    queryFn: () => API.validateToken(token),
+    // The backend answers with no body, and a query cannot resolve to nothing.
+    queryFn: async () => {
+      await API.validateToken(token);
+      return null;
+    },
     enabled: !!token,
     retry: false,
     staleTime: 0,

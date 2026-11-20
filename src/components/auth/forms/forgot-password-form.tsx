@@ -13,7 +13,7 @@ import { applyServerError } from '@lib/form-errors';
 import { requestResetOptions } from '@services/password-resets/password-resets.options';
 import { useMutation } from '@tanstack/react-query';
 import { requestResetDataSchema } from '@tokenizer/shared/schemas';
-import { RequestResetData } from '@tokenizer/shared/types';
+import type { RequestResetData } from '@tokenizer/shared/types';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
@@ -21,7 +21,6 @@ export type ForgotPasswordFormProps = Omit<
   React.ComponentProps<'form'>,
   'onSubmit'
 > & {
-  /** Prefilled when coming back from the mail screen to fix a typo. */
   defaultEmail?: string;
   onSent: (email: string) => void;
 };
@@ -46,8 +45,6 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   const handleSubmit = (data: RequestResetData) => {
     if (isPending) return;
 
-    /* The caller never learns whether the address was on file — the API does
-       not say, and saying would enumerate accounts. */
     requestReset(data, {
       onSuccess: () => onSent(data.email),
       onError: (error) => applyServerError(form, error),

@@ -13,29 +13,33 @@ export const generateMetadata = async (): Promise<Metadata> => {
   return { title: t('metaTitle') };
 };
 
-const Page: React.FC = () => (
-  <SettingsTabContainer>
-    <SettingsSection title="Password">
-      <ChangePasswordForm />
-    </SettingsSection>
-    <SettingsSection
-      title="Active sessions"
-      description="The devices currently signed in to your account."
-    >
-      <SessionsList />
-    </SettingsSection>
-    <SettingsSection
-      variant="danger"
-      title="Delete account"
-      description="Permanently delete your account and all associated data."
-    >
-      <div className="pt-4">
-        <DeleteAccountDialog>
-          <Button variant="destructive">Delete account</Button>
-        </DeleteAccountDialog>
-      </div>
-    </SettingsSection>
-  </SettingsTabContainer>
-);
+const Page: React.FC = async () => {
+  const t = await getTranslations('Settings.security');
+
+  return (
+    <SettingsTabContainer>
+      <SettingsSection title={t('password.title')}>
+        <ChangePasswordForm />
+      </SettingsSection>
+      <SettingsSection
+        title={t('sessions.title')}
+        description={t('sessions.description')}
+      >
+        <SessionsList />
+      </SettingsSection>
+      <SettingsSection
+        variant="danger"
+        title={t('deleteAccount.title')}
+        description={t('deleteAccount.description')}
+      >
+        <div className="pt-4">
+          <DeleteAccountDialog>
+            <Button variant="destructive">{t('deleteAccount.action')}</Button>
+          </DeleteAccountDialog>
+        </div>
+      </SettingsSection>
+    </SettingsTabContainer>
+  );
+};
 
 export default Page;

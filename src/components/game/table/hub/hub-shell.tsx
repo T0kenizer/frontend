@@ -38,6 +38,8 @@ export interface HubShellProps {
   eyebrow?: React.ReactNode;
   title?: React.ReactNode;
   description?: React.ReactNode;
+  /** The one figure the panel leads with, set apart above the facts. */
+  lead?: React.ReactNode;
   facts?: HubFact[];
   children?: React.ReactNode;
   /** The quiet line under the buttons. */
@@ -49,12 +51,19 @@ export const HubShell: React.FC<HubShellProps> = ({
   eyebrow,
   title,
   description,
+  lead,
   facts,
   children,
   footnote,
   className,
 }) => (
   <section className={cn('text-center', className)}>
+    {lead && (
+      <div className={cn((title || description || eyebrow) && 'mt-4')}>
+        {lead}
+      </div>
+    )}
+
     {eyebrow && <FeltEyebrow size="xs">{eyebrow}</FeltEyebrow>}
 
     {title && (
@@ -72,8 +81,10 @@ export const HubShell: React.FC<HubShellProps> = ({
     {!!facts?.length && (
       <FeltStatGroup
         className={cn(
-          'border-on-media-hairline mb-4 border-y py-3 text-center',
-          (title || description || eyebrow) && 'mt-4',
+          'border-on-media-hairline mb-4 py-3 text-center',
+          // Under a lead, its own box already draws the line above.
+          lead ? 'border-b' : 'border-y',
+          !lead && (title || description || eyebrow) && 'mt-4',
         )}
       >
         {facts.map((fact, index) => (

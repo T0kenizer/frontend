@@ -9,7 +9,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
  * both games.
  *
  * They are here rather than inside one of the panels because a poker hand and a
- * free round differ in everything the panel _says_ — the eyebrow, the empty
+ * sandbox round differ in everything the panel _says_ — the eyebrow, the empty
  * line, whether there is a street at all — and in nothing about how it reads. A
  * second copy of the feed would have drifted from the first the day one of them
  * grew a timestamp.

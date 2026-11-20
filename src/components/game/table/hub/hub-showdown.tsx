@@ -44,9 +44,18 @@ export const HubShowdown: React.FC<HubShowdownProps> = ({ view, actions }) => {
       };
     });
 
-  const awards: PotAward[] = pots.map((entry) => ({
+  const contests = pots.map((entry) => ({
+    entry,
+    eligible: contenders.filter((seat) =>
+      entry.eligibleParticipants.includes(seat.id),
+    ),
+  }));
+
+  // A pot only one seat is still in for is no question at all: it is theirs.
+  const awards: PotAward[] = contests.map(({ entry, eligible }) => ({
     potId: entry.id,
-    winnerParticipantIds: picked[entry.id] ?? [],
+    winnerParticipantIds:
+      eligible.length === 1 ? [eligible[0].id] : (picked[entry.id] ?? []),
   }));
   const isComplete = awards.every(
     (award) => award.winnerParticipantIds.length > 0,
@@ -55,7 +64,6 @@ export const HubShowdown: React.FC<HubShowdownProps> = ({ view, actions }) => {
   if (!isHost) {
     return (
       <HubShell
-        eyebrow="Showdown"
         title="Cards on the table"
         description="The host is settling the pot on what everyone showed."
         facts={[
@@ -70,7 +78,6 @@ export const HubShowdown: React.FC<HubShowdownProps> = ({ view, actions }) => {
 
   return (
     <HubShell
-      eyebrow="Showdown"
       title="Who takes it?"
       description="Tap the best hand. Tap two for a split."
       facts={[
@@ -86,11 +93,9 @@ export const HubShowdown: React.FC<HubShowdownProps> = ({ view, actions }) => {
       )}
 
       <div className="max-h-58 space-y-3 overflow-y-auto text-left">
-        {pots.map((entry, index) => {
-          const eligible = contenders.filter((seat) =>
-            entry.eligibleParticipants.includes(seat.id),
-          );
+        {contests.map(({ entry, eligible }, index) => {
           const chosen = picked[entry.id] ?? [];
+          const [sole] = eligible.length === 1 ? eligible : [];
 
           return (
             <section key={entry.id}>
@@ -103,34 +108,45 @@ export const HubShowdown: React.FC<HubShowdownProps> = ({ view, actions }) => {
                 </span>
               </header>
 
-              <ul className="mt-1.5 grid gap-1.5">
-                {eligible.map((seat) => {
-                  const isChosen = chosen.includes(seat.id);
+              {sole ? (
+                <p className="border-on-media-hairline text-on-media-muted-foreground mt-1.5 flex items-center gap-2.5 rounded-lg border border-dashed px-3 py-2 text-xs">
+                  <span className="min-w-0 flex-1 truncate">
+                    <span className="text-on-media-foreground font-semibold">
+                      {sole.displayName}
+                    </span>{' '}
+                    takes it — nobody else is in for it
+                  </span>
+                </p>
+              ) : (
+                <ul className="mt-1.5 grid gap-1.5">
+                  {eligible.map((seat) => {
+                    const isChosen = chosen.includes(seat.id);
 
-                  return (
-                    <li key={seat.id}>
-                      <button
-                        type="button"
-                        aria-pressed={isChosen}
-                        onClick={() => toggle(entry.id, seat.id)}
-                        className={cn(
-                          'border-on-media-hairline bg-on-media-scrim flex w-full items-center gap-2.5 rounded-lg border px-3 py-2 text-left text-xs transition-colors',
-                          isChosen
-                            ? 'border-warning bg-warning-soft'
-                            : 'hover:bg-on-media-film',
-                        )}
-                      >
-                        <span className="min-w-0 flex-1 truncate font-semibold">
-                          {seat.displayName}
-                        </span>
-                        <span className="text-on-media-muted-foreground shrink-0 tabular-nums">
-                          {formatAmount(seat.balance)}
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
+                    return (
+                      <li key={seat.id}>
+                        <button
+                          type="button"
+                          aria-pressed={isChosen}
+                          onClick={() => toggle(entry.id, seat.id)}
+                          className={cn(
+                            'border-on-media-hairline bg-on-media-scrim flex w-full items-center gap-2.5 rounded-lg border px-3 py-2 text-left text-xs transition-colors',
+                            isChosen
+                              ? 'border-warning bg-warning-soft'
+                              : 'hover:bg-on-media-film',
+                          )}
+                        >
+                          <span className="min-w-0 flex-1 truncate font-semibold">
+                            {seat.displayName}
+                          </span>
+                          <span className="text-on-media-muted-foreground shrink-0 tabular-nums">
+                            {formatAmount(seat.balance)}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </section>
           );
         })}

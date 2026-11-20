@@ -1,10 +1,10 @@
 import { getQueryClient } from '@lib/query-client';
-import { RequesterError } from '@lib/requester';
+import type { RequesterError } from '@lib/requester';
 import * as API from '@services/games/games.api';
 import { writePlayerToken } from '@services/games/games.tokens';
 import { mutationOptions, queryOptions } from '@tanstack/react-query';
 import { JOIN_CODE_REGEX } from '@tokenizer/shared/constants/games.constants';
-import {
+import type {
   ClaimSeatData,
   ClaimSeatResponse,
   CreateGameSessionData,

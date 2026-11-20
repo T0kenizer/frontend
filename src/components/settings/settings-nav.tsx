@@ -5,6 +5,7 @@ import { Button } from '@components/ui/button';
 import { ScrollFade } from '@components/ui/scroll-fade';
 import { Separator } from '@components/ui/separator';
 import ROUTES from '@constants/routes';
+import { NEXT_PUBLIC_STRIPE_ENABLED } from '@lib/env';
 import { cn } from '@lib/utils';
 import { useSignOut } from '@services/sessions/sessions.hooks';
 import { retrieveSessionOptions } from '@services/sessions/sessions.options';
@@ -19,6 +20,7 @@ import {
   Shield,
   User,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -49,7 +51,6 @@ export type SettingsNavItemId =
 
 export interface SettingsNavItem {
   id: SettingsNavItemId;
-  label: string;
   renderIcon: () => React.ReactNode;
   href: string;
   isLocked?: boolean;
@@ -59,29 +60,24 @@ export interface SettingsNavItem {
 const items: SettingsNavItem[] = [
   {
     id: 'profile',
-    label: 'Profile',
     renderIcon: () => <User />,
     href: ROUTES.settings.profile(),
   },
   {
     id: 'preferences',
-    label: 'Preferences',
     renderIcon: () => <Settings2 />,
     href: ROUTES.settings.preferences(),
   },
   {
     id: 'security',
-    label: 'Security',
     renderIcon: () => <Shield />,
     href: ROUTES.settings.security(),
   },
   {
     id: 'subscription',
-    label: 'Subscription',
     renderIcon: () => <CreditCard />,
     href: ROUTES.settings.subscription(),
-    isLocked: true,
-    isExternal: true,
+    isLocked: !NEXT_PUBLIC_STRIPE_ENABLED,
   },
 ];
 
@@ -91,6 +87,7 @@ export const SettingsNav: React.FC<SettingsNavProps> = ({
   className,
   ...props
 }) => {
+  const t = useTranslations('Settings.nav');
   const pathname = usePathname();
   const { signOut: handleSignOut, isPending: isSigningOut } = useSignOut();
   const { data: session } = useQuery(retrieveSessionOptions());
@@ -108,7 +105,7 @@ export const SettingsNav: React.FC<SettingsNavProps> = ({
     <ScrollFade asChild>
       <nav
         data-slot="settings-nav"
-        aria-label="Settings sections"
+        aria-label={t('ariaLabel')}
         className={cn(settingsNavVariants(), className)}
         {...props}
       >
@@ -123,7 +120,7 @@ export const SettingsNav: React.FC<SettingsNavProps> = ({
                 className={settingsNavItemVariants()}
               >
                 {item.renderIcon()}
-                {item.label}
+                {t(item.id)}
                 {item.isExternal && <ExternalLink className="size-3.5!" />}
                 <Lock className="ml-auto size-3.5!" />
               </span>
@@ -135,13 +132,11 @@ export const SettingsNav: React.FC<SettingsNavProps> = ({
               <a
                 key={item.id}
                 href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
                 data-slot="settings-nav-item"
                 className={settingsNavItemVariants()}
               >
                 {item.renderIcon()}
-                {item.label}
+                {t(item.id)}
                 <ExternalLink className="size-3.5!" />
               </a>
             );
@@ -160,13 +155,13 @@ export const SettingsNav: React.FC<SettingsNavProps> = ({
               className={settingsNavItemVariants()}
             >
               {item.renderIcon()}
-              {item.label}
+              {t(item.id)}
               {attentionCount > 0 && (
                 <Badge
                   variant="notification"
                   size="sm"
                   className="ml-auto"
-                  aria-label={`${attentionCount} item${attentionCount > 1 ? 's' : ''} needing attention`}
+                  aria-label={t('attention', { count: attentionCount })}
                 >
                   {attentionCount}
                 </Badge>
@@ -182,7 +177,7 @@ export const SettingsNav: React.FC<SettingsNavProps> = ({
           className={settingsNavItemVariants()}
         >
           <LogOut />
-          Sign out
+          {t('signOut')}
         </Button>
       </nav>
     </ScrollFade>

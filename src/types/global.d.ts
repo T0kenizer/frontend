@@ -1,4 +1,4 @@
-import { QueryOptions } from '@tanstack/react-query';
+import type { QueryOptions } from '@tanstack/react-query';
 
 declare global {
   type Nullable<T> = T | null;

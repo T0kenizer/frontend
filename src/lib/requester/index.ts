@@ -1,5 +1,5 @@
-import * as Types from '@/types/requester';
-import { AxiosRequestConfig } from 'axios';
+import type * as Types from '@/types/requester';
+import type { AxiosRequestConfig } from 'axios';
 import client from './client';
 import RequesterError from './error';
 

@@ -4,6 +4,7 @@ import { Button } from '@components/ui/button';
 import ROUTES from '@constants/routes';
 import { REDIRECT_URL_PARAM, sanitizeRedirectUrl } from '@lib/redirect-url';
 import { cn } from '@lib/utils';
+import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 
 const GoogleMark: React.FC = () => (
@@ -36,9 +37,10 @@ export type GoogleAuthButtonProps = Omit<
 
 export const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
   className,
-  children = 'Continue with Google',
+  children,
   ...props
 }) => {
+  const t = useTranslations('Auth.signIn');
   const searchParams = useSearchParams();
   const redirectUrl =
     sanitizeRedirectUrl(searchParams.get(REDIRECT_URL_PARAM)) ?? undefined;
@@ -50,11 +52,9 @@ export const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
       asChild
       {...props}
     >
-      {/* A plain anchor: the target is a route handler that sets a cookie and
-          leaves the app, which a prefetching <Link> must never trigger. */}
       <a href={ROUTES.auth.googleOAuth(redirectUrl)}>
         <GoogleMark />
-        {children}
+        {children ?? t('google')}
       </a>
     </Button>
   );

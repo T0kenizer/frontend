@@ -53,7 +53,7 @@ export const ChipFlightLayer: React.FC<ChipFlightLayerProps> = ({
               {Array.from({ length: CHIPS_PER_FLIGHT }, (_, chip) => (
                 <motion.span
                   key={`${flight.id}-${chip}`}
-                  className="border-warning/70 bg-warning absolute size-3 rounded-full border-2 shadow-[0_2px_6px_oklch(0_0_0/.5)]"
+                  className="border-warning/70 bg-warning absolute size-4 rounded-full border-2 shadow-[0_2px_6px_oklch(0_0_0/.5)]"
                   initial={{
                     left: from.x,
                     top: from.y,
@@ -81,7 +81,7 @@ export const ChipFlightLayer: React.FC<ChipFlightLayerProps> = ({
               ))}
 
               <motion.span
-                className="text-warning absolute text-[0.7rem] font-extrabold tabular-nums drop-shadow-[0_2px_4px_oklch(0_0_0/.7)]"
+                className="text-warning absolute text-sm font-extrabold tabular-nums drop-shadow-[0_2px_4px_oklch(0_0_0/.7)]"
                 initial={{
                   left: from.x,
                   top: from.y,

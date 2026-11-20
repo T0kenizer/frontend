@@ -72,6 +72,7 @@ export function useRingGeometry(seatCount: number): UseRingGeometryResult {
 const sameRing = (a: RingGeometry, b: RingGeometry): boolean =>
   a.width === b.width &&
   a.height === b.height &&
+  a.seatSize === b.seatSize &&
   a.points.length === b.points.length &&
   a.points.every(
     (point, index) =>

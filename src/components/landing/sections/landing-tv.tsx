@@ -7,7 +7,7 @@ import { LandingSectionHeading } from '@components/landing/landing-section-headi
 import { TvFrame } from '@components/ui/device-frame';
 import { LandingSection } from '@constants/landing';
 import { cn } from '@lib/utils';
-import { CircleDot, QrCode, Timer } from 'lucide-react';
+import { CircleDot, Layers, UsersRound } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
@@ -15,9 +15,9 @@ const ROOM_PHOTO = 'https://www.placecats.com/1600/1200';
 const TV_SHOT = 'https://www.placecats.com/1920/1080';
 
 const POINTS = [
-  { key: 'blinds', icon: Timer },
-  { key: 'pot', icon: CircleDot },
-  { key: 'qr', icon: QrCode },
+  { key: 'sidePots', icon: Layers },
+  { key: 'seats', icon: UsersRound },
+  { key: 'inHand', icon: CircleDot },
 ] as const;
 
 export type LandingTvProps = React.ComponentProps<'section'>;

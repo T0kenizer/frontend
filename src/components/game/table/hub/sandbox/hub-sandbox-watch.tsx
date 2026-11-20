@@ -4,29 +4,29 @@ import { FeltNotice } from '@components/game/felt/felt-stage';
 import { EventFeed } from '@components/game/table/hub/hub-feed';
 import { HubShell, HubStack } from '@components/game/table/hub/hub-shell';
 import type { TableActions } from '@components/game/table/table-actions';
-import type { FreeTableView } from '@components/game/table/use-table-view';
+import type { SandboxTableView } from '@components/game/table/use-table-view';
 import { Button } from '@components/ui/button';
 import { formatAmount } from '@lib/amount';
 
 /**
- * Somebody else is deciding, at a free table.
+ * Somebody else is deciding, in a sandbox.
  *
  * The same answer to the same question as poker's watch panel — whose turn, how
  * big the pot, what just happened — with one control poker does not have and
  * cannot need: the host settling the round.
  *
  * It lives here, on the panel shown _during_ the round, because that is when a
- * free round ends. Nothing in the runtime knows the host's game well enough to
- * say the last move has been played; the host does, and this is where they say
- * so.
+ * sandbox round ends. Nothing in the runtime knows the host's game well enough
+ * to say the last move has been played; the host does, and this is where they
+ * say so.
  */
 
-export interface HubFreeWatchProps {
-  view: FreeTableView;
+export interface HubSandboxWatchProps {
+  view: SandboxTableView;
   actions: TableActions;
 }
 
-export const HubFreeWatch: React.FC<HubFreeWatchProps> = ({
+export const HubSandboxWatch: React.FC<HubSandboxWatchProps> = ({
   view,
   actions,
 }) => {

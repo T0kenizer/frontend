@@ -10,6 +10,7 @@ import {
 import { useLang } from '@hooks/use-lang';
 import { ALLOWED_LANGS, type Lang, langLabel } from '@lib/i18n';
 import { cn } from '@lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface LangOption {
   value: Lang;
@@ -30,16 +31,17 @@ export const LangSwitcher: React.FC<LangSwitcherProps> = ({
   className,
   ...props
 }) => {
+  const t = useTranslations('LangSwitcher');
   const { lang, setLang } = useLang();
 
   return (
     <Select value={lang} onValueChange={(value) => setLang(value as Lang)}>
       <SelectTrigger
-        aria-label="Language"
+        aria-label={t('label')}
         className={cn('w-56', className)}
         {...props}
       >
-        <SelectValue placeholder="Language" />
+        <SelectValue placeholder={t('label')} />
       </SelectTrigger>
       <SelectContent>
         {LANG_OPTIONS.map(({ value, label }) => (

@@ -78,7 +78,7 @@ export interface GameDraft {
   ante: number;
   bettingStructure: BettingStructure;
 
-  /** Free-mode parameters. */
+  /** Sandbox-mode parameters. */
   potMode: PotMode;
   payoutMode: PayoutMode;
   forcedBets: ForcedBetDraft[];
@@ -172,8 +172,8 @@ function buildSeating(draft: GameDraft) {
  * The draft as the API takes it — one mode's half of it.
  *
  * `mode` is the discriminator the whole config hangs off, so it is read first
- * and nothing from the other game reaches the payload: a free table never
- * carries blinds, and a poker table never carries an action catalog.
+ * and nothing from the other game reaches the payload: a sandbox never carries
+ * blinds, and a poker table never carries an action catalog.
  */
 export function buildGameConfig(draft: GameDraft): GameConfig {
   if (draft.mode === GameMode.Poker) {
@@ -249,7 +249,7 @@ export function reviewDraft(draft: GameDraft): DraftReview {
         : null;
 
   const review =
-    draft.mode === GameMode.Poker ? reviewPoker(draft) : reviewFree(draft);
+    draft.mode === GameMode.Poker ? reviewPoker(draft) : reviewSandbox(draft);
 
   return { blocker: seating ?? review.blocker, advice: review.advice };
 }
@@ -280,7 +280,7 @@ function reviewPoker(draft: GameDraft): DraftReview {
   return { blocker, advice };
 }
 
-function reviewFree(draft: GameDraft): DraftReview {
+function reviewSandbox(draft: GameDraft): DraftReview {
   const blocker = !draft.enabledActions.length
     ? 'No action is on: players would have nothing to do on their turn.'
     : draft.forcedBets.some((bet) => bet.seatOffset >= draft.seats.length)
@@ -311,9 +311,9 @@ export interface GameDraftController {
   removeSeat: (key: string) => void;
   setDefaultStack: (stack: number) => void;
   setPerSeatStacks: (on: boolean) => void;
-  /** Free mode: put an action on the table, or take it off. */
+  /** Sandbox mode: put an action on the table, or take it off. */
   toggleAction: (id: string) => void;
-  /** Free mode: opening bets. */
+  /** Sandbox mode: opening bets. */
   addForcedBet: () => void;
   updateForcedBet: (
     key: string,

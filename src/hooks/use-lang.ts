@@ -2,7 +2,7 @@
 
 import {
   LangContext,
-  LangContextValue,
+  type LangContextValue,
 } from '@components/providers/lang-provider';
 import { use } from 'react';
 

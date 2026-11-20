@@ -10,18 +10,18 @@ import { DEFAULT_THEME, Theme } from '@constants/themes';
 import { useMounted } from '@hooks/use-mounted';
 import { cn } from '@lib/utils';
 import { Monitor, Moon, Sun } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 
 interface ThemeOption {
   value: Theme;
-  label: string;
   icon: React.ElementType;
 }
 
 const THEME_OPTIONS: ThemeOption[] = [
-  { value: Theme.Light, label: 'Light', icon: Sun },
-  { value: Theme.Dark, label: 'Dark', icon: Moon },
-  { value: Theme.System, label: 'System', icon: Monitor },
+  { value: Theme.Light, icon: Sun },
+  { value: Theme.Dark, icon: Moon },
+  { value: Theme.System, icon: Monitor },
 ];
 
 export type ThemeSwitcherProps = Omit<
@@ -37,6 +37,7 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
   className,
   ...props
 }) => {
+  const t = useTranslations('ThemeSwitcher');
   const { theme, setTheme } = useTheme();
 
   const mounted = useMounted();
@@ -48,11 +49,12 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
       size={size}
       value={mounted ? (theme ?? DEFAULT_THEME) : ''}
       onValueChange={(value) => value && setTheme(value)}
-      aria-label="Theme"
+      aria-label={t('label')}
       className={cn('w-fit', className)}
       {...props}
     >
-      {THEME_OPTIONS.map(({ value, label, icon: Icon }) => {
+      {THEME_OPTIONS.map(({ value, icon: Icon }) => {
+        const label = t(value);
         const item = (
           <ToggleGroupItem
             key={value}

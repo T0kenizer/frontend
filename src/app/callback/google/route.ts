@@ -6,7 +6,7 @@ import {
   parseOAuthError,
 } from '@lib/oauth';
 import { REDIRECT_URL_PARAM, sanitizeRedirectUrl } from '@lib/redirect-url';
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export const GET = (request: NextRequest) => {
   const redirectUrl = sanitizeRedirectUrl(
