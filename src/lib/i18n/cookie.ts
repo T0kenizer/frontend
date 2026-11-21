@@ -1,5 +1,6 @@
 import { DEFAULT_LANG, type Lang } from '@lib/i18n/langs';
 import { resolveLang } from '@lib/i18n/resolve';
+import { unstable_rethrow } from 'next/navigation';
 import { cache } from 'react';
 
 export const LANG_COOKIE_NAME = 'lang';
@@ -31,7 +32,11 @@ export const getServerLang = cache(async (): Promise<Lang> => {
       cookieStore.get(LANG_COOKIE_NAME)?.value,
       headerStore.get('accept-language'),
     );
-  } catch {
+  } catch (error) {
+    // At build time `cookies()` throws to flag the route as dynamic. Swallowing
+    // it lets the prerender run on into the providers that call the backend.
+    unstable_rethrow(error);
+
     return DEFAULT_LANG;
   }
 });
